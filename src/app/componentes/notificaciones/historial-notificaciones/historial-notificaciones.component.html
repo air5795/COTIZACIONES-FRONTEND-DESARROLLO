@@ -1,0 +1,91 @@
+<!-- <div class="header">
+    <div class="header-left">
+        
+        <h2><i class="pi pi-bell" style="color: #ffffff; font-size: 1.5rem;"></i> HISTORIAL DE NOTIFICACIONES RECIBIDAS</h2>
+
+    </div>
+    <div class="header-right"> -->
+        <!-- <span class="razon-social">{{ empresa?.EMP_NOM || 'Cargando...' }}</span>
+        <hr style="margin: 2px; border: 1px solid rgb(225 225 225 / 43%)">
+        <span class="numero-patronal">Cod Patronal: {{ empresa?.EMP_NPATRONAL?.slice(3) || '---' }}</span> -->
+<!--         <button 
+          pButton 
+          label="Total Notificaciones" 
+          class="p-button p-button-sm total-button"
+          style="background-color: #007d00;"
+        >
+          <i class="pi pi-bell"></i>
+          <span>{{ totalRecords }}</span>
+        </button>
+    </div>
+    
+</div> -->
+  
+<!-- <div class="container">
+ -->
+  
+    <!-- Tabla PrimeNG -->
+   <!--  <p-table
+      [value]="notificaciones"
+      [paginator]="true"
+      [rows]="limite"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      [rowsPerPageOptions]="[5, 10, 15, 20]"
+      [pageLinks]="5"
+      [lazy]="true"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [style]="{'font-size': '12px', 'border': '1px solid #dee2e6'}"
+      (onLazyLoad)="loadNotificaciones($event)"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando registros del {first} al {last} de un total de {totalRecords} registros"
+    >
+      <ng-template pTemplate="header">
+        <tr style="background-color: #f8f9fa;">
+            <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Empresa</th>
+          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Tipo</th>
+          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Mensaje</th>
+
+          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Leído</th>
+          
+          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Acción</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-notificacion>
+        <tr [ngClass]="{'no-leida': !notificacion.leido}">
+            <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ notificacion.empresa || '-' }}</td>
+          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ notificacion.tipo_notificacion }}</td>
+          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ notificacion.mensaje }}</td>
+
+          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+            <i class="pi pi-check" *ngIf="notificacion.leido" aria-label="Leída"></i>
+            <i class="pi pi-times" *ngIf="!notificacion.leido" aria-label="No leída"></i>
+          </td>
+          
+          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+            <button 
+              pButton 
+              label="Marcar como leída"
+              icon="pi pi-check" 
+              class="p-button p-button-primary" 
+              *ngIf="!notificacion.leido"
+              (click)="marcarComoLeida(notificacion.id_notificacion)"
+              style="width: 100%;"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <!-- Template para cuando no hay datos -->
+<!--       <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 20px; background-color: #fff;">
+            <div class="no-data-message">
+              <i class="pi pi-info-circle" style="font-size: 2.5rem; color: #888;"></i>
+              <p style="margin-top: 10px; font-size: 1.2rem; color: #888;">No hay notificaciones para mostrar</p>
+            </div>
+          </td>
+        </tr> -->
+<!--       </ng-template>
+    </p-table>
+  </div>  -->
