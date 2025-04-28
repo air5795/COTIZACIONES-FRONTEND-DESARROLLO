@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlanillasAportesService } from '../../../servicios/planillas-aportes/planillas-aportes.service';
+import { EmpresaService } from '../../../servicios/empresa/empresa.service';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -23,6 +24,7 @@ export class PlanillasAportesDetalleAprobarComponent {
     observaciones!: string;
     resumenData: any = null;
     resumenLoading = false;
+    tipoEmpresa: string | null = null;
 
     
   
@@ -62,6 +64,7 @@ export class PlanillasAportesDetalleAprobarComponent {
     constructor(
       private route: ActivatedRoute, 
       private planillasService: PlanillasAportesService,
+      private empresaService: EmpresaService,
       private router: Router
     ) {
     }
@@ -72,6 +75,7 @@ export class PlanillasAportesDetalleAprobarComponent {
       this.obtenerInformacionPlanilla().then(() => {
         this.obtenerComparacionPlanillas();
         this.obtenerResumenPlanilla(); 
+        this.obtenerTipoEmpresa();
       });
     }
 
@@ -542,6 +546,30 @@ cerrarModal(): void {
   this.displayModal = false;
   this.estadoSeleccionado = null;
   this.observaciones = '';
+}
+
+
+obtenerTipoEmpresa(): void {
+  if (this.planillaInfo.planilla?.cod_patronal) {
+    this.empresaService
+      .getTipoByCodPatronal(this.planillaInfo.planilla.cod_patronal)
+      .subscribe({
+        next: (tipo) => {
+          this.tipoEmpresa = tipo;
+          console.log('Tipo de empresa:', this.tipoEmpresa);
+        },
+        error: (err) => {
+          console.error('Error al obtener el tipo de empresa:', err);
+          this.tipoEmpresa = null; 
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el tipo de empresa.',
+            confirmButtonText: 'Ok',
+          });
+        },
+      });
+  }
 }
     
     

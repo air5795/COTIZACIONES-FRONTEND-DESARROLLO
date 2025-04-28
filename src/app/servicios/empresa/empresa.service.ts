@@ -22,5 +22,11 @@ export class EmpresaService {
     return this.http.get<any>(`${environment.url}empresas/cod-patronal/${nroPatronal}`);
   }
 
+  getTipoByCodPatronal(codPatronal: string): Observable<string> {
+    return this.http.get<string>(`$${environment.url}empresas/tipo/${codPatronal}`, {
+      responseType: 'text' as 'json', 
+    });
+  }
+
 
 }

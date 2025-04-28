@@ -93,20 +93,7 @@
               </ng-template>
             </div>
 
-                      <!-- Total Planillas Adiicionales -->
-                      <div class="list-item">
-                        <span class="label">Planillas Adicionales</span>
-                        <ng-container *ngIf="resumenData?.planilla; else sinDatosPlanilla">
-                          <span class="value">
-                            <i class="pi pi-database"></i> 0
-                          </span>
-                        </ng-container>
-                        <ng-template #sinDatosPlanilla>
-                          <span class="value">
-                            <i class="pi pi-money-bill"></i> 0
-                          </span>
-                        </ng-template>
-                      </div>
+
 
             
           </div>
@@ -174,22 +161,22 @@
 
         <!-- Contenedor de los botones (derecha) -->
         <div class="flex align-items-center">
-            <button 
+<!--             <button 
             
             pButton style="border: 1px;" 
             label="Exportar PDF " 
             class="p-button-outlined p-button-plain mr-2" 
             icon="pi pi-file-pdf" 
             (click)="recargar()">
-          </button>
-            <button 
+          </button> -->
+<!--             <button 
             
             pButton style="border: 1px;" 
             label="Exportar Excel " 
             class="p-button-outlined p-button-plain mr-2" 
             icon="pi pi-file-excel" 
             (click)="recargar()">
-          </button>
+          </button> -->
 
 
             <button 
@@ -593,15 +580,15 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
         </p-table>
 
   </p-tabPanel>
-  <p-tabPanel header="Pagos" leftIcon="pi pi-money-bill">
+  <p-tabPanel header="Pagos" leftIcon="pi pi-money-bill" *ngIf="tipoEmpresa === 'AP'">
     <app-pagos-aportes [idPlanilla]="idPlanilla"></app-pagos-aportes>
   </p-tabPanel>
-  <p-tabPanel header="Liquidaciones" leftIcon="pi pi-calculator">
+  <p-tabPanel header="Liquidación" leftIcon="pi pi-calculator">
     <app-liquidaciones-aportes [idPlanilla]="idPlanilla"></app-liquidaciones-aportes>
   </p-tabPanel>
-  <p-tabPanel header="Planillas Adicionales" leftIcon="pi pi-plus" class="right-align-tab">
+<!--   <p-tabPanel header="Planillas Adicionales" leftIcon="pi pi-plus" class="right-align-tab">
     <app-planillas-adicionales [idPlanilla]="idPlanilla"></app-planillas-adicionales>
-  </p-tabPanel>
+  </p-tabPanel> -->
 </p-tabView>
 
 

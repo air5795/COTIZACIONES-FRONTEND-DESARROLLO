@@ -92,9 +92,10 @@
       <th>Total Regitros </th>
       <th >Total importe</th>
       <th>Fecha Declarada</th>
-      <th style="width: 80px;">Planillas Adicionales</th>
+      
       <th style="width: 80px;">Planilla Declarada</th>
       <th style="width: 80px;">Planilla Pagada</th>
+      <th style="width: 170px;">Tipo Planilla</th>
       <th style="width: 120px;">Estado</th>
       <th>Acciones</th>
     </tr>
@@ -129,18 +130,7 @@
 
   
   </td>
-  <td>
-    <ng-container *ngIf="planilla.planillas_adicionales && planilla.planillas_adicionales !== 0; else noValue">
-      <span style="color: green; font-weight: 600;">
-        {{ planilla.planillas_adicionales }}
-      </span>
-    </ng-container>
-    <ng-template #noValue>
-      <span style="color: red;">
-        <i class="pi pi-ban check-icon red-x"></i> 
-      </span>
-    </ng-template>
-  </td>
+
   <td>
     <span *ngIf="planilla.fecha_declarada; else sinFecha"> 
       <span style="color: green;">
@@ -165,6 +155,49 @@
         <i class="pi pi-times check-icon red-x"></i> 
       </span>
     </ng-template>
+  </td>
+  <td>
+    <ng-container [ngSwitch]="planilla.tipo_planilla">
+      <!-- Mensual - Verde -->
+      <span *ngSwitchCase="'Mensual'"
+            class="p-tag p-tag-success p-tag-rounded p-text-bold"
+            style="background-color: #119967; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+        <i class="pi pi-calendar" style="font-size: 1rem"></i>
+        <span>Planilla {{planilla.tipo_planilla}}</span>
+      </span>
+  
+      <!-- Planilla Adicional - Amarillo/Naranja -->
+      <span *ngSwitchCase="'Planilla Adicional'"
+            class="p-tag p-tag-warning p-tag-rounded p-text-bold"
+            style="background-color: #2262af; color:white; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+        <i class="pi pi-file" style="font-size: 1rem"></i>
+        <span>{{planilla.tipo_planilla}}</span>
+      </span>
+  
+      <!-- Beneficio Social - Azul -->
+      <span *ngSwitchCase="'Beneficio Social'"
+            class="p-tag p-tag-info p-tag-rounded p-text-bold"
+            style="background-color: #007596; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+        <i class="pi pi-file" style="font-size: 1rem"></i>
+        <span>Planilla {{planilla.tipo_planilla}}</span>
+      </span>
+  
+      <!-- Reintegro - Rojo -->
+      <span *ngSwitchCase="'Reintegro'"
+            class="p-tag p-tag-danger p-tag-rounded p-text-bold"
+            style="background-color: #541883; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+        <i class="pi pi-file" style="font-size: 1rem"></i>
+        <span>Planilla {{planilla.tipo_planilla}}</span>
+      </span>
+  
+      <!-- Default - Gris -->
+      <span *ngSwitchDefault
+            class="p-tag p-tag-rounded p-text-bold"
+            style="min-width: 140px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem; background: #64748b; color: white;">
+        <i class="pi pi-question-circle" style="font-size: 1rem"></i>
+        <span>{{planilla.tipo_planilla}}</span>
+      </span>
+    </ng-container>
   </td>
   
   <td style=" text-align: center;">

@@ -6,7 +6,7 @@ import { MessageService, Message } from 'primeng/api';
 @Component({
   selector: 'app-liquidaciones-aportes',
   templateUrl: './liquidaciones-aportes.component.html',
-  styleUrls: ['./liquidaciones-aportes.component.scss'],
+  styleUrls: ['./liquidaciones-aportes.component.css'],
   providers: [MessageService],
 })
 export class LiquidacionesAportesComponent implements OnInit {

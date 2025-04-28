@@ -93,20 +93,7 @@
               </ng-template>
             </div>
 
-          <!-- Total Planillas Adiicionales -->
-            <div class="list-item">
-              <span class="label">Planillas Adicionales</span>
-              <ng-container *ngIf="resumenData?.planilla; else sinDatosPlanilla">
-                <span class="value">
-                  <i class="pi pi-database"></i> 0
-                </span>
-              </ng-container>
-              <ng-template #sinDatosPlanilla>
-                <span class="value">
-                  <i class="pi pi-money-bill"></i> 0
-                </span>
-              </ng-template>
-            </div>
+
 
 
 
@@ -133,7 +120,7 @@
               pButton 
               *ngIf="planillaInfo.planilla.estado != 0 && planillaInfo.planilla.estado != 3"
               label="Declaración" 
-              class="boton3"
+              class="boton4"
               style="display: flex; flex-direction: column; align-items: center; font-size: 1rem; width: 80px; " 
               (click)="ReporteAporte() ">
                 <span class="pi pi-book" style="font-size: 2rem; padding-bottom: 10px;"></span>
@@ -159,7 +146,7 @@
                  <button 
               *ngIf="planillaInfo.planilla.estado === 0"
               pButton 
-              label="Planilla Mensual" 
+              label="Planilla" 
               class="p-button-success boton3"
               style="display: flex; flex-direction: column; align-items: center; font-size: 1rem; width: 80px; background-color: #47a36d;" 
               (click)="declararPlanillaBorrador()">
@@ -663,9 +650,9 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
   <p-tabPanel *ngIf="planillaInfo.planilla.estado != 0 || planillaInfo.planilla.fecha_pago" header="Liquidaciones" leftIcon="pi pi-calculator">
     <app-liquidaciones-aportes [idPlanilla]="idPlanilla"></app-liquidaciones-aportes>
   </p-tabPanel>
-  <p-tabPanel *ngIf="planillaInfo.planilla.estado != 0" header="Planillas Adicionales" leftIcon="pi pi-plus" styleClass="separated-tab">
+<!--   <p-tabPanel *ngIf="planillaInfo.planilla.estado != 0" header="Planillas Adicionales" leftIcon="pi pi-plus" styleClass="separated-tab">
     <app-planillas-adicionales [idPlanilla]="idPlanilla"></app-planillas-adicionales>
-  </p-tabPanel>
+  </p-tabPanel> -->
 </p-tabView>
 
 

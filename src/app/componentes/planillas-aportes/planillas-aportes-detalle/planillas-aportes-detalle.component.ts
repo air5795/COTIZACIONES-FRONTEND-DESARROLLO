@@ -380,7 +380,7 @@ obtenerComparacionPlanillas() {
 
   declararPlanillaBorrador() {
     Swal.fire({
-      title: '¿Declarar la Planilla de Aportes?',
+      title: '¿Declarar la Planilla?',
       text: 'Esta acción enviará la planilla a revisión.',
       icon: 'question',
       html: `
