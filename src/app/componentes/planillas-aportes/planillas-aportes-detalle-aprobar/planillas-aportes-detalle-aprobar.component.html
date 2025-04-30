@@ -201,6 +201,7 @@
       <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
       <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
       <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
+      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Afiliado</th>
       
     </tr>
   </ng-template>
@@ -215,6 +216,27 @@
       <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
       <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
       <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
+      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+        <span *ngIf="trabajador.es_afiliado === true; else noEsAfiliado"> 
+          <span style="color: green;">
+            <i class="pi pi-check check-icon green-check"></i> 
+          </span>
+        </span>
+        
+        <ng-template #noEsAfiliado>
+          <span *ngIf="trabajador.es_afiliado === false; else esNull">
+            <span style="color: red;">
+              <i class="pi pi-times check-icon red-x"></i> 
+            </span>
+          </span>
+        </ng-template>
+        
+        <ng-template #esNull>
+          <span style="color: #6c757d;"> <!-- Color gris para el caso null -->
+            &mdash; <!-- Esto es una raya horizontal "—" -->
+          </span>
+        </ng-template>
+      </td>
      
     </tr>
   </ng-template>
