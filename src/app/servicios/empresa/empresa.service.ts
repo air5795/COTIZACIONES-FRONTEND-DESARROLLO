@@ -28,5 +28,11 @@ export class EmpresaService {
     });
   }
 
+  getDireccionCompleta(idEmpresa: number): Observable<{ direccion: string }> {
+    return this.http.get<{ direccion: string }>(`${environment.url}empresas/${idEmpresa}/direccion-completa`);
+  }
+  
+  
+
 
 }

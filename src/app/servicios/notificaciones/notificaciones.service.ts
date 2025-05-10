@@ -25,12 +25,12 @@ export class NotificacionesService {
     }
 
     const url = `${environment.url}notificaciones/${id_usuario}`;
-    console.log('Haciendo solicitud a:', url, 'con parámetros:', params.toString());
+    
     return this.http.get(url, { params });
   }
 
   marcarNotificacionComoLeida(id_notificacion: number): Observable<any> {
-    console.log('Enviando solicitud para marcar como leída:', id_notificacion);
+   
     return this.http.post(`${environment.url}notificaciones/marcar-leida/${id_notificacion}`, {
       leido: true,
     });

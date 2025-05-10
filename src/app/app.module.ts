@@ -141,11 +141,15 @@ import { PagosAportesAdicionalesComponent } from './componentes/planillas-aporte
 import { PagosAportesAdminComponent } from './componentes/planillas-aportes/pagos-aportes-admin/pagos-aportes-admin.component';
 import { NotificacionesComponent } from './componentes/notificaciones/notificaciones.component';
 import { HistorialNotificacionesComponent } from './componentes/notificaciones/historial-notificaciones/historial-notificaciones.component';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { LoadingComponent } from './componentes/loading/loading.component';
+
 
 registerLocaleData(localeEs);
 
 @NgModule({
   imports: [
+    GoogleMapsModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
@@ -275,6 +279,7 @@ registerLocaleData(localeEs);
     PagosAportesAdminComponent,
     NotificacionesComponent,
     HistorialNotificacionesComponent,
+    LoadingComponent,
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, CountryService, CustomerService, EventService, IconService, NodeService,
     PhotoService, ProductService, MenuService , MessageService , { provide: LOCALE_ID, useValue: 'es' } ],

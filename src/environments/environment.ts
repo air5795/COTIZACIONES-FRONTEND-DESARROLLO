@@ -13,6 +13,10 @@
     'https://test.asuss.gob.bo/asuss-asegurado-api/api/v2/interoperabilidad/segip/consultaDatosPersona',
   userNameAsus: 'cbes',
   passwordAsus: 'cbes.2022**',
+  urlMSAuth: 'http://localhost:3000/api/auth/get-session',
+  urlMSAuthToken: 'http://localhost:3000/api/auth',
+  login: 'http://localhost:4200/',
+
 };    
 
 

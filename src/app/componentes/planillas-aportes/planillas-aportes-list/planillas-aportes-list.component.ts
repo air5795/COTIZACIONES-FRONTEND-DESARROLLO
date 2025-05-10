@@ -8,6 +8,7 @@ import { EmpresaService } from '../../../servicios/empresa/empresa.service';
 
 import * as XLSX from 'xlsx';
 import { LazyLoadEvent } from 'primeng/api';
+import { SessionService } from '../../../servicios/auth/session.service';
 
 @Component({
   selector: 'app-planillas-aportes-list',
@@ -75,13 +76,17 @@ export class PlanillasAportesListComponent {
     private planillasService: PlanillasAportesService,
     private localService: LocalService,
     private empresaService: EmpresaService,
+    private sessionService: SessionService,
     private router: Router,
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.generarGestiones();
-    this.persona=JSON.parse(this.localService.getLocalStorage("persona")!);
+    /* this.persona=JSON.parse(this.localService.getLocalStorage("persona")!); */
+    const sessionData = this.sessionService.sessionDataSubject.value;
+    console.log('Datos de sesión:', sessionData); 
+    this.persona = sessionData?.persona || null;
 
     this.obtenerNumeroPatronal();
     if (this.numPatronal) {
@@ -113,16 +118,13 @@ export class PlanillasAportesListComponent {
 
   obtenerNumeroPatronal() {
     try {
-      const usuarioRestriccion = JSON.parse(
-        this.localService.getLocalStorage('usuarioRestriccion') || '{}'
-      );
-      this.numPatronal = usuarioRestriccion?.numPatronalEmpresa || null;
-      this.nomEmpresa = usuarioRestriccion?.empresa || null;
-      this.tipoEmpresa = usuarioRestriccion?.tipo || null;
+      
+      const sessionData = this.sessionService.sessionDataSubject.value;
+      this.numPatronal = sessionData?.persona.empresa.codPatronal || null;
+      this.nomEmpresa = sessionData?.persona.empresa.nombre || null;
       if (this.numPatronal) {
         console.log('COD patronal:', this.numPatronal);
         console.log('Nombre empresa:', this.nomEmpresa);
-        console.log('Tipo empresa:', this.tipoEmpresa);
       }
 
       if (!this.numPatronal) {

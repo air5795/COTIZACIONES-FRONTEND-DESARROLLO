@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { DashboardDemoComponent } from './componentes/inicio/dashboarddemo.component';
 import { AppMainComponent } from './app.main.component';
 import { AppErrorComponent } from './componentes/error/app.error.component';
-import { AppLoginComponent } from './componentes/login/app.login.component';
+
 import { AutentificacionComponent } from './componentes/autentificacion/autentificacion.component';
 import { AppAccessdeniedComponent } from './componentes/denegado/app.accessdenied.component';
 import { SistemaComponent } from './componentes/sistema/sistema.component';
@@ -50,13 +50,14 @@ import { HistorialNotificacionesComponent } from './componentes/notificaciones/h
                     { path: 'perfiles', component: PerfilComponent },
                     { path: 'restriccionesUsuario/:id', component: RestriccionComponent }, 
                     
+                    
                 ]
             },
             { path: 'error', component: AppErrorComponent },
-            { path: '', component: AppLoginComponent },
+            { path: '', redirectTo: '/cotizaciones', pathMatch: 'full' },
             { path: 'autentificar', component: AutentificacionComponent },
             { path: 'denegado', component: AppAccessdeniedComponent },
-            { path: '**', redirectTo: '/notfound' },
+            { path: '**', redirectTo: 'notfound' },
         ], { scrollPositionRestoration: 'enabled' })
     ],
     exports: [RouterModule]

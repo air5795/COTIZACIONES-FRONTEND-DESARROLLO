@@ -3,7 +3,8 @@ import { NotificacionesService } from '../../servicios/notificaciones/notificaci
 import { Notificacion } from '../../models/notificacion.model';
 import { Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
-import { LocalService } from '../../servicios/local/local.service';
+
+import { SessionService } from '../../servicios/auth/session.service';
 
 @Component({
   selector: 'app-notificaciones',
@@ -22,18 +23,15 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   constructor(
     private notificacionesService: NotificacionesService,
     private router: Router,
-    private localService: LocalService,
+    private sessionService: SessionService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     this.subscription = interval(30000).subscribe(() => {
       this.cargarNotificaciones();
     });
-
-    this.usuarioRestriccion = JSON.parse(this.localService.getLocalStorage('usuarioRestriccion')!);
-    this.idcNivel = this.usuarioRestriccion.idcNivel;
-    this.empresaUsuario = this.usuarioRestriccion.empresa || null; // Obtenemos la empresa del usuario
-
+    const sessionData = await this.sessionService.sessionDataSubject.value;
+    this.empresaUsuario = sessionData?.persona.empresa.nombre || null; 
     await this.cargarNotificaciones();
   }
 
@@ -65,7 +63,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   }
 
   onNotificacionClick(notificacion: Notificacion): void {
-    console.log('Notificación cliqueada:', notificacion);
     if (!notificacion.leido) {
       this.notificacionesService.marcarNotificacionComoLeida(notificacion.id_notificacion).subscribe({
         next: () => {

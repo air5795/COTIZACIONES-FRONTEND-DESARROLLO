@@ -2,6 +2,11 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { EmpresaService } from '../../servicios/empresa/empresa.service';
 import { MessageService } from 'primeng/api';
 import { LocalService } from '../../servicios/local/local.service';
+import { SessionService } from '../../servicios/auth/session.service';
+
+import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { GoogleMapsLoaderService } from '../../servicios/empresa/google-maps-loader.service';
 
 @Component({
   selector: 'app-datos-empresa',
@@ -14,71 +19,92 @@ export class DatosEmpresaComponent implements OnInit {
   numPatronal: string | null = null;
   listaEmpresas: any[] = [];
   totalTrabajadores: number = 0;
-  isAdmin: boolean = false; // Nueva propiedad para determinar si es administrador
+  isAdmin: boolean = false;
+
+  lat!: number;
+  lng!: number;
+  mapReady = false;
+  mapError = false;
+
 
   constructor(
     private empresaService: EmpresaService,
     private localService: LocalService,
+    private sessionService: SessionService,
     private messageService: MessageService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private gmapsLoader: GoogleMapsLoaderService
   ) {}
 
   ngOnInit() {
-    this.validarRolUsuario(); // Validar el rol primero
+    this.validarRolUsuario();
+  
     if (!this.isAdmin) {
-      // Solo ejecutar la lógica del empleador si no es administrador
-      this.obtenerNumeroPatronal();
-      if (this.numPatronal) {
-        this.obtenerDatosEmpresa(this.numPatronal);
-      } else {
-        console.warn('Número patronal no encontrado en localStorage.');
-        this.showError('No se encontró el número patronal');
-      }
-      this.obtenerTodasLasEmpresas();
-      setTimeout(() => {
-        this.mostrarAlerta();
-      }, 500);
+      this.gmapsLoader.load('AIzaSyDC5fxZ3Qfi2cFfEADgiRM9xWRgvBlJMqY')
+        .then(() => {
+          this.mapReady = true;
+  
+          this.obtenerNumeroPatronal();
+          if (this.numPatronal) {
+            this.obtenerDatosEmpresa(this.numPatronal);
+          } else {
+            this.showError('No se encontró el número patronal');
+          }
+  
+          this.obtenerTodasLasEmpresas();
+          setTimeout(() => {
+            this.mostrarAlerta();
+          }, 500);
+        })
+        .catch((error) => {
+          this.showError('No se pudo cargar el mapa de Google. Verifique su conexión.');
+        });
     }
   }
+  
 
   validarRolUsuario() {
     try {
-      const usuarioRestriccion = JSON.parse(this.localService.getLocalStorage('usuarioRestriccion') || '{}');
-      this.isAdmin = usuarioRestriccion?.idcNivel === 'ADMINISTRADOR_COTIZACIONES';
-      console.log('Es administrador:', this.isAdmin);
+      const sessionData = this.sessionService.sessionDataSubject.value;
+      this.isAdmin = sessionData?.rol.rol === 'ADMIN_COTIZACIONES';
     } catch (error) {
-      console.error('Error al validar el rol del usuario:', error);
-      this.isAdmin = false; // Por defecto, no es administrador
+      this.isAdmin = false; 
     }
   }
 
   obtenerNumeroPatronal() {
     try {
-      const usuarioRestriccion = JSON.parse(this.localService.getLocalStorage('usuarioRestriccion') || '{}');
-      this.numPatronal = usuarioRestriccion?.numPatronalEmpresa || null;
-      console.log('Número patronal obtenido:', this.numPatronal);
+      const npatronal = this.sessionService.sessionDataSubject.value;
+      this.numPatronal = npatronal?.persona.empresa.codPatronal || null;
     } catch (error) {
-      console.error('Error al obtener número patronal:', error);
     }
   }
 
   obtenerDatosEmpresa(numPatronal: string) {
-    console.log(`Buscando empresa con número patronal: ${numPatronal}`);
     this.empresaService.empresasNroPatronal(numPatronal).subscribe(
       (response) => {
-        console.log('Respuesta completa del backend:', response);
+        
         if (response) {
           this.empresa = response;
-          console.log('Empresa asignada:', this.empresa);
           this.cdr.detectChanges();
           this.calcularTotalTrabajadores();
+
+          // 🔁 NUEVO: Obtener la dirección completa usando el ID
+          this.empresaService.getDireccionCompleta(this.empresa.id_empresa).subscribe(
+            (direccionResponse) => {
+              const direccionCompleta = direccionResponse.direccion;
+              this.obtenerCoordenadasDesdeDireccion(direccionCompleta);
+            },
+            (error) => {
+            }
+          );
         } else {
-          console.warn('No se encontró información para este número patronal.');
           this.showError('No se encontró la empresa');
         }
       },
       (error) => {
-        console.error('Error al obtener datos de la empresa:', error);
         this.showError('Error al cargar los datos de la empresa');
       }
     );
@@ -87,28 +113,24 @@ export class DatosEmpresaComponent implements OnInit {
   obtenerTodasLasEmpresas() {
     this.empresaService.getAllEmpresas().subscribe(
       (response) => {
-        console.log('Lista completa de empresas:', response);
         this.listaEmpresas = response || [];
         if (this.empresa) {
           this.calcularTotalTrabajadores();
         }
       },
       (error) => {
-        console.error('Error al obtener lista de empresas:', error);
       }
     );
   }
 
   calcularTotalTrabajadores() {
     if (!this.empresa || !this.listaEmpresas.length) {
-      console.warn('No hay datos suficientes para calcular trabajadores');
       return;
     }
 
     const codigoBase = this.empresa.cod_patronal.slice(3);
     const regionales = this.listaEmpresas.filter(emp => emp.cod_patronal.endsWith(codigoBase));
     this.totalTrabajadores = regionales.reduce((total, emp) => total + (emp.emp_ntrab || 0), 0);
-    console.log(`Total trabajadores: ${this.totalTrabajadores}`);
     this.cdr.detectChanges();
   }
 
@@ -130,4 +152,41 @@ export class DatosEmpresaComponent implements OnInit {
       life: 5000
     });
   }
+
+  obtenerCoordenadasDesdeDireccion(direccion: string) {
+    if (!(window as any).google || !(window as any).google.maps) {
+      this.mapError = true;
+      return;
+    }
+  
+    const apiKey = 'AIzaSyDC5fxZ3Qfi2cFfEADgiRM9xWRgvBlJMqY';
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(direccion)}&key=${apiKey}`;
+  
+    this.http.get<any>(url).subscribe(
+      response => {
+        if (response.status === 'OK' && response.results.length > 0) {
+          const location = response.results[0].geometry.location;
+          this.lat = location.lat;
+          this.lng = location.lng;
+          this.mapError = false; // 👍 todo bien
+          this.cdr.detectChanges();
+        } else {
+          this.mapError = true;
+        }
+      },
+      error => {
+        this.mapError = true;
+      }
+    );
+  }
+  
+  
+  
+
+  get mostrarMapa(): boolean {
+    return this.mapReady && this.lat !== undefined && this.lng !== undefined;
+  }
+  
+
+
 }
