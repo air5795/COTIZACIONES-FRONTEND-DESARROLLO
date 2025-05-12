@@ -51,13 +51,13 @@ export class SessionService {
         } else {
           console.warn('Datos de sesión no válidos:', data);
           this.sessionDataSubject.next(null);
-          this.clearSession();
+          window.location.href = environment.login;
         }
       }),
       catchError((error) => {
         console.error('Error al obtener datos de sesión:', error);
         this.sessionDataSubject.next(null);
-        this.clearSession();
+        window.location.href = environment.login;
         return of(null);
       })
     );

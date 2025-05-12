@@ -190,7 +190,7 @@
       align-items: center;
       justify-content: center;
       font-size: 1rem;
-      background-color: #777ac5; 
+      background-color: #125e73; 
   
       padding: 10px 20px; 
       border-radius: 4px; 
@@ -198,7 +198,7 @@
     }
   
     .boton4:hover {
-      background-color: #8c8fe4 !important; 
+      background-color: #187994 !important; 
       transform: translateY(2px); 
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
   
@@ -265,8 +265,8 @@
   }
 
   .p-tabview .p-tabview-nav li:nth-child(6).p-highlight .p-tabview-nav-link {
-    background-color: #fff5e6; 
-    color: #a77428;
+    background-color: #28a796; 
+    color: #e9fff5;
     border: 1px solid #cfcfcf;
   }
 

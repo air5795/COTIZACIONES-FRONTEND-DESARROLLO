@@ -1,155 +1,198 @@
-<!-- src/app/components/liquidaciones-aportes/liquidaciones-aportes.component.html -->
-<div class="container">
-    <div style="display: flex; align-items: center; justify-content: space-between;  background-color: #e3e3e3; padding: 5px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <i class="pi pi-calculator" style="color: #917d61; font-size: 1.5rem;"></i>
-          <span style="font-size: 1.25rem; font-weight: bold; color: #5f5f5f;">Liquidacion de Aportes  </span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          
-          
-          
-        </div>
-      </div>
-  
-    <!-- Tabla para mostrar los resultados -->
-    <div *ngIf="planilla" class="container">
-      <p-table 
-        [value]="[planilla]" 
-        styleClass="p-datatable-striped"
-        [style]="{'font-size': '12px', 'border': '1px solid #dee2e6'}"
-        responsiveLayout="scroll"
-      >
-        <ng-template pTemplate="header">
-          <tr style="padding: 30px;">
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">SALARIO COTIZABLE</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">APORTE AP=10% AV=3%</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">UFV DIA OBLIG. FORMAL</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">UFV DIA PRESENTACION</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">FECHA PRESENTACION OFICIAL</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">FECHA DE DEPOSITO O PRESENTACION</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">AP. PATRONAL ACTUALIZADO</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">MONTO ACTUALIZADO</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">1% MULTA POR LA NO PRESENTACION PLANILLA</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">DIAS DE RETRASO</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">INTERES</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">MULTAS S/INT.10%</th>
-            <th style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">TOTAL PARCIAL</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-planilla>
-          <tr>
-            <td [ngStyle]="{'text-align': 'center', 'padding': '20px', 'border': '1px solid #dee2e6', 'color': planilla.total_importe === 0 ? 'red' : 'inherit'}">
-              {{ planilla.total_importe | currency:'BOB' }}
-            </td>
-            <td style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">
-              {{ planilla.aporte_porcentaje | currency:'BOB' }}
-            </td>
-            <td style="text-align: center; padding: 20px; border: 1px solid #dee2e6; background-color: #ffffec;">
-              {{ planilla.ufv_dia_formal }}
-            </td>
-            <td style="text-align: center; padding: 20px; border: 1px solid #dee2e6; background-color: #e5ffed;">
-              {{ planilla.ufv_dia_presentacion }}
-            </td>
-            <td style="text-align: center; padding: 20px; border: 1px solid #dee2e6; background-color: #ffffec;">
-              {{ planilla.fecha_declarada | date:'dd/MM/yyyy' : '-0400' }}
-            </td>
-            <td style="text-align: center; padding: 20px; border: 1px solid #dee2e6; background-color: #e5ffed;">
-              {{ planilla.fecha_pago | date:'dd/MM/yyyy' : '-0400' }}
-            </td>
-            <td style="text-align: center; padding: 20px; border: 1px solid #dee2e6;">
-              {{ planilla.aporte_actualizado | currency:'BOB' }}
-            </td>
-            <td [ngStyle]="{'text-align': 'center', 'padding': '20px', 'border': '1px solid #dee2e6', 'color': planilla.monto_actualizado === 0 ? 'red' : 'inherit'}">
-              {{ planilla.monto_actualizado | currency:'BOB' }}
-            </td>
-            <td [ngStyle]="{'text-align': 'center', 'padding': '20px', 'border': '1px solid #dee2e6', 'color': planilla.multa_no_presentacion === 0 ? 'red' : 'inherit'}">
-              {{ planilla.multa_no_presentacion | currency:'BOB' }}
-            </td>
-            <td [ngStyle]="{'text-align': 'center', 'padding': '20px', 'border': '1px solid #dee2e6', 'color': planilla.dias_retraso === 0 ? 'red' : 'inherit'}">
-              {{ planilla.dias_retraso }}
-            </td>
-            <td [ngStyle]="{'text-align': 'center', 'padding': '20px', 'border': '1px solid #dee2e6', 'color': planilla.intereses === 0 ? 'red' : 'inherit'}">
-              {{ planilla.intereses | currency:'BOB' }}
-            </td>
-            <td [ngStyle]="{'text-align': 'center', 'padding': '20px', 'border': '1px solid #dee2e6', 'color': planilla.multa_sobre_intereses === 0 ? 'red' : 'inherit'}">
-              {{ planilla.multa_sobre_intereses | currency:'BOB' }}
-            </td>
-            <td [ngStyle]="{'text-align': 'center', 'padding': '20px', 'border': '1px solid #dee2e6', 'color': planilla.total_a_cancelar_parcial === 0 ? 'red' : 'inherit'}">
-              {{ planilla.total_a_cancelar_parcial | currency:'BOB' }}
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="footer">
-
-          <tr>
-            <td colspan="12" style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              Total Multas:
-            </td>
-            <td style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              {{ planilla.total_multas | currency:'BOB' }}
-            </td>
-          </tr>
-
-
-          <tr>
-            <td colspan="12" style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              Total Tasa de Interés:
-            </td>
-            <td style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              {{ planilla.total_tasa_interes | currency:'BOB' }}
-            </td>
-          </tr>
-
-<!--           <tr>
-            <td colspan="12" style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              Form DS-08:
-            </td>
-            <td style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              5,00 BOB
-            </td>
-          </tr>
-
-
-
-          <tr>
-            <td colspan="12" style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              Total Aportes ASUSS:
-            </td>
-            <td style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-             - {{ planilla.total_aportes_asuss | currency:'BOB' }}
-            </td>
-          </tr>
-
-          <tr>
-            <td colspan="12" style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              Total Aportes Ministerio de Salud:
-            </td>
-            <td style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              - {{ planilla.total_aportes_min_salud | currency:'BOB' }}
-            </td>
-          </tr> -->
-
-          <tr>
-            <td colspan="12" style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold;">
-              Total a Cancelar:
-            </td>
-            <td style="text-align: right; padding: 10px; border: 1px solid #dee2e6; font-weight: bold; background-color: #e5ffed;">
-              {{ planilla.total_a_cancelar | currency:'BOB' }}
-            </td>
-          </tr>
-
-        </ng-template>
-      </p-table>
+<div class="liquidaciones-container">
+  <!-- Encabezado con mejor estilo -->
+  <div class="header">
+    <div class="header-title">
+      <i class="pi pi-calculator"></i>
+      <span>Liquidación de Aportes</span>
     </div>
-  
-    <!-- Mostrar mensaje de error si no hay datos -->
-    <div *ngIf="errorMessage && !planilla" class="mt-3">
-        <div style="text-align: center; padding: 20px; background-color: #fff;">
-        <div class="no-data-message">
-            <i class="pi pi-info-circle" style="font-size: 2.5rem; color: #888;"></i>
-            <p style="margin-top: 10px; font-size: 1.2rem; color: #888;">La planilla no tiene el pago realizado por tanto no se puede realizar el calculo de su liquidación </p>
-          </div>
-        </div>
+    <div class="header-actions">
+      <!-- Aquí podrías añadir botones de acciones como imprimir o exportar -->
+      <button pButton type="button" icon="pi pi-file-pdf" label="Exportar PDF" class="p-button-sm p-button-outlined"></button>
+      <button pButton type="button" icon="pi pi-print" label="Imprimir" class="p-button-sm p-button-outlined"></button>
     </div>
   </div>
+
+  <!-- Dashboard de resumen -->
+  <div *ngIf="planilla" class="dashboard-summary">
+    <div class="dashboard-card total">
+      <span class="dashboard-label">Total a Cancelar</span>
+      <span class="dashboard-value">{{ planilla.total_a_cancelar | currency:'BOB' }}</span>
+    </div>
+    <div class="dashboard-card">
+      <span class="dashboard-label">Salario Cotizable</span>
+      <span class="dashboard-value" [ngClass]="{'zero-value': planilla.total_importe === 0}">
+        {{ planilla.total_importe | currency:'BOB' }}
+      </span>
+    </div>
+    <div class="dashboard-card">
+      <span class="dashboard-label">Multas</span>
+      <span class="dashboard-value">{{ planilla.total_multas | currency:'BOB' }}</span>
+    </div>
+    <div class="dashboard-card">
+      <span class="dashboard-label">Intereses</span>
+      <span class="dashboard-value">{{ planilla.total_tasa_interes | currency:'BOB' }}</span>
+    </div>
+  </div>
+
+  <!-- Tabs para organizar la información -->
+  <div *ngIf="planilla" class="data-container">
+    <p-tabView>
+      <!-- Tab de Resumen -->
+      <p-tabPanel header="Resumen">
+        <div class="summary-section">
+          <div class="info-row">
+            <div class="info-group">
+              <label>Fecha de Presentación Oficial</label>
+              <div class="info-value date-value">{{ planilla.fecha_declarada | date:'dd/MM/yyyy' : '-0400' }}</div>
+            </div>
+            <div class="info-group">
+              <label>Fecha de Depósito o Presentación</label>
+              <div class="info-value date-value">{{ planilla.fecha_pago | date:'dd/MM/yyyy' : '-0400' }}</div>
+            </div>
+            <div class="info-group">
+              <label>Días de Retraso</label>
+              <div class="info-value" [ngClass]="{'zero-value': planilla.dias_retraso === 0}">
+                {{ planilla.dias_retraso }}
+              </div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-group">
+              <label>UFV Día Obligación Formal</label>
+              <div class="info-value ufv-value">{{ planilla.ufv_dia_formal }}</div>
+            </div>
+            <div class="info-group">
+              <label>UFV Día Presentación</label>
+              <div class="info-value ufv-value">{{ planilla.ufv_dia_presentacion }}</div>
+            </div>
+          </div>
+
+          <div class="summary-amounts">
+            <div class="amount-row">
+              <div class="amount-label">Aporte Patronal (10% AP + 3% AV)</div>
+              <div class="amount-value">{{ planilla.aporte_porcentaje | currency:'BOB' }}</div>
+            </div>
+            <div class="amount-row">
+              <div class="amount-label">Aporte Patronal Actualizado</div>
+              <div class="amount-value">{{ planilla.aporte_actualizado | currency:'BOB' }}</div>
+            </div>
+            <div class="amount-row">
+              <div class="amount-label">Monto Actualizado</div>
+              <div class="amount-value" [ngClass]="{'zero-value': planilla.monto_actualizado === 0}">
+                {{ planilla.monto_actualizado | currency:'BOB' }}
+              </div>
+            </div>
+            <div class="amount-row">
+              <div class="amount-label">Multa por No Presentación (1%)</div>
+              <div class="amount-value" [ngClass]="{'zero-value': planilla.multa_no_presentacion === 0}">
+                {{ planilla.multa_no_presentacion | currency:'BOB' }}
+              </div>
+            </div>
+            <div class="amount-row">
+              <div class="amount-label">Intereses</div>
+              <div class="amount-value" [ngClass]="{'zero-value': planilla.intereses === 0}">
+                {{ planilla.intereses | currency:'BOB' }}
+              </div>
+            </div>
+            <div class="amount-row">
+              <div class="amount-label">Multas sobre Intereses (10%)</div>
+              <div class="amount-value" [ngClass]="{'zero-value': planilla.multa_sobre_intereses === 0}">
+                {{ planilla.multa_sobre_intereses | currency:'BOB' }}
+              </div>
+            </div>
+            <div class="amount-row subtotal">
+              <div class="amount-label">Total Parcial</div>
+              <div class="amount-value" [ngClass]="{'zero-value': planilla.total_a_cancelar_parcial === 0}">
+                {{ planilla.total_a_cancelar_parcial | currency:'BOB' }}
+              </div>
+            </div>
+            <div class="amount-row">
+              <div class="amount-label">Total Multas</div>
+              <div class="amount-value">{{ planilla.total_multas | currency:'BOB' }}</div>
+            </div>
+            <div class="amount-row">
+              <div class="amount-label">Total Tasa de Interés</div>
+              <div class="amount-value">{{ planilla.total_tasa_interes | currency:'BOB' }}</div>
+            </div>
+            <div class="amount-row total">
+              <div class="amount-label">Total a Cancelar</div>
+              <div class="amount-value">{{ planilla.total_a_cancelar | currency:'BOB' }}</div>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Tab de Detalles -->
+      <p-tabPanel header="Tabla Detallada">
+        <p-table 
+          [value]="[planilla]" 
+          styleClass="p-datatable-sm p-datatable-striped"
+          responsiveLayout="scroll"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>SALARIO COTIZABLE</th>
+              <th>APORTE AP=10% AV=3%</th>
+              <th>UFV DIA OBLIG. FORMAL</th>
+              <th>UFV DIA PRESENTACION</th>
+              <th>FECHA PRES. OFICIAL</th>
+              <th>FECHA DEPOSITO</th>
+              <th>AP. PATRONAL ACT.</th>
+              <th>MONTO ACT.</th>
+              <th>MULTA NO PRES. 1%</th>
+              <th>DÍAS RETRASO</th>
+              <th>INTERÉS</th>
+              <th>MULTAS S/INT.10%</th>
+              <th>TOTAL PARCIAL</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-planilla>
+            <tr>
+              <td [ngClass]="{'zero-value': planilla.total_importe === 0}">
+                {{ planilla.total_importe | currency:'BOB' }}
+              </td>
+              <td>{{ planilla.aporte_porcentaje | currency:'BOB' }}</td>
+              <td class="ufv-cell">{{ planilla.ufv_dia_formal }}</td>
+              <td class="ufv-cell">{{ planilla.ufv_dia_presentacion }}</td>
+              <td>{{ planilla.fecha_declarada | date:'dd/MM/yyyy' : '-0400' }}</td>
+              <td>{{ planilla.fecha_pago | date:'dd/MM/yyyy' : '-0400' }}</td>
+              <td>{{ planilla.aporte_actualizado | currency:'BOB' }}</td>
+              <td [ngClass]="{'zero-value': planilla.monto_actualizado === 0}">
+                {{ planilla.monto_actualizado | currency:'BOB' }}
+              </td>
+              <td [ngClass]="{'zero-value': planilla.multa_no_presentacion === 0}">
+                {{ planilla.multa_no_presentacion | currency:'BOB' }}
+              </td>
+              <td [ngClass]="{'zero-value': planilla.dias_retraso === 0}">
+                {{ planilla.dias_retraso }}
+              </td>
+              <td [ngClass]="{'zero-value': planilla.intereses === 0}">
+                {{ planilla.intereses | currency:'BOB' }}
+              </td>
+              <td [ngClass]="{'zero-value': planilla.multa_sobre_intereses === 0}">
+                {{ planilla.multa_sobre_intereses | currency:'BOB' }}
+              </td>
+              <td [ngClass]="{'zero-value': planilla.total_a_cancelar_parcial === 0}">
+                {{ planilla.total_a_cancelar_parcial | currency:'BOB' }}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr class="total-row">
+              <td colspan="12">Total a Cancelar:</td>
+              <td>{{ planilla.total_a_cancelar | currency:'BOB' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+
+  <!-- Mensaje de error mejorado -->
+  <div *ngIf="errorMessage && !planilla" class="error-message">
+    <i class="pi pi-exclamation-triangle"></i>
+    <p>La planilla no tiene el pago realizado, por tanto no se puede realizar el cálculo de su liquidación.</p>
+    <button pButton type="button" label="Volver" icon="pi pi-arrow-left" class="p-button-sm"></button>
+  </div>
+</div>
