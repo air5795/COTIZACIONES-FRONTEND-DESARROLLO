@@ -94,7 +94,7 @@
       <th>Fecha Declarada</th>
       
       <th style="width: 80px;">Planilla Declarada</th>
-      <th style="width: 80px;">Planilla Pagada</th>
+      <th style="width: 80px;">Planilla Liquidada</th>
       <th style="width: 170px;">Tipo Planilla</th>
       <th style="width: 120px;">Estado</th>
       <th>Acciones</th>
@@ -145,7 +145,7 @@
   </td>
   
   <td>
-    <span *ngIf="planilla.fecha_pago; else sinPago">
+    <span *ngIf="planilla.fecha_liquidacion; else sinPago">
       <span style="color: green;">
         <i class="pi pi-check check-icon green-check"></i> 
       </span>

@@ -3,7 +3,7 @@
 // `ng build --env=prod` then `environment.prod.ts` will be used instead.
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
-/*     export const environment = {
+/*      export const environment = {
   production: false,
   url: "http://localhost:4001/api/v1/",
   sistema: 47,
@@ -15,12 +15,12 @@
   passwordAsus: 'cbes.2022**',
   urlMSAuth: 'http://localhost:3000/api/auth/get-session',
   urlMSAuthToken: 'http://localhost:3000/api/auth',
-  login: 'http://10.0.0.152:3999/',
+  login: 'http://localhost:4200/',
 
-};  */ 
+};   */
 
 
-export const environment = {
+ export const environment = {
   production: false,
   url: "http://10.0.0.152:4001/api/v1/",
   sistema: 47,
@@ -33,5 +33,5 @@ export const environment = {
   urlMSAuth: 'http://10.0.0.152:3000/api/auth/get-session',
   urlMSAuthToken: 'http://10.0.0.152:3000/api/auth',
   login: 'http://10.0.0.152:3999/',
-}; 
+};  
    

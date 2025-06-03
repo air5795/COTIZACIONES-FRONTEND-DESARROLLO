@@ -159,7 +159,7 @@ export class DatosEmpresaComponent implements OnInit {
       return;
     }
   
-    const apiKey = 'AIzaSyDC5fxZ3Qfi2cFfEADgiRM9xWRgvBlJMqY';
+    const apiKey = 'AIzaSyA_kuyLgukBmvAyF86YQC4Sx84JjizT9vc';
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(direccion)}&key=${apiKey}`;
   
     this.http.get<any>(url).subscribe(

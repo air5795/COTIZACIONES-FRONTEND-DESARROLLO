@@ -6,8 +6,10 @@ import { Dialog } from 'primeng/dialog';
 import { PagoAporte } from '../../../models/pago-aporte.model';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
-import { MenuItem } from 'primeng/api'; // Para los pasos del stepper
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; // Para manejar URLs seguras
+import { MenuItem } from 'primeng/api';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; 
+import { StepperModule } from 'primeng/stepper'; // Agregar esta importación
+
 
 @Component({
   selector: 'app-pagos-aportes',
@@ -33,18 +35,19 @@ export class PagosAportesComponent implements OnInit {
   calculoDetalles: any = null;
   calculating: boolean = false;
   activeStep: number = 0;
-  previewUrl: SafeResourceUrl | null = null; // Para la vista previa del archivo
-  isPdf: boolean = false; // Determina si el archivo es PDF o imagen
+  previewUrl: SafeResourceUrl | null = null;
+  isPdf: boolean = false;
   steps: MenuItem[] = [
     { label: 'Fecha de Pago' },
     { label: 'Detalles del Cálculo' },
     { label: 'Detalles del Pago' },
     { label: 'Confirmación' },
   ];
-  metodoPagoOptions: any[] = [ // Opciones para el dropdown de método de pago
+  metodoPagoOptions: any[] = [
     { label: 'SIGEP', value: 'SIGEP' },
     { label: 'DEPOSITO O TRANSFERENCIA', value: 'DEPOSITO O TRANSFERENCIA' },
   ];
+  
 
   constructor(
     private planillasAportesService: PlanillasAportesService,

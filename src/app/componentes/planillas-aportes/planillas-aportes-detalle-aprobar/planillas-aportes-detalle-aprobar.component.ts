@@ -571,6 +571,133 @@ obtenerTipoEmpresa(): void {
       });
   }
 }
+
+
+verificarAfiliaciones() {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Se verificará el estado de afiliación de todos los trabajadores en la planilla.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, verificar',
+    cancelButtonText: 'Cancelar',
+    didOpen: () => {
+      const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+      if (swalContainer) {
+        swalContainer.style.zIndex = '2000';
+      }
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.loading = true; // Mostrar indicador de carga
+      this.planillasService.verificarAfiliacionDetalles(this.idPlanilla).subscribe({
+        next: (response) => {
+          this.loading = false;
+          Swal.fire({
+            icon: 'success',
+            title: 'Verificación Completada',
+            text: response.mensaje,
+            confirmButtonText: 'Ok',
+            didOpen: () => {
+              const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+              if (swalContainer) {
+                swalContainer.style.zIndex = '2000';
+              }
+            }
+          }).then(() => {
+            // Recargar los detalles de la planilla para reflejar los cambios en es_afiliado
+            this.obtenerDetalles();
+          });
+        },
+        error: (err) => {
+          this.loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: `No se pudo verificar las afiliaciones: ${err.error.message || 'Error desconocido'}`,
+            confirmButtonText: 'Ok',
+            didOpen: () => {
+              const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+              if (swalContainer) {
+                swalContainer.style.zIndex = '2000';
+              }
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+descargarReporteAfiliaciones() {
+  if (!this.idPlanilla) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'No hay datos',
+      text: 'No se ha cargado el ID de la planilla.',
+      confirmButtonText: 'Ok',
+      didOpen: () => {
+        const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+        if (swalContainer) {
+          swalContainer.style.zIndex = '2000';
+        }
+      }
+    });
+    return;
+  }
+  this.planillasService.generarReporteAfiliacion(this.idPlanilla).subscribe({
+    next: (data: Blob) => {
+      const fileURL = URL.createObjectURL(data);
+      const ventanaEmergente = window.open("", "VistaPreviaPDF", "width=900,height=600,scrollbars=no,resizable=no");
+      if (ventanaEmergente) {
+        ventanaEmergente.document.write(`
+          <html>
+            <head>
+              <title>Vista Previa del Reporte de Afiliaciones</title>
+              <style>
+                body { margin: 0; text-align: center; }
+                iframe { width: 100%; height: 100vh; border: none; }
+              </style>
+            </head>
+            <body>
+              <iframe src="${fileURL}"></iframe>
+            </body>
+          </html>
+        `);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo abrir la vista previa del PDF. Es posible que el navegador haya bloqueado la ventana emergente.',
+          confirmButtonText: 'Ok',
+          didOpen: () => {
+            const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+            if (swalContainer) {
+              swalContainer.style.zIndex = '2000';
+            }
+          }
+        });
+      }
+    },
+    error: (err) => {
+      console.error('Error al generar el reporte de afiliaciones:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo generar el reporte de afiliaciones.',
+        confirmButtonText: 'Ok',
+        didOpen: () => {
+          const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+          if (swalContainer) {
+            swalContainer.style.zIndex = '2000';
+          }
+        }
+      });
+    }
+  });
+}
     
     
 

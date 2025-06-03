@@ -1,7 +1,16 @@
 /* src/app/components/pagos-aportes/pagos-aportes.component.css */
 
-  
+  .contenedor-centrar{
+    text-align: center;
+    width: 100%;
+  }
   .p-field {
+    margin-bottom: 15px;
+    display: inline-flex;
+    width: 50%;
+  }
+
+  .p-form{
     margin-bottom: 15px;
   }
   
@@ -57,9 +66,7 @@
     border-radius: 3px;
   }
 
-  .step-content {
-    padding: 20px;
-  }
+
   .confirmation-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -75,3 +82,87 @@
     text-align: center;
     padding: 10px;
   }
+
+
+  .caja-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  ::ng-deep  .p-dialog .p-dialog-header {
+    padding: 0;
+  }
+
+/* 
+
+  para liqudiacion  *******************************************/
+
+  .summary-section {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    padding-bottom: 25px;
+  }
+  
+  .group-section {
+    
+    border: 1px solid #dee2e6;
+    
+  }
+  
+  .group-header {
+    background-color: #009688;
+    padding: 4px;
+    font-weight: bold;
+    border-bottom: 1px solid #dee2e6;
+    color: white;
+  }
+  
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .summary-table td {
+    padding: 4px;
+    border: 1px solid #dee2e6;
+  }
+  
+  .amount-label {
+    text-align: left;
+    font-weight: bold;
+  }
+  
+  .amount-value {
+    text-align: right;
+  }
+  
+  .values {
+    background-color: #ffffff;
+  }
+  
+  .values-r {
+    background-color: #fff5f5;
+  }
+  
+  .values-b {
+    background-color: #e5ffed;
+  }
+  
+  .ufv-cell {
+    background-color: #ffffec;
+  }
+  
+  .subtotal {
+    font-weight: bold;
+    background-color: #f8f9fa;
+  }
+  
+  .total-row {
+    font-weight: bold;
+    background-color: #e5ffed;
+  }
+
+  

@@ -84,9 +84,12 @@ export class PlanillasAportesDetalleComponent implements OnInit {
     this.idPlanilla = Number(this.route.snapshot.paramMap.get('id'));
     this.obtenerDetalles();
     this.obtenerInformacionPlanilla().then(() => {
+      
       this.obtenerComparacionPlanillas();
       this.obtenerResumenPlanilla(); 
+      
     });
+    
   }
 
   // Función para seleccionar el archivo

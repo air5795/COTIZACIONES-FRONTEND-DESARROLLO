@@ -3,9 +3,7 @@ import { PlanillasAportesService } from '../../../servicios/planillas-aportes/pl
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { LocalService } from '../../../servicios/local/local.service';
 import { EmpresaService } from '../../../servicios/empresa/empresa.service';
-
 import * as XLSX from 'xlsx';
 import { LazyLoadEvent } from 'primeng/api';
 import { SessionService } from '../../../servicios/auth/session.service';
@@ -74,7 +72,6 @@ export class PlanillasAportesListComponent {
 
   constructor(
     private planillasService: PlanillasAportesService,
-    private localService: LocalService,
     private empresaService: EmpresaService,
     private sessionService: SessionService,
     private router: Router,
@@ -83,17 +80,12 @@ export class PlanillasAportesListComponent {
 
   ngOnInit(): void {
     this.generarGestiones();
-    /* this.persona=JSON.parse(this.localService.getLocalStorage("persona")!); */
     const sessionData = this.sessionService.sessionDataSubject.value;
     console.log('Datos de sesión:', sessionData); 
     this.persona = sessionData?.persona || null;
 
     this.obtenerNumeroPatronal();
-    if (this.numPatronal) {
-      this.obtenerDatosEmpresa(this.numPatronal);
-    } else {
-      console.warn('Número patronal no encontrado en localStorage.');
-    }
+
 
     if (this.numPatronal) {
       this.obtenerPlanillas(this.numPatronal);
@@ -102,6 +94,25 @@ export class PlanillasAportesListComponent {
       console.error('⚠️ El número patronal no es válido.');
     }
     this.generarAnios();
+  }
+
+  descargarPlantilla() {
+    this.planillasService.descargarPlantilla().subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'plantilla.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url); 
+      },
+      error: (error) => {
+        console.error('Error al descargar la plantilla:', error);
+        alert('Error al descargar la plantilla. Por favor, intenta de nuevo.');
+      }
+    });
   }
 
 
@@ -252,27 +263,7 @@ export class PlanillasAportesListComponent {
     this.obtenerPlanillas(this.numPatronal ? this.numPatronal : '');
   }
 
-  obtenerDatosEmpresa(numPatronal: string) {
-    console.log(`🔍 Buscando empresa con número patronal: ${numPatronal}`);
 
-    this.empresaService.getEmpresaByNroPatronal(numPatronal).subscribe(
-      (response) => {
-        console.log('📡 Respuesta de la API:', response);
-
-        if (response && response.length > 0) {
-          this.empresa = response[0];
-          console.log('🏢 Empresa asignada:', this.empresa);
-        } else {
-          console.warn(
-            '⚠️ No se encontró información para este número patronal.'
-          );
-        }
-      },
-      (error) => {
-        console.error('❌ Error al obtener datos de la empresa:', error);
-      }
-    );
-  }
 
   verDetalle(id_planilla: number) {
     this.router.navigate(['/cotizaciones/planillas-aportes', id_planilla]);
@@ -318,18 +309,16 @@ export class PlanillasAportesListComponent {
     const reader = new FileReader();
     reader.onload = (e: any) => {
       const binaryString = e.target.result;
-      // Configurar XLSX para manejar fechas correctamente
-      const workbook = XLSX.read(binaryString, { 
-        type: 'binary', 
+      const workbook = XLSX.read(binaryString, {
+        type: 'binary',
         raw: false, // Usar valores formateados
-        dateNF: 'dd/mm/yyyy' // Formato de fecha esperado
+        dateNF: 'dd/mm/yyyy', // Formato de fecha esperado
       });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-
-      // Convertir la hoja a JSON con encabezados
+  
       const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
+  
       const headers = data[0] as string[];
       const requiredColumns = [
         'Número documento de identidad',
@@ -339,15 +328,15 @@ export class PlanillasAportesListComponent {
         'Fecha de ingreso',
         'regional',
       ];
-
-      // Validar que las columnas requeridas existan en el archivo
+  
+      // Validar que las columnas requeridas existan
       this.validationErrors = [];
       requiredColumns.forEach((col) => {
         if (!headers.includes(col)) {
           this.validationErrors.push(`Falta la columna requerida: ${col}`);
         }
       });
-
+  
       if (this.validationErrors.length > 0) {
         this.planillaDatos = [];
         Swal.fire({
@@ -362,16 +351,43 @@ export class PlanillasAportesListComponent {
         });
         return;
       }
-
-      // Procesar los datos y filtrar filas vacías o sin "Nro."
+  
+      // Definir columnas numéricas que deben convertirse
+      const numericColumns = [
+        'Haber Básico',
+        'Bono de antigüedad',
+        'Monto horas extra',
+        'Monto horas extra nocturnas',
+        'Otros bonos y pagos',
+      ];
+  
+      // Procesar los datos y filtrar filas vacías
       this.planillaDatos = data.slice(1)
-        .map((row: any) => {
+        .map((row: any, index: number) => {
           let rowData: any = {};
-          headers.forEach((header: string, index: number) => {
-            let value = row[index];
-            // Convertir fechas de Excel si son números
-            if ((header === 'Fecha de ingreso' || header === 'Fecha de retiro') && typeof value === 'number') {
-              value = this.convertExcelDate(value);
+          headers.forEach((header: string, i: number) => {
+            let value = row[i];
+            // Manejar fechas (números seriales o cadenas)
+            if (header === 'Fecha de ingreso' || header === 'Fecha de retiro') {
+              if (typeof value === 'number') {
+                value = this.convertExcelDate(value);
+              } else if (typeof value === 'string' && value.trim()) {
+                value = this.parseStringDate(value, header, index + 2);
+              } else {
+                value = undefined;
+              }
+            }
+            // Manejar valores numéricos
+            else if (numericColumns.includes(header)) {
+              if (typeof value === 'string') {
+                // Normalizar el formato: reemplazar coma por punto y eliminar puntos de miles
+                value = value.replace(/\./g, '').replace(',', '.');
+                value = parseFloat(value) || 0; // Convertir a número o 0 si no es válido
+              } else if (typeof value === 'number') {
+                value = parseFloat(value.toFixed(2)); // Asegurar dos decimales
+              } else {
+                value = 0; // Valor por defecto si no es válido
+              }
             }
             rowData[header] = value;
           });
@@ -381,8 +397,10 @@ export class PlanillasAportesListComponent {
           const nro = rowData['Nro.'];
           return nro !== undefined && nro !== null && nro.toString().trim() !== '';
         });
-
-      // Si no hay datos válidos después del filtro, mostrar advertencia
+  
+      console.log('Datos procesados (Fila 6, Haber Básico):', this.planillaDatos[5]?.['Haber Básico']); // Depuración
+  
+      // Validar si hay datos válidos
       if (this.planillaDatos.length === 0) {
         this.validationErrors.push('No se encontraron filas válidas con "Nro." en la planilla.');
         Swal.fire({
@@ -397,14 +415,33 @@ export class PlanillasAportesListComponent {
         });
         return;
       }
-
-      // Validar los datos de las filas filtradas
+  
       this.validatePlanillaDatos();
     };
-
+  
     if (this.archivoSeleccionado) {
       reader.readAsBinaryString(this.archivoSeleccionado);
     }
+  }
+
+  parseStringDate(dateString: string, column: string, row: number): Date | undefined {
+    if (!dateString) return undefined;
+  
+    // Limpiar la cadena de espacios o caracteres no deseados
+    const cleanedDate = dateString.trim();
+  
+    // Intentar parsear con diferentes formatos
+    const formats = ['DD/MM/YYYY', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD-MM-YYYY'];
+    for (const format of formats) {
+      const parsed = new Date(cleanedDate.replace(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/, '$3-$2-$1'));
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+  
+    // Si no se puede parsear, agregar error
+    this.validationErrors.push(`Fila ${row}: "${column}" no tiene un formato de fecha válido (${cleanedDate}).`);
+    return undefined;
   }
 
   // Método para convertir fechas seriales de Excel a objetos Date
@@ -418,7 +455,15 @@ export class PlanillasAportesListComponent {
 
   validatePlanillaDatos() {
     this.validationErrors = [];
-
+  
+    const numericColumns = [
+      'Haber Básico',
+      'Bono de antigüedad',
+      'Monto horas extra',
+      'Monto horas extra nocturnas',
+      'Otros bonos y pagos',
+    ];
+  
     this.planillaDatos.forEach((trabajador, index) => {
       const requiredFields = [
         'Número documento de identidad',
@@ -426,7 +471,7 @@ export class PlanillasAportesListComponent {
         'Fecha de ingreso',
         'regional',
       ];
-
+  
       // Validar campos obligatorios
       requiredFields.forEach((field) => {
         if (
@@ -438,29 +483,39 @@ export class PlanillasAportesListComponent {
           );
         }
       });
-
+  
       // Validar formato de fechas
       const fechaIngreso = trabajador['Fecha de ingreso'];
-      if (fechaIngreso && !(fechaIngreso instanceof Date)) {
-        const isValidDate = this.isValidDate(fechaIngreso);
-        if (!isValidDate) {
+      if (fechaIngreso) {
+        if (!(fechaIngreso instanceof Date) || isNaN(fechaIngreso.getTime())) {
           this.validationErrors.push(
             `Fila ${index + 2}: "Fecha de ingreso" no tiene un formato de fecha válido.`
           );
         }
       }
-
+  
       const fechaRetiro = trabajador['Fecha de retiro'];
-      if (fechaRetiro && !(fechaRetiro instanceof Date)) {
-        const isValidDate = this.isValidDate(fechaRetiro);
-        if (!isValidDate) {
+      if (fechaRetiro) {
+        if (!(fechaRetiro instanceof Date) || isNaN(fechaRetiro.getTime())) {
           this.validationErrors.push(
             `Fila ${index + 2}: "Fecha de retiro" no tiene un formato de fecha válido.`
           );
         }
       }
+  
+      // Validar valores numéricos
+      numericColumns.forEach((field) => {
+        const value = trabajador[field];
+        if (value !== undefined && value !== null) {
+          if (isNaN(value) || value < 0) {
+            this.validationErrors.push(
+              `Fila ${index + 2}: "${field}" debe ser un número válido y no negativo (valor: ${value}).`
+            );
+          }
+        }
+      });
     });
-
+  
     if (this.validationErrors.length > 0) {
       this.planillaDatos = [];
       Swal.fire({

@@ -11,6 +11,12 @@ export class PlanillasAportesService {
 
   constructor(private http: HttpClient) {}
 
+  descargarPlantilla(): Observable<Blob> {
+    return this.http.get(`${environment.url}planillas_aportes/descargar-plantilla`, {
+      responseType: 'blob' 
+    });
+  }
+
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 /* PLANILLAS MENSUALES DE APORTES ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -224,6 +230,18 @@ generarReporteHistorial(mes: number, gestion: number): Observable<Blob> {
     responseType: 'blob'
   });
 }
+
+verificarAfiliacionDetalles(idPlanilla: number): Observable<any> {
+  return this.http.post(`${environment.url}planillas_aportes/verificar-afiliacion/${idPlanilla}`, {});
+}
+
+generarReporteAfiliacion(idPlanilla: number): Observable<Blob> {
+  return this.http.get(`${environment.url}planillas_aportes/reporte-afiliacion/${idPlanilla}`, {
+    responseType: 'blob'
+  });
+}
+
+
   
   
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -235,5 +253,10 @@ generarReporteHistorial(mes: number, gestion: number): Observable<Blob> {
 calcularAportes(id: number): Observable<any> {
   return this.http.post(`${environment.url}planillas_aportes/calcular/${id}`, {});
 }
+
+validarLiquidacion(idPlanilla: number, payload: { fecha_pago?: string }): Observable<any> {
+  return this.http.put(`${environment.url}planillas_aportes/validar-liquidacion/${idPlanilla}`, payload);
+}
+
 
 }

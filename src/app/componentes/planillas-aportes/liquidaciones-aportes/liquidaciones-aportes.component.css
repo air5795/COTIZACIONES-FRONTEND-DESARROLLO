@@ -1,282 +1,364 @@
-::ng-deep .p-button.p-button-outlined {
-  background-color: transparent;
-  color:white;
-  border: 1px solid white;
+/* Base Styles */
+.liquidaciones-container {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  overflow-x: hidden;
 }
 
-::ng-deep .p-button.p-button-outlined:hover {
+/* Modal Responsive Adjustments */
+::ng-deep .p-dialog {
+  max-width: 95vw !important;
+}
+
+::ng-deep .p-dialog .p-dialog-content {
+  padding: 15px !important;
+}
+
+/* Dashboard Layout */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 15px;
+  padding: 10px;
+}
+
+/* Cards Section */
+.cards-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.dashboard-card {
   background-color: white;
-  color: #08dac5;
-  border: 1px solid #06e4ce;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
 }
+
+.card-header {
+  padding: 10px;
+  border-bottom: 2px solid #80cbc4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header span {
+  font-weight: 600;
+  color: #00796b;
+  font-size: 0.85rem;
+}
+
+.card-content {
+  padding: 12px;
+  text-align: center;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  color: #4caf50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.card-label {
+  color: #616161;
+  font-size: 0.75rem;
+  margin-top: 5px;
+}
+
+/* Data Container */
+.data-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 10px;
+  overflow-x: auto;
+}
+
+
+.group-section {
+  border: 1px solid #e5e7eb;
+  /* border-radius: 6px; */
+  /* margin-bottom: 15px; */
+  overflow: hidden;
+}
+
+.group-header {
+  background-color: #f3f4f6;
+  font-weight: bold;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #374151;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.amount-row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 5px;
+  border-bottom: 1px solid #eceff1;
+  align-items: center;
+  text-align: right;
+}
+
+.amount-row:last-child {
+  border-bottom: none;
+}
+
+.amount-label {
+  flex: 1;
+  min-width: 150px;
+  font-size: 0.85rem;
+}
+
+.amount-value {
+  width: 100px;
+  text-align: right;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.values {
+  background-color: #f9fbff;
+  color: #268372;
+}
+
+.values-r {
+  background-color: #f9fbff;
+  color: #83264d;
+}
+
+.amount-row.total {
+  font-weight: 700;
+  color: #00796b;
+  border-top: 2px solid #80cbc4;
+  padding-top: 10px;
+  background-color: #def7ec;
+}
+
+/* Table Styles */
+::ng-deep .p-datatable {
+  font-size: 0.8rem;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  padding: 8px 4px;
+  white-space: nowrap;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 8px 4px;
+}
+
+/* Tab View */
+::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+}
+
+/* Validation Button */
+.validation-button {
+  margin-bottom: 15px;
+  text-align: right;
+}
+
+/* Error Message */
+.error-message {
+  padding: 20px;
+  text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
   
+  .cards-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  ::ng-deep .p-dialog {
+    height: auto !important;
+    max-height: 90vh !important;
+  }
   
-  .liquidaciones-container {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f8f9fa;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    
-    /* max-width: 1200px; */
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(135deg, #009688 0%, #03574f 100%);
-    color: white;
-    padding: 15px 20px;
-   
-  }
-
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .header-title i {
-    font-size: 1.75rem;
-  }
-
-  .header-title span {
-    font-size: 1.5rem;
-    font-weight: 500;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 10px;
-  }
-
-  .dashboard-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    padding: 20px;
-    background-color: white;
-  }
-
-  .dashboard-card {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #f3f4f6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-
-  .dashboard-card.total {
-    background: linear-gradient(135deg, #def7ec 0%, #d1fae5 100%);
-    border-left: 4px solid #10b981;
-  }
-
-  .dashboard-label {
-    font-size: 0.9rem;
-    color: #6b7280;
-    margin-bottom: 8px;
-  }
-
-  .dashboard-value {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #374151;
-  }
-
-  .data-container {
-    padding: 20px;
-    background-color: white;
-  }
-
-  .summary-section {
-    padding: 15px;
-  }
-
-  .info-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .info-group {
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .info-group label {
-    display: block;
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin-bottom: 5px;
-  }
-
-  .info-value {
-    font-size: 1.1rem;
-    padding: 8px 12px;
-    background-color: #f9fafb;
-    border-radius: 6px;
-    border: 1px solid #e5e7eb;
-  }
-
-  .date-value {
-    color: #4b5563;
-  }
-
-  .ufv-value {
-    color: #4b5563;
-    font-family: 'Courier New', monospace;
-  }
-
-  .summary-amounts {
-    margin-top: 30px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
   .amount-row {
-    display: flex;
-    border-bottom: 1px solid #e5e7eb;
+    flex-direction: column;
+    align-items: flex-start;
   }
-
-  .amount-row:last-child {
-    border-bottom: none;
+  
+  .amount-value {
+    width: 100%;
+    text-align: left;
+    padding-left: 0;
+    padding-top: 4px;
   }
+  
+  .validation-button {
+    text-align: center;
+  }
+  
+  ::ng-deep .p-button {
+    width: 100%;
+  }
+}
 
+@media (max-width: 576px) {
+  .cards-section {
+    grid-template-columns: 1fr;
+  }
+  
+  ::ng-deep .p-tabview .p-tabview-nav {
+    flex-direction: column;
+  }
+  
+  ::ng-deep .p-tabview .p-tabview-nav li {
+    width: 100%;
+  }
+  
+  ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    justify-content: center;
+  }
+  
   .amount-label, .amount-value {
-    padding: 4px 15px;
+    font-size: 0.8rem;
   }
+}
 
-  .amount-label {
-    flex: 1;
-    background-color: #f9fafb;
-    border-right: 1px solid #e5e7eb;
-    font-weight: 500;
+/* Zero Value Highlight */
+.zero-value {
+  color: #dc2626 !important;
+}
+
+/* UFV Cell */
+.ufv-cell {
+  font-family: 'Courier New', monospace;
+  background-color: #f9fafb;
+}
+
+
+.values{
+  background-color:#f9fbff ;
+  text-align: right !important;
+  color: #268372;
+  
+}
+
+
+.values-r{
+  background-color:#f9fbff ;
+  text-align: right !important;
+  color: #83264d;
+}
+
+
+/* Retain existing styles from your CSS and add/modify the following */
+.summary-section {
+  padding: 5px;
+}
+
+.group-section {
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.group-header {
+  background-color: #f3f4f6;
+  font-weight: bold;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #374151;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.summary-table td {
+  padding: 4px 12px;
+  border-bottom: 1px solid #eceff1;
+  font-size: 0.85rem;
+}
+
+.amount-label {
+  text-align: left;
+  font-weight: normal;
+  color: #374151;
+}
+
+.amount-value {
+  text-align: right;
+  font-weight: 500;
+}
+
+.values {
+  background-color: #f9fbff;
+  color: #268372;
+}
+
+.values-r {
+  background-color: #f9fbff;
+  color: #83264d;
+}
+
+.values-b {
+  background-color: #f9fbff;
+  color: #265e83;
+}
+
+.ufv-cell {
+  font-family: 'Courier New', monospace;
+  background-color: #f9fafb;
+}
+
+.subtotal td {
+  font-weight: 600;
+  background-color: #fbfbfb;
+}
+
+.total-row {
+  font-weight: 700;
+  color: #00796b;
+  background-color: #def7ec;
+  border-top: 2px solid #80cbc4;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .summary-table td {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 12px;
   }
 
   .amount-value {
-    width: 200px;
-    text-align: right;
-    font-weight: 500;
+    font-weight: 600;
+    padding-top: 2px;
   }
 
-  .amount-row.subtotal {
-    background-color: #f3f4f6;
-  }
-
-  .amount-row.total {
-    background-color: #def7ec;
+  .summary-table td.amount-label::before {
+    content: attr(data-label);
     font-weight: bold;
+    display: block;
+    margin-bottom: 2px;
   }
 
-  .amount-row.total .amount-value,
-  .amount-row.total .amount-label {
-    color: #065f46;
-    font-weight: 600;
+  .summary-table td.amount-value {
+    text-align: left;
   }
+}
 
-  /* Estilos para la tabla de p-table */
-  :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-    background-color: #f3f4f6;
-    color: #4b5563;
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-align: center;
-    padding: 10px;
-    white-space: normal;
-    border: 1px solid #e5e7eb;
-  }
-
-  :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-    text-align: center;
-    padding: 10px;
-    border: 1px solid #e5e7eb;
-    font-size: 0.85rem;
-  }
-
-  :host ::ng-deep .p-datatable .p-datatable-tfoot > tr > td {
-    text-align: right;
-    padding: 12px;
-    font-weight: 600;
-    background-color: #def7ec;
-    color: #065f46;
-  }
-
-  .ufv-cell {
-    background-color: #f9fafb;
-    font-family: 'Courier New', monospace;
-  }
-
-  .zero-value {
-    color: #dc2626 !important;
-  }
-
-  .total-row {
-    background-color: #def7ec;
-  }
-
-  /* Estilos para el tab view */
-  :host ::ng-deep .p-tabview .p-tabview-nav {
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :host ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
-    padding: 12px 16px;
-    font-weight: 500;
-  }
-
-  :host ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-    color: #3b82f6;
-    border-bottom-color: #3b82f6;
-  }
-
-  /* Mensaje de error */
-  .error-message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    background-color: white;
-    border-radius: 8px;
-    text-align: center;
-  }
-
-  .error-message i {
-    font-size: 3rem;
-    color: #f59e0b;
-    margin-bottom: 15px;
-  }
-
-  .error-message p {
-    margin: 10px 0 20px;
-    font-size: 1.1rem;
-    color: #4b5563;
-  }
-
-  /* Responsive */
-  @media screen and (max-width: 768px) {
-    .dashboard-summary {
-      grid-template-columns: 1fr;
-    }
-    
-    .info-group {
-      flex: 100%;
-    }
-    
-    .amount-row {
-      flex-direction: column;
-    }
-    
-    .amount-label, .amount-value {
-      width: 100%;
-      text-align: left;
-      border-right: none;
-    }
-    
-    .amount-value {
-      text-align: right;
-      padding-top: 0;
-    }
-  }

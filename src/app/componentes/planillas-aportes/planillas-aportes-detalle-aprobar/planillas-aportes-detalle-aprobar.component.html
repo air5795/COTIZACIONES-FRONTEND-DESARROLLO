@@ -179,14 +179,30 @@
           </button> -->
 
 
-            <button 
-            
-            pButton style="border: 1px;" 
-            label="Recargar" 
-            class="p-button-outlined p-button-plain " 
-            icon="pi pi-sync" 
-            (click)="recargar()">
-          </button>
+          <button 
+          pButton 
+          style="border: 1px; margin-right: 8px;" 
+          label="Recargar" 
+          class="p-button-outlined p-button-plain" 
+          icon="pi pi-sync" 
+          (click)="recargar()">
+        </button>
+        <button 
+          pButton 
+          style="border: 1px; margin-right: 8px;" 
+          label="Verificar Afiliaciones" 
+          class="p-button-outlined p-button-plain" 
+          (click)="verificarAfiliaciones()">
+        </button>
+        <button 
+        pButton 
+        style="border: 1px;" 
+        label="Reporte Afiliaciones" 
+        class="p-button-outlined p-button-plain" 
+        (click)="descargarReporteAfiliaciones()">
+      </button>
+        
+
         </div>
     </div>
 </ng-template>

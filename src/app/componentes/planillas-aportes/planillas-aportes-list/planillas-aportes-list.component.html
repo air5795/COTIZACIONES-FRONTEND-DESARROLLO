@@ -1,28 +1,27 @@
 <div class="grid dashboard">
   <div class="col-12 md:col-12 lg:6">
       <div class="perfil-empleador">
-    <div class="header">
-      <div class="header-left">
-        <h2 style="font-size: 30px;"> <i class="pi pi-briefcase" style="font-size: 2.5rem"></i> PLANILLAS DE APORTES </h2>
-        <hr style="margin: 2px; border: 1px solid rgba(83, 83, 83, 0.43)">
-        <span class="numero-patronal">Control Historico Aportes </span>
-      </div>
-      <div class="header-right">
-        <div class="button-container">
-          <!-- <button pButton label="PLANTILLA" class="boton1" (click)="mostrarModal = true">
-            <span class="pi pi-download" style="font-size: 2rem; padding-bottom: 10px;"></span>
-            <span style="font-size: 13px;color: #ffffff;margin-bottom: 2px;">Descargar</span>
-          </button> -->
-    
-    
-          <button pButton label="PLANILLA" class="boton2" (click)="mostrarModal = true">
-            <span class="pi pi-book" style="font-size: 2rem; padding-bottom: 10px;"></span>
-            <span style="font-size: 13px;color: #ffffff;margin-bottom: 2px;">Nueva</span>
-          </button>
+        <div class="header">
+          <div class="header-left">
+            <h2 style="font-size: 30px;"> <i class="pi pi-briefcase" style="font-size: 2.5rem"></i> PLANILLAS DE APORTES </h2>
+            <hr style="margin: 2px; border: 1px solid rgba(83, 83, 83, 0.43)">
+            <span class="numero-patronal">Control Historico Aportes </span>
+          </div>
+          <div class="header-right">
+            <div class="button-container">
+
+              <button pButton label="PLANTILLA" class="boton1" (click)="descargarPlantilla()">
+                <span class="pi pi-download" style="font-size: 2rem; padding-bottom: 10px;"></span>
+                <span style="font-size: 13px;color: #ffffff;margin-bottom: 2px;">Descargar</span>
+              </button> 
+        
+              <button pButton label="PLANILLA" class="boton2" (click)="mostrarModal = true">
+                <span class="pi pi-book" style="font-size: 2rem; padding-bottom: 10px;"></span>
+                <span style="font-size: 13px;color: #ffffff;margin-bottom: 2px;">Nueva</span>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  
 
 <p-table 
 [value]="planillas" 
@@ -83,10 +82,10 @@ class="tabla-centrada"
         <th>Gestión</th>
         <th>Total Regitros </th>
         <th >Total importe</th>
-        <th>Fecha Declarada</th>
+        <!-- <th>Fecha Declarada</th> -->
         
         <th style="width: 80px;">Planilla Declarada</th>
-        <th style="width: 80px;">Planilla Pagada</th>
+        <th style="width: 80px;">Planilla Liquidada</th>
         <th style="width: 170px;">Tipo Planilla</th>
         <th style="width: 120px;">Estado</th>
         <th>Acciones</th>
@@ -107,7 +106,7 @@ class="tabla-centrada"
     <td style="background-color: #f3fff7;">
       <span>{{ planilla.total_importe | number:'1.2-2' }} Bs</span>
     </td>
-    <td>
+<!--     <td>
       <span *ngIf="planilla.fecha_declarada; else sinFechad"> 
         <span style="color: green;">
           {{ planilla.fecha_declarada | date: 'd \'de\' MMMM \'de\' yyyy' : 'UTC' }}
@@ -120,7 +119,7 @@ class="tabla-centrada"
       </ng-template>
 
     
-    </td>
+    </td> -->
 
     <td>
       <span *ngIf="planilla.fecha_declarada; else sinFecha"> 
@@ -135,7 +134,7 @@ class="tabla-centrada"
       </ng-template>
     </td>
     <td>
-      <span *ngIf="planilla.fecha_pago; else sinPago">
+      <span *ngIf="planilla.fecha_liquidacion; else sinPago">
         <span style="color: green;">
           <i class="pi pi-check check-icon green-check"></i> 
         </span>

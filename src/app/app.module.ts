@@ -39,6 +39,8 @@ import { ImageModule } from 'primeng/image';
 import { InplaceModule } from 'primeng/inplace';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputMaskModule } from 'primeng/inputmask';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -184,6 +186,8 @@ registerLocaleData(localeEs);
     GalleriaModule,
     ImageModule,
     InplaceModule,
+    InputGroupModule,
+    InputGroupAddonModule,
     InputNumberModule,
     InputMaskModule,
     InputSwitchModule,

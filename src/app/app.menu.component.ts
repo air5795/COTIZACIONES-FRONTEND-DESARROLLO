@@ -1,7 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 import { SessionService } from './servicios/auth/session.service';
 import { Menu } from './dominio/menu';
 
@@ -21,40 +18,30 @@ import { Menu } from './dominio/menu';
       </ul>
     </div>
   `,
-  styles: [`
-    .navigation-menu {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+  styles: [
+    `
+      .navigation-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
 
-    ::ng-deep .layout-wrapper .layout-sidebar .layout-tabmenu .layout-tabmenu-contents .layout-tabmenu-content .layout-submenu-content .navigation-menu li ul li a {
-      padding: 15px !important;
-    }
-  `]
+      ::ng-deep .layout-wrapper .layout-sidebar .layout-tabmenu .layout-tabmenu-contents .layout-tabmenu-content .layout-submenu-content .navigation-menu li ul li a {
+        padding: 15px !important;
+      }
+    `
+  ]
 })
 export class AppMenuComponent implements OnInit {
-  public model: any[] | undefined;
+  public model: any[] = [];
 
-  constructor(
-    private readonly sessionService: SessionService,
-    private readonly router: Router
-  ) {}
+  constructor(private readonly sessionService: SessionService) {}
 
   ngOnInit() {
-    this.sessionService.getSessionData().subscribe(data => {
+    this.sessionService.getSessionData().subscribe((data) => {
       const menus = data?.rol?.menus || [];
       this.model = this.getMenusWithSubMenus(menus);
-      
     });
-
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
-        if (this.model) {
-          this.updateActiveState(this.model);
-        }
-      });
   }
 
   getMenusWithSubMenus(menus: Menu[]): any[] {
@@ -91,30 +78,13 @@ export class AppMenuComponent implements OnInit {
     return this.mapear(roots);
   }
 
-  mapear(recurso: Menu[]): any {
-    if (recurso.length === 0) {
-      return null;
-    } else {
-      return recurso.map((r: Menu) => {
-        return {
-          label: r.nombre,
-          icon: r.icono,
-          routerLink: r.ruta === 'null' ? null : r.ruta,
-          badgeStyleClass: 'teal-badge',
-          items: this.mapear(r.subMenus || []),
-          active: false,
-        };
-      });
-    }
-  }
-
-  updateActiveState(items: any[]) {
-    items.forEach((item) => {
-      item.active = this.router.isActive(item.routerLink, true);
-      if (item.items) {
-        this.updateActiveState(item.items);
-        item.active = item.items.some((child: any) => child.active);
-      }
-    });
+  mapear(recurso: Menu[]): any[] {
+    return recurso.map((r: Menu) => ({
+      label: r.nombre,
+      icon: r.icono,
+      routerLink: r.ruta === 'null' ? null : r.ruta,
+      items: this.mapear(r.subMenus || []),
+      expanded: false
+    }));
   }
 }
