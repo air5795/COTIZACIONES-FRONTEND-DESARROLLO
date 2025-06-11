@@ -241,6 +241,12 @@ generarReporteAfiliacion(idPlanilla: number): Observable<Blob> {
   });
 }
 
+generarReportePlanillaSalarios(idPlanilla: number): Observable<Blob> {
+  return this.http.get(`${environment.url}planillas_aportes/reporte-detalles-excel/${idPlanilla}`, {
+    responseType: 'blob',
+  });
+}
+
 
   
   

@@ -218,6 +218,8 @@
       <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
       <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
       <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Afiliado</th>
+      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Tipo Afiliado</th>
+      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Matricula</th>
       
     </tr>
   </ng-template>
@@ -232,6 +234,7 @@
       <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
       <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
       <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
+
       <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
         <span *ngIf="trabajador.es_afiliado === true; else noEsAfiliado"> 
           <span style="color: green;">
@@ -253,6 +256,19 @@
           </span>
         </ng-template>
       </td>
+      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+        <span *ngIf="trabajador.tipo_afiliado; else sinTipoAfiliado">{{ trabajador.tipo_afiliado }}</span>
+        <ng-template #sinTipoAfiliado>
+          <span style="color: #6c757d;">&mdash;</span> <!-- Color gris para el caso null -->
+        </ng-template>
+      </td>
+      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+        <span *ngIf="trabajador.matricula; else sinMatricula">{{ trabajador.matricula }}</span>
+        <ng-template #sinMatricula>
+          <span style="color: #6c757d;">&mdash;</span> <!-- Color gris para el caso null -->
+        </ng-template>
+      </td>
+
      
     </tr>
   </ng-template>

@@ -22,7 +22,7 @@
 
  export const environment = {
   production: false,
-  url: "http://10.0.0.152:4001/api/v1/",
+  url: "http://10.0.0.152:4002/api/v1/",
   sistema: 47,
   url_seguridad: "http://10.0.0.152:3009/api/v1/",
   loginUrlAsus: 'https://test.asuss.gob.bo/asuss-asegurado-api/api/v1/login',

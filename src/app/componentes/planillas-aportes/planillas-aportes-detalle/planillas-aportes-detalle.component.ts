@@ -789,6 +789,47 @@ actualizarFecha() {
     });
   }
 
+  ReportePlanilla() {
+    if (!this.idPlanilla) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No hay datos',
+        text: 'No se ha cargado el ID de la planilla.',
+        confirmButtonText: 'Ok',
+      });
+      return;
+    }
+
+    this.planillasService.generarReportePlanillaSalarios(this.idPlanilla).subscribe({
+      next: (data: Blob) => {
+        // Crear un enlace temporal para descargar el archivo Excel
+        const fileURL = URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = `Reporte_Detalles_Planilla_${this.idPlanilla}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(fileURL);
+
+        // Opcional: Mostrar notificación de éxito
+        Swal.fire({
+          icon: 'success',
+          title: 'Reporte generado',
+          text: 'El reporte en Excel se ha descargado correctamente.',
+          confirmButtonText: 'Ok',
+        });
+      },
+      error: (err) => {
+        console.error('Error al generar el reporte de planilla:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo generar el reporte de la planilla.',
+          confirmButtonText: 'Ok',
+        });
+      },
+    });
+  }
+
   // resumen por regionales ----------------------------------------------------------------------------------------------------
 
   obtenerResumenPlanilla() {
