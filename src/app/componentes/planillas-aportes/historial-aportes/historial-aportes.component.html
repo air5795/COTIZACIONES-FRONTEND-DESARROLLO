@@ -42,42 +42,52 @@
       <button pButton label="Recargar" class="p-button-outlined mb-2" icon="pi pi-sync" (click)="recargar()"></button>
       <div class="flex flex-column sm:flex-row gap-2 mb-2">
 
+
         <p-dropdown
-          [options]="estados"
-          [(ngModel)]="estadoFiltro"
-          placeholder="Filtrar por estado"
-          (onChange)="aplicarFiltros()"
-          styleClass="w-full sm:w-auto"
-        ></p-dropdown>
-  
-        <p-dropdown
-          [options]="meses"
-          [(ngModel)]="mesFiltro"
-          placeholder="Filtrar por mes"
-          (onChange)="aplicarFiltros()"
-          styleClass="w-full sm:w-auto"
-        ></p-dropdown>
-  
-        <p-dropdown
-          [options]="anios"
-          [(ngModel)]="anioFiltro"
-          placeholder="Filtrar por año"
-          (onChange)="aplicarFiltros()"
-          styleClass="w-full sm:w-auto"
-        ></p-dropdown>
-  
-        <span class="p-input-icon-left w-full sm:w-auto">
-          <i class="pi pi-search"></i>
-          <input
-            pInputText
-            type="text"
-            #filter
-            (input)="buscar(filter.value)"
-            placeholder="Buscar ..."
-            class="w-full"
-          />
-        </span>
-      </div>
+      [options]="estados"
+      [(ngModel)]="estadoFiltro"
+      placeholder="Filtrar por estado"
+      (onChange)="aplicarFiltros()"
+      styleClass="w-full sm:w-auto"
+      [appendTo]="'body'"
+      [autoDisplayFirst]="false"
+      panelStyleClass="min-w-fit"
+    ></p-dropdown>
+
+    <p-dropdown
+      [options]="meses"
+      [(ngModel)]="mesFiltro"
+      placeholder="Filtrar por mes"
+      (onChange)="aplicarFiltros()"
+      styleClass="w-full sm:w-auto"
+      [appendTo]="'body'"
+      [autoDisplayFirst]="false"
+      panelStyleClass="min-w-fit"
+    ></p-dropdown>
+
+    <p-dropdown
+      [options]="anios"
+      [(ngModel)]="anioFiltro"
+      placeholder="Filtrar por año"
+      (onChange)="aplicarFiltros()"
+      styleClass="w-full sm:w-auto"
+      [appendTo]="'body'"
+      [autoDisplayFirst]="false"
+      panelStyleClass="min-w-fit"
+    ></p-dropdown>
+
+    <span class="p-input-icon-left w-full sm:w-auto">
+      <i class="pi pi-search"></i>
+      <input
+        pInputText
+        type="text"
+        #filter
+        (input)="buscar(filter.value)"
+        placeholder="Buscar ..."
+        class="w-full"
+      />
+    </span>
+</div>
     </div>
   </ng-template>
 

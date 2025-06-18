@@ -26,7 +26,9 @@ export class PlanillasAportesService {
     codPatronal: string,
     mes: string,
     gestion: string,
-    tipoPlanilla: string
+    tipoPlanilla: string,
+    usuario_creacion: string,
+    nombre_creacion: string
   ): Observable<any> {
     const formData = new FormData();
     formData.append('file', archivo);
@@ -34,7 +36,8 @@ export class PlanillasAportesService {
     formData.append('gestion', gestion);
     formData.append('mes', mes);
     formData.append('tipo_planilla', tipoPlanilla);
-
+    formData.append('usuario_creacion', usuario_creacion);
+    formData.append('nombre_creacion', nombre_creacion);
     return this.http.post(`${environment.url}planillas_aportes/subir`, formData, {
       headers: new HttpHeaders().set('Accept', 'application/json')
     });

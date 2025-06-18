@@ -7,7 +7,7 @@
           <h2 style="font-size: 18px; display: flex; align-items: center; font-family: 'Roboto', sans-serif; margin: 5px 0 5px;">
             <span style="background-color: #009688; color: white; padding: 6px 10px; border-radius: 4px 0 0 4px; display: flex; align-items: center;">
               <i class="pi pi-book" style="font-size: 1.2rem; margin-right: 6px; color: white;"></i>
-              COD - PLANILLA N°  {{ planillaInfo?.planilla?.com_nro }}
+               N° COMPROBANTE : {{ planillaInfo?.planilla?.com_nro }}
             </span>
             <span style="background-color: #03665d; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
               {{ planillaInfo?.planilla?.empresa }}
@@ -59,8 +59,23 @@
             <div class="list-item">
               <span class="label">Mes</span>
               <span class="value">
+          
                 <i class="pi pi-calendar"></i> {{ planillaInfo?.planilla?.mes }}
               </span>
+            </div>
+
+            <div class="list-item">
+              <span class="label">Subido Por </span>
+              <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
+                <span class="value">
+                   Alejandro Iglesias Raldes
+                </span>
+              </ng-container>
+              <ng-template #sinDatosImporte>
+                <span class="value">
+                  <i class="pi user"></i> -
+                </span>
+              </ng-template>
             </div>
           
             <!-- N° de Trabajadores -->
@@ -68,7 +83,7 @@
               <span class="label">N° de Registros</span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosTrabajadores">
                 <span class="value">
-                  <i class="pi pi-users"></i> {{ planillaInfo?.planilla?.total_trabaj }}
+                   {{ planillaInfo?.planilla?.total_trabaj }}
                 </span>
               </ng-container>
               <ng-template #sinDatosTrabajadores>
@@ -80,10 +95,10 @@
 
             <!-- Total Importe -->
             <div class="list-item">
-              <span class="label">Total Importe General</span>
+              <span class="label">Total Salario Cotizable</span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
-                  <i class="pi pi-money-bill"></i> {{ planillaInfo?.planilla?.total_importe | number:'1.2-2' }} Bs
+                   {{ planillaInfo?.planilla?.total_importe | number:'1.2-2' }} Bs
                 </span>
               </ng-container>
               <ng-template #sinDatosImporte>
@@ -92,6 +107,8 @@
                 </span>
               </ng-template>
             </div>
+
+            
 
 
 

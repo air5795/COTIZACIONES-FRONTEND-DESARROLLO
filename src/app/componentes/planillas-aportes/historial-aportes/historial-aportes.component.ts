@@ -13,7 +13,7 @@ export class HistorialAportesComponent {
   planillas: any[] = [];
   totalRegistros: number = 0;
   pagina: number = 0;
-  limite: number = 15;
+  limite: number = 12;
   busqueda: string = '';
   mesFiltro: string = '';
   anioFiltro: string = '';
@@ -22,15 +22,15 @@ export class HistorialAportesComponent {
   loading = true;
   anios: { label: string; value: string }[] = [];
   meses = [
-    { label: 'ENERO', value: '1' },
-    { label: 'FEBRERO', value: '2' },
-    { label: 'MARZO', value: '3' },
-    { label: 'ABRIL', value: '4' },
-    { label: 'MAYO', value: '5' },
-    { label: 'JUNIO', value: '6' },
-    { label: 'JULIO', value: '7' },
-    { label: 'AGOSTO', value: '8' },
-    { label: 'SEPTIEMBRE', value: '9' },
+    { label: 'ENERO', value: '01' },
+    { label: 'FEBRERO', value: '02' },
+    { label: 'MARZO', value: '03' },
+    { label: 'ABRIL', value: '04' },
+    { label: 'MAYO', value: '05' },
+    { label: 'JUNIO', value: '06' },
+    { label: 'JULIO', value: '07' },
+    { label: 'AGOSTO', value: '08' },
+    { label: 'SEPTIEMBRE', value: '09' },
     { label: 'OCTUBRE', value: '10' },
     { label: 'NOVIEMBRE', value: '11' },
     { label: 'DICIEMBRE', value: '12' },
@@ -38,8 +38,8 @@ export class HistorialAportesComponent {
   estados = [
     { label: 'PLANILLAS PRESENTADAS', value: 1 },
     { label: 'PLANILLAS APROBADAS', value: 2 },
-    { label: 'PLANILLAS RECHAZADAS', value: 3 },
   ];
+
 
   constructor(private planillasService: PlanillasAportesService , private router: Router,) {}
 

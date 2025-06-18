@@ -35,6 +35,8 @@ export class PlanillasAportesListComponent {
   mesFiltro: string = '';
   anioFiltro: string = '';
   tipoPlanilla: string = '';
+  usuario_creacion: string = '';
+  nombre_creacion: string = '';
 
   meses = [
     { label: 'ENERO', value: '01' },
@@ -82,8 +84,13 @@ export class PlanillasAportesListComponent {
     this.generarGestiones();
     const sessionData = this.sessionService.sessionDataSubject.value;
     console.log('Datos de sesión:', sessionData); 
-    this.persona = sessionData?.persona || null;
-
+    this.persona = sessionData?.persona;
+    this.usuario_creacion = sessionData?.usuario; 
+    const nombreCompleto = sessionData?.persona.nombres + '' + sessionData?.persona.primerApellido + '' + sessionData?.persona.segundoApellido;
+    this.nombre_creacion = nombreCompleto;
+    console.log('Persona:', this.persona);
+    console.log('Usuario de creación:', this.usuario_creacion); 
+    console.log('Nombre del usuario:', this.nombre_creacion);
     this.obtenerNumeroPatronal();
 
 
@@ -603,7 +610,9 @@ obtenerTotalImporte(): number {
             this.numPatronal ? this.numPatronal : '',
             this.mesSeleccionado,
             this.gestionSeleccionada!.toString(),
-            this.tipoPlanilla
+            this.tipoPlanilla,
+            this.usuario_creacion,
+            this.nombre_creacion,
           )
           .subscribe({
             next: (response) => {
