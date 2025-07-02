@@ -9,8 +9,14 @@
               <i class="pi pi-book" style="font-size: 1.2rem; margin-right: 6px; color: white;"></i>
                N° COMPROBANTE : {{ planillaInfo?.planilla?.com_nro }}
             </span>
-            <span style="background-color: #03665d; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
-              {{ planillaInfo?.planilla?.empresa }}
+            <span style="background-color: #03665d; color: white; padding: 6px 10px; ">
+              {{ planillaInfo.planilla.empresa }}
+            </span>
+            <span style="background-color: #088797; color: white; padding: 6px 10px; ">
+              {{ planillaInfo.planilla.mes }}
+            </span>
+            <span style="background-color: #098ea0; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
+              {{ planillaInfo.planilla.gestion }}
             </span>
           </h2>
           
@@ -30,45 +36,30 @@
               <div class="estado-container" *ngSwitchCase="1">
               <span class="label">ESTADO</span>
               <span class="value" [ngStyle]="{'color': getColorEstado(planillaInfo?.planilla?.estado)}">
-                PLANILLA PRESENTADA <i class="pi pi-send"></i>
+                PRESENTADO <i class="pi pi-send"></i>
               </span>
             </div>
             <div class="estado-container" *ngSwitchCase="2">
               <span class="label">ESTADO</span>
               <span class="value" [ngStyle]="{'color': getColorEstado(planillaInfo?.planilla?.estado)}">
-                PLANILLA APROBADA <i class="pi pi-check"></i>
+                APROBADO <i class="pi pi-check"></i>
               </span>
             </div>
             <div class="estado-container" *ngSwitchCase="3">
               <span class="label">ESTADO</span>
               <span class="value" [ngStyle]="{'color': getColorEstado(planillaInfo?.planilla?.estado)}">
-                PLANILLA OBSERVADA <i class="pi pi-exclamation-triangle"></i>
+                OBSERVADO <i class="pi pi-exclamation-triangle"></i>
               </span>
             </div>
           </div>
           
-            <!-- Gestión -->
-            <div class="list-item">
-              <span class="label">Gestión</span>
-              <span class="value">
-                <i class="pi pi-calendar"></i> {{ planillaInfo?.planilla?.gestion }}
-              </span>
-            </div>
-          
-            <!-- Mes -->
-            <div class="list-item">
-              <span class="label">Mes</span>
-              <span class="value">
-          
-                <i class="pi pi-calendar"></i> {{ planillaInfo?.planilla?.mes }}
-              </span>
-            </div>
+            <!-- Declarado por -->
 
             <div class="list-item">
               <span class="label">Subido Por </span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
-                   Alejandro Iglesias Raldes
+                   {{ planillaInfo?.planilla?.nombre_creacion || '---' }}
                 </span>
               </ng-container>
               <ng-template #sinDatosImporte>
@@ -77,6 +68,22 @@
                 </span>
               </ng-template>
             </div>
+
+        <!-- fecha y hora declaracion -->
+
+            <div class="list-item">
+              <span class="label">Fecha Declaración</span>
+              <ng-container *ngIf="resumenData?.planilla; else sinDatos">
+                <span class="value">
+                  {{ planillaInfo?.planilla?.fecha_declarada | date: "dd/MM/yyyy " : 'UTC' }}
+                </span>
+              </ng-container>
+              <ng-template #sinDatos>
+                <span class="value">---</span>
+              </ng-template>
+            </div>
+
+
           
             <!-- N° de Trabajadores -->
             <div class="list-item">
@@ -95,10 +102,25 @@
 
             <!-- Total Importe -->
             <div class="list-item">
-              <span class="label">Total Salario Cotizable</span>
+              <span class="label">Total Ingresos</span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
-                   {{ planillaInfo?.planilla?.total_importe | number:'1.2-2' }} Bs
+                  <i class="pi pi-money-bill"></i> {{ planillaInfo.planilla.total_importe | number:'1.2-2'  }} Bs
+                </span>
+              </ng-container>
+              <ng-template #sinDatosImporte>
+                <span class="value">
+                  <i class="pi pi-money-bill"></i> 0.00 Bs
+                </span>
+              </ng-template>
+            </div>
+
+               <!-- Total Importe Tasa -->
+            <div class="list-item">
+              <span class="label">Cotizacion tasa (10% o 3%)</span>
+              <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
+                <span class="value">
+                  <i class="pi pi-money-bill"></i> {{ planillaInfo.planilla.cotizacion_tasa  | number:'1.2-2' }} Bs
                 </span>
               </ng-container>
               <ng-template #sinDatosImporte>
@@ -275,43 +297,44 @@
         </div>
     </div>
 </ng-template>
-  <ng-template pTemplate="header">
+<ng-template pTemplate="header">
     <tr style="background-color: #f8f9fa;">
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nro en Planilla</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">CI</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nombre Completo</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Haber Basico</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
-      <th *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Acciones</th>
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nro en Planilla</th>
+        <th style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">CI</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
+        <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Nombre Completo</th>
+        <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Dias Pagados</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
+        
+        <th *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Acciones</th>
     </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-trabajador let-i="rowIndex">
+</ng-template>
+<ng-template pTemplate="body" let-trabajador let-i="rowIndex">
     <tr>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }} {{ trabajador.nombres }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.haber_basico | number:'1.2-2' }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.salario | number:'1.2-2' }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
-      <td *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="text-align: center; padding: 1px; border: 1px solid #dee2e6;">
-        <button
-          pButton
-          
-          icon="pi pi-pencil"
-          (click)="editarTrabajador(trabajador)"
-          class="p-button-warning p-button-sm"
-          style="width: 25px; height: 25px; padding: 0; width: 100%;"
-        ></button>
-      </td>
+        <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
+        <td style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
+        <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }} {{ trabajador.nombres }}</td>
+        <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
+        <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.dias_pagados }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.salario | number:'1.2-2' }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
+        
+        <td *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="width: 80px; text-align: center; padding: 1px; border: 1px solid #dee2e6;">
+            <button
+                pButton
+                icon="pi pi-pencil"
+                (click)="editarTrabajador(trabajador)"
+                class="p-button-warning p-button-sm"
+                style="width: 25px; height: 25px; padding: 0; width: 100%;"
+            ></button>
+        </td>
     </tr>
-  </ng-template>
+</ng-template>
 </p-table>
   </p-tabPanel>
   <p-tabPanel header="Resumen" leftIcon="pi pi-eye" >
@@ -412,7 +435,7 @@
                 </th>
                 <th class="text-right">
                   <i class="pi pi-percentage"></i>
-                  10% del Total
+                  TASA (10% o 3%)
                 </th>
               </tr>
             </thead>
@@ -672,51 +695,58 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
 
 
 <!-- EDITAR TRABAJADOR --------------------------------------------------------------------------------------------> 
-<p-dialog [(visible)]="displayModal" [modal]="true" [style]="{ width: '50vw' }">
+<p-dialog [(visible)]="displayModal" [modal]="true" [style]="{ width: '50vw', 'max-width': '600px', 'min-width': '300px' }" class="shadow-lg rounded-lg">
   <ng-template pTemplate="header">
-    <h2>Editar Trabajador</h2>
+    <h2 class="text-2xl font-semibold text-gray-800">Editar Trabajador</h2>
   </ng-template>
   <ng-template pTemplate="content">
-    <div class="p-fluid">
-      <div class="p-field">
-        <label for="ci">CI</label>
-        <input id="ci" pInputText [(ngModel)]="trabajadorSeleccionado.ci" />
+    <div class="p-fluid px-4 py-6 bg-gray-50">
+      <div class="mb-4">
+        <label for="ci" class="block text-sm font-medium text-gray-700 mb-1">CI</label>
+        <input id="ci" pInputText [(ngModel)]="trabajadorSeleccionado.ci" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       </div>
-      <div class="p-field">
-        <label for="apellido_paterno">Apellido Paterno</label>
-        <input id="apellido_paterno" pInputText [(ngModel)]="trabajadorSeleccionado.apellido_paterno" />
+      <div class="mb-4">
+        <label for="apellido_paterno" class="block text-sm font-medium text-gray-700 mb-1">Apellido Paterno</label>
+        <input id="apellido_paterno" pInputText [(ngModel)]="trabajadorSeleccionado.apellido_paterno" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       </div>
-      <div class="p-field">
-        <label for="nombres">Nombres</label>
-        <input id="nombres" pInputText [(ngModel)]="trabajadorSeleccionado.nombres" />
+      <div class="mb-4">
+        <label for="nombres" class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+        <input id="nombres" pInputText [(ngModel)]="trabajadorSeleccionado.nombres" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       </div>
-      <div class="p-field">
-        <label for="cargo">Cargo</label>
-        <input id="cargo" pInputText [(ngModel)]="trabajadorSeleccionado.cargo" />
+      <div class="mb-4">
+        <label for="cargo" class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+        <input id="cargo" pInputText [(ngModel)]="trabajadorSeleccionado.cargo" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       </div>
-      <div class="p-field">
-        <label for="salario">Salario</label>
-        <input id="salario" pInputText type="number" [(ngModel)]="trabajadorSeleccionado.salario" />
+      <div class="mb-4">
+        <label for="salario" class="block text-sm font-medium text-gray-700 mb-1">Salario</label>
+        <input id="salario" pInputText type="number" [(ngModel)]="trabajadorSeleccionado.salario" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       </div>
-      <div class="p-field">
-        <label for="fecha_ingreso">Fecha de Ingreso</label>
-        <input id="fecha_ingreso" pInputText [(ngModel)]="trabajadorSeleccionado.fecha_ingreso" />
+      <div class="mb-4">
+        <label for="fecha_ingreso" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Ingreso</label>
+        <input id="fecha_ingreso" pInputText [(ngModel)]="trabajadorSeleccionado.fecha_ingreso" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       </div>
-      <div class="p-field">
-        <label for="regional">Regional</label>
+      <div class="mb-4">
+        <label for="regional" class="block text-sm font-medium text-gray-700 mb-1">Regional</label>
         <p-dropdown
           id="regional"
           [options]="regionales"
           [(ngModel)]="trabajadorSeleccionado.regional"
+          [appendTo]="'body'"
+          class="w-full"
+          styleClass="w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         ></p-dropdown>
       </div>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button pButton label="Cancelar" icon="pi pi-times" (click)="displayModal = false" class="p-button-text"></button>
-    <button pButton label="Guardar" icon="pi pi-check" (click)="guardarEdicion()" class="p-button-success"></button>
+    <div class="flex justify-end gap-2 px-4 py-3 bg-gray-100 rounded-b-lg">
+      <button pButton label="Cancelar" icon="pi pi-times" (click)="displayModal = false" class="p-button-text  px-4 py-2"></button>
+      <button pButton label="Guardar" icon="pi pi-check" (click)="guardarEdicion()" class="p-button-success text-white  px-4 py-2"></button>
+    </div>
   </ng-template>
 </p-dialog>
+
+
 
 
 

@@ -777,4 +777,12 @@
   0% { opacity: 1; }
   50% { opacity: 0.7; }
   100% { opacity: 1; }
-}
+}/* Puedes colocarlo en styles.css o en el .css del componente */
+
+
+
+  @media (max-width: 768px) {
+    .list-item {
+      flex: 1 1 100%;
+    }
+  }

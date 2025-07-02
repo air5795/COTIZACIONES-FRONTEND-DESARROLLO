@@ -4,18 +4,24 @@
     <div class="perfil-empleador">
       <div class="cabezera-planilla">
         <div class="header-left">
-          <h2 style="font-size: 18px; display: flex; align-items: center; font-family: 'Roboto', sans-serif; margin: 5px 0 5px;">
+          <h2 style="font-size: 15px; display: flex; align-items: center; font-family: 'Roboto', sans-serif; margin: 5px 0 5px;">
             <span style="background-color: #009688; color: white; padding: 6px 10px; border-radius: 4px 0 0 4px; display: flex; align-items: center;">
               <i class="pi pi-book" style="font-size: 1.2rem; margin-right: 6px; color: white;"></i>
-              COD - PLANILLA N°  {{ planillaInfo.planilla.com_nro }}
+              N° COMPROBANTE : {{ planillaInfo.planilla.com_nro }}
             </span>
-            <span style="background-color: #03665d; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
+            <span style="background-color: #03665d; color: white; padding: 6px 10px; ">
               {{ planillaInfo.planilla.empresa }}
+            </span>
+            <span style="background-color: #088797; color: white; padding: 6px 10px; ">
+              {{ planillaInfo.planilla.mes }}
+            </span>
+            <span style="background-color: #098ea0; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
+              {{ planillaInfo.planilla.gestion }}
             </span>
           </h2>
           
           
-          <hr style="border: 1px solid #949494; margin: 10px 0;">
+          <hr style="border: 1px solid #949494; margin: 2px 0;">
         
           <div class="list-container">
             <!-- Estado de Planilla -->
@@ -30,37 +36,52 @@
               <div class="estado-container" *ngSwitchCase="1">
               <span class="label">ESTADO</span>
               <span class="value" [ngStyle]="{'color': getColorEstado(planillaInfo.planilla.estado)}">
-                PLANILLA PRESENTADA <i class="pi pi-send"></i>
+                PRESENTADO <i class="pi pi-send"></i>
               </span>
             </div>
             <div class="estado-container" *ngSwitchCase="2">
               <span class="label">ESTADO</span>
               <span class="value" [ngStyle]="{'color': getColorEstado(planillaInfo.planilla.estado)}">
-                PLANILLA APROBADA <i class="pi pi-check"></i>
+                 APROBADO <i class="pi pi-check"></i>
               </span>
             </div>
             <div class="estado-container" *ngSwitchCase="3">
               <span class="label">ESTADO</span>
               <span class="value" [ngStyle]="{'color': getColorEstado(planillaInfo.planilla.estado)}">
-                PLANILLA OBSERVADA <i class="pi pi-exclamation-triangle"></i>
+                OBSERVADO <i class="pi pi-exclamation-triangle"></i>
               </span>
             </div>
           </div>
           
-            <!-- Gestión -->
+
+            <!-- Declarado por -->
+
             <div class="list-item">
-              <span class="label">Gestión</span>
-              <span class="value">
-                <i class="pi pi-calendar"></i> {{ planillaInfo.planilla.gestion }}
-              </span>
+              <span class="label">Declarado Por </span>
+              <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
+                <span class="value">
+                   {{ planillaInfo?.planilla?.nombre_creacion || '---' }}
+                </span>
+              </ng-container>
+              <ng-template #sinDatosImporte>
+                <span class="value">
+                  <i class="pi user"></i> -
+                </span>
+              </ng-template>
             </div>
-          
-            <!-- Mes -->
+
+            <!-- fecha y hora declaracion -->
+
             <div class="list-item">
-              <span class="label">Mes</span>
-              <span class="value">
-                <i class="pi pi-calendar"></i> {{ planillaInfo.planilla.mes }}
-              </span>
+              <span class="label">Fecha Declaración</span>
+              <ng-container *ngIf="resumenData?.planilla; else sinDatos">
+                <span class="value">
+                  {{ planillaInfo?.planilla?.fecha_declarada | date: "dd/MM/yyyy " : 'UTC' }}
+                </span>
+              </ng-container>
+              <ng-template #sinDatos>
+                <span class="value">---</span>
+              </ng-template>
             </div>
           
             <!-- N° de Trabajadores -->
@@ -80,10 +101,25 @@
 
             <!-- Total Importe -->
             <div class="list-item">
-              <span class="label">Total Importe General</span>
+              <span class="label">Total Ingresos</span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
-                  <i class="pi pi-money-bill"></i> {{ planillaInfo.planilla.total_importe | number:'1.2-2' }} Bs
+                  <i class="pi pi-money-bill"></i> {{ planillaInfo.planilla.total_importe | number:'1.2-2'  }} Bs
+                </span>
+              </ng-container>
+              <ng-template #sinDatosImporte>
+                <span class="value">
+                  <i class="pi pi-money-bill"></i> 0.00 Bs
+                </span>
+              </ng-template>
+            </div>
+
+               <!-- Total Importe Tasa -->
+            <div class="list-item">
+              <span class="label">Cotizacion tasa (10% o 3%)</span>
+              <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
+                <span class="value">
+                  <i class="pi pi-money-bill"></i> {{ planillaInfo.planilla.cotizacion_tasa  | number:'1.2-2' }} Bs
                 </span>
               </ng-container>
               <ng-template #sinDatosImporte>
@@ -131,7 +167,7 @@
   </div>
 </div>
 <!-- OPCIONES DE PLANILLA ---------------------------------------------------------------------------------- -->
-<p-tabView [style]="{ padding: '5px' , 'border': '1px solid gray'}">
+<p-tabView [style]="{ padding: '5px' , 'border': '1px solid #ccc', borderRadius: '5px' }" >
   <p-tabPanel header="Planilla Declarada Mensual" leftIcon="pi pi-file" >
     <p-table
     [value]="trabajadores"
@@ -208,34 +244,36 @@
 </ng-template>
   <ng-template pTemplate="header">
     <tr style="background-color: #f8f9fa;">
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nro en Planilla</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">CI</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nombre Completo</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Haber Basico</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Afiliado</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Tipo Afiliado</th>
-      <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Matricula</th>
+      <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nro en Planilla</th>
+        <th style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">CI</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
+        <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Nombre Completo</th>
+        <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Dias Pagados</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
+        <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
+        
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Afiliado</th>
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Tipo Afiliado</th>
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Matricula</th>
       
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-trabajador let-i="rowIndex">
     <tr>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }} {{ trabajador.nombres }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.haber_basico | number:'1.2-2' }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.salario | number:'1.2-2' }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
+      <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
+        <td style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
+        <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }} {{ trabajador.nombres }}</td>
+        <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
+        <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.dias_pagados }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6; background-color: #eeffeb;">{{ trabajador.salario | number:'1.2-2' }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
+        
 
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+      <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">
         <span *ngIf="trabajador.es_afiliado === true; else noEsAfiliado"> 
           <span style="color: green;">
             <i class="pi pi-check check-icon green-check"></i> 
@@ -256,13 +294,13 @@
           </span>
         </ng-template>
       </td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+      <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">
         <span *ngIf="trabajador.tipo_afiliado; else sinTipoAfiliado">{{ trabajador.tipo_afiliado }}</span>
         <ng-template #sinTipoAfiliado>
           <span style="color: #6c757d;">&mdash;</span> <!-- Color gris para el caso null -->
         </ng-template>
       </td>
-      <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+      <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">
         <span *ngIf="trabajador.matricula; else sinMatricula">{{ trabajador.matricula }}</span>
         <ng-template #sinMatricula>
           <span style="color: #6c757d;">&mdash;</span> <!-- Color gris para el caso null -->
@@ -275,150 +313,135 @@
 </p-table>
   </p-tabPanel>
   <p-tabPanel header="Resumen" leftIcon="pi pi-eye" >
-    <div style="display: flex; align-items: center; justify-content: space-between;  background-color: #e3e3e3; padding: 5px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <i class="pi pi-paperclip" style="color: #032f53; font-size: 1.5rem;"></i>
-        <span style="font-size: 1.25rem; font-weight: bold; color: #5f5f5f;">Resumen Planilla</span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <!-- <button pButton style="border: 1px;" label="Exportar a PDF" class="p-button-outlined p-button-plain" icon="pi pi-file-pdf" (click)="recargar()"></button> -->
-        <button pButton style="border: 1px;" label="Recargar" class="p-button-outlined p-button-plain" icon="pi pi-refresh" (click)="obtenerResumenPlanilla()"></button>
-      </div>
-    </div>
-    <div>
-      <div class="grid ">
-        <!-- Sección izquierda: Información de la Planilla -->
-        <div class="col-12 md:col-6 lg:6">
-          
-            <div *ngIf="resumenData?.planilla" class="custom-table">
-                <table class="p-datatable p-datatable-striped w-full">
-                    <tbody>
-                        <!-- Empleador -->
-                        <tr>
-                            <td class="font-bold text-blue-900  px-3 " style="width: 50%;font-size: 14px;">
-                                <i class="pi pi-building mr-2"></i> Empleador
-                            </td>
-                            <td class=" text-gray-700 px-3 py-2" style="background-color: #e7fbeb;font-size: 14px;font-weight: 600;border-bottom: 1px solid #e3e3e3;">
-                                {{ resumenData.planilla.empresa }}
-                            </td>
-                        </tr>
-                        <!-- Total Importe -->
-                        <tr class="surface-ground">
-                            <td class="font-bold text-blue-900  px-3 " style="width: 50%;font-size: 14px;">
-                                <i class="pi pi-money-bill mr-2"></i> Total Importe
-                            </td>
-                            <td class=" text-gray-700 px-3 py-2" style="background-color: #e7fbeb;font-size: 14px;font-weight: 600;border-bottom: 1px solid #e3e3e3;">
-                                {{ resumenData.planilla.total_importe | number:'1.2-2' }} Bs
-                            </td>
-                        </tr>
-                        <!-- Total Registros -->
-                        <tr>
-                            <td class="font-bold text-blue-900  px-3 " style="width: 50%;font-size: 14px;">
-                                <i class="pi pi-users mr-2"></i> Total Registros
-                            </td>
-                            <td class=" text-gray-700 px-3 py-2" style="background-color: #e7fbeb;font-size: 14px;font-weight: 600;border-bottom: 1px solid #e3e3e3;">
-                                {{ resumenData.planilla.total_trabaj }}
-                            </td>
-                        </tr>
-                        <!-- Total Altas -->
-                        <tr class="surface-ground">
-                            <td class="font-bold text-blue-900  px-3 " style="width: 50%;font-size: 14px;">
-                                <i class="pi pi-user-plus mr-2"></i> Total Altas
-                            </td>
-                            <td class=" text-green-400 px-3 py-2" style="background-color: #e7fbeb;font-size: 14px;font-weight: 600;border-bottom: 1px solid #e3e3e3;">
-                                {{ altas.length }}
-                            </td>
-                        </tr>
-                        <!-- Total Bajas por Retiro en mes actual -->
-                        <tr>
-                            <td class="font-bold text-blue-900  px-3 " style="width: 50%;font-size: 14px;">
-                                <i class="pi pi-user-minus mr-2"></i> Total Bajas por Retiro en mes actual
-                            </td>
-                            <td class=" text-pink-400 px-3 py-2" style="background-color: #e7fbeb;font-size: 14px;font-weight: 600;border-bottom: 1px solid #e3e3e3;">
-                                {{ bajasPorRetiro.length }}
-                            </td>
-                        </tr>
-                        <!-- Trabajador no encontrado en el mes actual -->
-                        <tr class="surface-ground">
-                            <td class="font-bold text-blue-900  px-3 " style="width: 50%;font-size: 14px;">
-                                <i class="pi pi-exclamation-triangle mr-2"></i> Trabajador no encontrado en el mes actual
-                            </td>
-                            <td class=" text-pink-400 px-3 py-2" style="background-color: #e7fbeb;font-size: 14px;font-weight: 600;border-bottom: 1px solid #e3e3e3;">
-                                {{ bajasNoEncontradas.length }} 
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <div class="dashboard-container" >
+      <!-- Contenedor principal de dos secciones -->
+      <div class="content-grid" style="display: grid; grid-template-columns: 4fr 4fr; background-color: #f5f5f5;">
+        <!-- Panel izquierdo: Tarjetas de información -->
+        <div class="summary-panel">
+          <!-- Diseño de tarjetas -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; padding: 15px; background-color: #f5f5f5;">
+            <!-- Tarjeta: Total Registros -->
+            <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+              <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Registros</span>
+                  <i class="pi pi-users" style="color: #00796b; font-size: 1.5rem;"></i>
+                </div>
+              </div>
+              <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 2.2rem; font-weight: 700; color: #00695c;">
+                  {{ resumenData?.planilla?.total_trabaj }}
+                </div>
+                <div style="color: #616161; font-size: 0.9rem; margin-top: 5px;">Empleados registrados</div>
+              </div>
             </div>
-        
-            <!-- Mensaje de no datos -->
-            <div *ngIf="!resumenData?.planilla" class="text-center text-gray-500 font-italic p-4 surface-50 border-round">
-                No hay datos de la planilla disponibles.
+            
+            <!-- Tarjeta: Total Altas -->
+            <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+              <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Altas</span>
+                  <i class="pi pi-user-plus" style="color: #00796b; font-size: 1.5rem;"></i>
+                </div>
+              </div>
+              <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 2.2rem; font-weight: 700; color: #4caf50; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                  {{ altas.length }}
+                  <i class="pi pi-arrow-up" style="font-size: 1.2rem;"></i>
+                </div>
+                <div style="color: #616161; font-size: 0.9rem; margin-top: 5px;">Nuevas incorporaciones</div>
+              </div>
             </div>
-     
+            
+            <!-- Tarjeta: Total Bajas por Retiro -->
+            <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+              <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Bajas</span>
+                  <i class="pi pi-user-minus" style="color: #00796b; font-size: 1.5rem;"></i>
+                </div>
+              </div>
+              <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 2.2rem; font-weight: 700; color: #f44336; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                  {{ bajasPorRetiro.length }}
+                  <i class="pi pi-arrow-down" style="font-size: 1.2rem;"></i>
+                </div>
+                <div style="color: #616161; font-size: 0.9rem; margin-top: 5px;">Retiros en el mes actual</div>
+              </div>
+            </div>
+            
+            <!-- Tarjeta: No encontrados -->
+            <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+              <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-weight: 600; color: #00796b; font-size: 1rem;">No Encontrados</span>
+                  <i class="pi pi-exclamation-triangle" style="color: #00796b; font-size: 1.5rem;"></i>
+                </div>
+              </div>
+              <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 2.2rem; font-weight: 700; color: #ff9800; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                  {{ bajasNoEncontradas.length }}
+                  <i class="pi pi-question-circle" style="font-size: 1.2rem;"></i>
+                </div>
+                <div style="color: #616161; font-size: 0.9rem; margin-top: 5px;">Trabajadores no encontrados</div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
         
+        <!-- Panel derecho: Tabla de resumen por regional -->
+        <div class="summary-panel">
+        
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>
+                  <i class="pi pi-map-marker"></i>
+                  Regional
+                </th>
+                <th class="text-right">
+                  <i class="pi pi-users"></i>
+                  Cantidad
+                </th>
+                <th class="text-right">
+                  <i class="pi pi-money-bill"></i>
+                  Total Ganado
+                </th>
+                <th class="text-right">
+                  <i class="pi pi-percentage"></i>
+                  TASA (10% o 3%)
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Filas de resumen por regional dinámicas -->
+              <tr *ngFor="let region of resumenData?.resumen">
+                <td>{{ region.regional }}</td>
+                <td class="text-right">{{ region.cantidad | number:'1.0-0' }}</td>
+                <td class="text-right">{{ region.total_ganado }}</td>
+                <td class="text-right">{{ region.porcentaje_10 }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr *ngIf="resumenData?.totales">
+                <td>
+                  <i class="pi pi-chart-bar"></i>
+                  Totales
+                </td>
+                <td style="text-align: right;">{{ resumenData.totales.cantidad_total | number:'1.0-0' }}</td>
+                <td style="text-align: right;">{{ resumenData.totales.total_ganado }}</td>
+                <td style="text-align: right;">{{ resumenData.totales.porcentaje_10 }}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div *ngIf="!resumenData?.resumen || resumenData?.resumen.length === 0" class="empty-message">
+            <i class="pi pi-info-circle"></i>
+            No hay datos para mostrar en este momento.
+          </div>
         </div>
-    
-        <!-- Sección derecha: Tabla de resumen -->
-         
-        <div class="col-12 md:col-6 lg:6">
-            <p-table 
-                [value]="resumenData?.resumen" 
-                [loading]="resumenLoading" 
-                [rowHover]="true" 
-                styleClass="p-datatable-striped p-datatable-gridlines"
-                responsiveLayout="scroll"
-                [style]="{'margin-bottom': '0'}"
-                class="shadow-lg border-round"
-            >
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th class="p-3 text-left" style="background-color: #e3e3e3; color: #5f5f5f; font-weight: 600; border-bottom: 2px solid #4b5563;">
-                            <i class="pi pi-map-marker mr-2"></i> Regional
-                        </th>
-                        <th class="p-3 text-right" style="background-color: #e3e3e3; color: #5f5f5f; font-weight: 600; border-bottom: 2px solid #4b5563;">
-                            <i class="pi pi-users mr-2"></i> Cantidad
-                        </th>
-                        <th class="p-3 text-right" style="background-color: #e3e3e3; color: #5f5f5f; font-weight: 600; border-bottom: 2px solid #4b5563;">
-                            <i class="pi pi-money-bill mr-2"></i> Total Ganado
-                        </th>
-                        <th class="p-3 text-right" style="background-color: #e3e3e3; color: #5f5f5f; font-weight: 600; border-bottom: 2px solid #4b5563;">
-                            <i class="pi pi-percentage mr-2"></i> 10% del Total
-                        </th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-region>
-                    <tr>
-                        <td class="p-3" style="color: #374151; border-bottom: 1px solid #e5e7eb;">{{ region.regional }}</td>
-                        <td class="p-3 text-right" style="color: #374151; border-bottom: 1px solid #e5e7eb;">{{ region.cantidad | number:'1.0-0' }}</td>
-                        <td class="p-3 text-right" style="color: #374151; border-bottom: 1px solid #e5e7eb;">{{ region.total_ganado }}</td>
-                        <td class="p-3 text-right" style="color: #374151; border-bottom: 1px solid #e5e7eb;">{{ region.porcentaje_10 }}</td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="footer">
-                    <tr *ngIf="resumenData?.totales" style="background-color: #fef3c7; font-weight: 700; color: #713f12; border-top: 3px double #4b5563;">
-                        <td class="p-3" style="background-color: #e3e3e3; color: #5f5f5f; border-top: 3px double #4b5563;">
-                            <i class="pi pi-chart-bar mr-2"></i> Totales
-                        </td>
-                        <td class="p-3 text-right" style="background-color: #e7fbeb; border-top: 3px double #4b5563;">{{ resumenData.totales.cantidad_total | number:'1.0-0' }}</td>
-                        <td class="p-3 text-right" style="background-color: #e7fbeb; border-top: 3px double #4b5563;">{{ resumenData.totales.total_ganado }}</td>
-                        <td class="p-3 text-right" style="background-color: #e7fbeb; border-top: 3px double #4b5563;">{{ resumenData.totales.porcentaje_10 }}</td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="4" class="p-3 text-center text-gray-500" style="background-color: #f9fafb;">
-                            <i class="pi pi-info-circle mr-2"></i> No hay datos para mostrar.
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
+      </div>
     </div>
-    
-    </div>
-    
-    
   </p-tabPanel>
   <p-tabPanel header="Bajas" leftIcon="pi pi-arrow-down">
 <!--  Bajas por Fecha de Retiro -->
