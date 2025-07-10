@@ -145,7 +145,7 @@ import { NotificacionesComponent } from './componentes/notificaciones/notificaci
 import { HistorialNotificacionesComponent } from './componentes/notificaciones/historial-notificaciones/historial-notificaciones.component';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { LoadingComponent } from './componentes/loading/loading.component';
-
+import { LoadingComponenteComponent } from './componentes/layout/loading-componente/loading-componente.component';
 
 registerLocaleData(localeEs);
 
@@ -284,6 +284,7 @@ registerLocaleData(localeEs);
     NotificacionesComponent,
     HistorialNotificacionesComponent,
     LoadingComponent,
+    LoadingComponenteComponent,
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, CountryService, CustomerService, EventService, IconService, NodeService,
     PhotoService, ProductService, MenuService , MessageService , { provide: LOCALE_ID, useValue: 'es' } ],

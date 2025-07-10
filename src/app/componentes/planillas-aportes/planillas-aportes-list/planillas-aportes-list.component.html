@@ -309,7 +309,7 @@ class="tabla-centrada"
           </div>
           
           
-
+          
     
 
           <div *ngIf="planillaDatos.length > 0">
@@ -322,9 +322,9 @@ class="tabla-centrada"
                   <th>Apellido Materno</th>
                   <th>Nombres</th>
                   <th>Cargo</th>
-                  <th style="width: 200px;">Salario</th> <!-- Ajustamos el ancho de la columna Salario -->
-                  <th>Fecha de Ingreso</th>
-                  <th>Fecha de Retiro</th>
+                  <th style="width: 200px;">Salario</th> 
+                  <th>Fecha Ingreso</th>
+                  <th>Fecha Retiro</th>
                   <th>Regional</th>
                 </tr>
               </ng-template>
@@ -410,3 +410,6 @@ class="tabla-centrada"
 
 
   </p-dialog>
+
+
+  <app-loading-componente *ngIf="isLoading" [progress]="loadingProgress" [message]="loadingMessage"></app-loading-componente>

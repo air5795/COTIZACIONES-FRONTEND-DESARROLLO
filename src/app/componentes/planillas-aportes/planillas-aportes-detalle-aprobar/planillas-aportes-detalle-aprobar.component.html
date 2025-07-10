@@ -10,7 +10,7 @@
               N° COMPROBANTE : {{ planillaInfo.planilla.com_nro }}
             </span>
             <span style="background-color: #03665d; color: white; padding: 6px 10px; ">
-              {{ planillaInfo.planilla.empresa }}
+              {{ planillaInfo.planilla.empresa.nombre }}
             </span>
             <span style="background-color: #088797; color: white; padding: 6px 10px; ">
               {{ planillaInfo.planilla.mes }}
@@ -418,9 +418,9 @@
               <!-- Filas de resumen por regional dinámicas -->
               <tr *ngFor="let region of resumenData?.resumen">
                 <td>{{ region.regional }}</td>
-                <td class="text-right">{{ region.cantidad | number:'1.0-0' }}</td>
+                <td class="text-right">{{ parseNumber(region.cantidad) | number:'1.0-0' }}</td>
                 <td class="text-right">{{ region.total_ganado }}</td>
-                <td class="text-right">{{ region.porcentaje_10 }}</td>
+                <td class="text-right">{{ region.cotizacion }}</td>
               </tr>
             </tbody>
             <tfoot>
@@ -429,9 +429,9 @@
                   <i class="pi pi-chart-bar"></i>
                   Totales
                 </td>
-                <td style="text-align: right;">{{ resumenData.totales.cantidad_total | number:'1.0-0' }}</td>
+                <td style="text-align: right;">{{ parseNumber(resumenData.totales.cantidad_total) | number:'1.0-0' }}</td>
                 <td style="text-align: right;">{{ resumenData.totales.total_ganado }}</td>
-                <td style="text-align: right;">{{ resumenData.totales.porcentaje_10 }}</td>
+                <td style="text-align: right;">{{ resumenData.totales.cotizacion }}</td>
               </tr>
             </tfoot>
           </table>

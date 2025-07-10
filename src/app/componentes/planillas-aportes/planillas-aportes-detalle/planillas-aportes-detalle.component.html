@@ -9,8 +9,8 @@
               <i class="pi pi-book" style="font-size: 1.2rem; margin-right: 6px; color: white;"></i>
                N° COMPROBANTE : {{ planillaInfo?.planilla?.com_nro }}
             </span>
-            <span style="background-color: #03665d; color: white; padding: 6px 10px; ">
-              {{ planillaInfo.planilla.empresa }}
+            <span  style="background-color: #03665d; color: white; padding: 6px 10px; ">
+              {{ planillaInfo.planilla.empresa.nombre }}
             </span>
             <span style="background-color: #088797; color: white; padding: 6px 10px; ">
               {{ planillaInfo.planilla.mes }}
@@ -55,8 +55,8 @@
           
             <!-- Declarado por -->
 
-            <div class="list-item">
-              <span class="label">Subido Por </span>
+            <div *ngIf="planillaInfo.planilla.fecha_declarada != null" class="list-item">
+              <span class="label">Declarado Por </span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
                    {{ planillaInfo?.planilla?.nombre_creacion || '---' }}
@@ -71,7 +71,7 @@
 
         <!-- fecha y hora declaracion -->
 
-            <div class="list-item">
+            <div *ngIf="planillaInfo.planilla.fecha_declarada != null" class="list-item">
               <span class="label">Fecha Declaración</span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatos">
                 <span class="value">
@@ -443,9 +443,9 @@
               <!-- Filas de resumen por regional dinámicas -->
               <tr *ngFor="let region of resumenData?.resumen">
                 <td>{{ region.regional }}</td>
-                <td class="text-right">{{ region.cantidad | number:'1.0-0' }}</td>
+                <td class="text-right">{{ parseNumber(region.cantidad) | number:'1.0-0' }}</td>
                 <td class="text-right">{{ region.total_ganado }}</td>
-                <td class="text-right">{{ region.porcentaje_10 }}</td>
+                <td class="text-right">{{ region.cotizacion }}</td>
               </tr>
             </tbody>
             <tfoot>
@@ -454,9 +454,9 @@
                   <i class="pi pi-chart-bar"></i>
                   Totales
                 </td>
-                <td style="text-align: right;">{{ resumenData.totales.cantidad_total | number:'1.0-0' }}</td>
+                <td style="text-align: right;">{{ parseNumber(resumenData.totales.cantidad_total) | number:'1.0-0' }}</td>
                 <td style="text-align: right;">{{ resumenData.totales.total_ganado }}</td>
-                <td style="text-align: right;">{{ resumenData.totales.porcentaje_10 }}</td>
+                <td style="text-align: right;">{{ resumenData.totales.cotizacion }}</td>
               </tr>
             </tfoot>
           </table>
