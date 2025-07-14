@@ -6,17 +6,28 @@
         <div class="header-left">
           <h2 style="font-size: 15px; display: flex; align-items: center; font-family: 'Roboto', sans-serif; margin: 5px 0 5px;">
             <span style="background-color: #009688; color: white; padding: 6px 10px; border-radius: 4px 0 0 4px; display: flex; align-items: center;">
-              <i class="pi pi-book" style="font-size: 1.2rem; margin-right: 6px; color: white;"></i>
-              N° COMPROBANTE : {{ planillaInfo.planilla.com_nro }}
+              
+               N° {{ planillaInfo?.planilla?.com_nro }}
             </span>
-            <span style="background-color: #03665d; color: white; padding: 6px 10px; ">
-              {{ planillaInfo.planilla.empresa.nombre }}
-            </span>
-            <span style="background-color: #088797; color: white; padding: 6px 10px; ">
+            <span style="background-color: #00796b; color: white; padding: 6px 10px; ">
               {{ planillaInfo.planilla.mes }}
             </span>
-            <span style="background-color: #098ea0; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
+            <span style="background-color: #00685a; color: white; padding: 6px 10px; ">
               {{ planillaInfo.planilla.gestion }}
+            </span>
+            <span  style="background-color: #00483a; color: white; padding: 6px 10px;  ">
+              {{ planillaInfo.planilla.empresa.nombre }}
+            </span>
+
+            <span 
+              style="background-color: #00382a; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
+              {{
+                planillaInfo.planilla.empresa.tipo === 'PA' ? 'PASIVO' :
+                planillaInfo.planilla.empresa.tipo === 'AP' ? 'PÚBLICA' :
+                planillaInfo.planilla.empresa.tipo === 'AV' ? 'PRIVADA' :
+                planillaInfo.planilla.empresa.tipo === 'VA' ? 'DECRETO SUPREMO' :
+                planillaInfo.planilla.empresa.tipo // Por si acaso, muestra el valor original
+              }}
             </span>
           </h2>
           
@@ -116,10 +127,14 @@
 
                <!-- Total Importe Tasa -->
             <div class="list-item">
-              <span class="label">Cotizacion tasa (10% o 3%)</span>
+              <span class="label">
+                Cotización tasa: 
+                {{ planillaInfo.planilla.empresa.tipo === 'PA' ? '3' : '10' }} %
+              </span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
-                  <i class="pi pi-money-bill"></i> {{ planillaInfo.planilla.cotizacion_tasa  | number:'1.2-2' }} Bs
+                  <i class="pi pi-money-bill"></i> 
+                  {{ planillaInfo.planilla.cotizacion_tasa | number:'1.2-2' }} Bs
                 </span>
               </ng-container>
               <ng-template #sinDatosImporte>
@@ -168,7 +183,7 @@
 </div>
 <!-- OPCIONES DE PLANILLA ---------------------------------------------------------------------------------- -->
 <p-tabView [style]="{ padding: '5px' , 'border': '1px solid #ccc', borderRadius: '5px' }" >
-  <p-tabPanel header="Planilla Declarada Mensual" leftIcon="pi pi-file" >
+  <p-tabPanel header="Planilla Declarada" leftIcon="pi pi-file" >
     <p-table
     [value]="trabajadores"
     [paginator]="true"
@@ -244,12 +259,12 @@
 </ng-template>
   <ng-template pTemplate="header">
     <tr style="background-color: #f8f9fa;">
-      <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nro en Planilla</th>
+      <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Nro</th>
         <th style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">CI</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
         <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Nombre Completo</th>
-        <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
-        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Dias Pagados</th>
+        <th *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'" style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
+        <th *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'" style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Dias Pagados</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
@@ -266,8 +281,8 @@
         <td style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
         <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }} {{ trabajador.nombres }}</td>
-        <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
-        <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.dias_pagados }}</td>
+        <td *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'" style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
+        <td *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'" style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.dias_pagados }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6; background-color: #eeffeb;">{{ trabajador.salario | number:'1.2-2' }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>

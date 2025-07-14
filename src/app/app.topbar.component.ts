@@ -43,7 +43,7 @@ import { environment } from '../environments/environment';
               <div *ngIf="persona.empresa">
                 <hr style="margin: 3px;">
                 <span class="topbar-item-name profile-role" style="color:#686868; width:max-content;">
-                  <span style="font-size:11px; margin:8px;">{{persona.empresa.nombre}}</span>
+                  <span style="font-size:11px; margin:8px;">{{persona.empresa.nombre}} </span>
                 </span>
               </div>
             </div>

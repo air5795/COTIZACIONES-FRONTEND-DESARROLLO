@@ -90,7 +90,7 @@ export class PlanillasAportesListComponent {
     console.log('Datos de sesión:', sessionData); 
     this.persona = sessionData?.persona;
     this.usuario_creacion = sessionData?.usuario; 
-    const nombreCompleto = sessionData?.persona.nombres + '' + sessionData?.persona.primerApellido + '' + sessionData?.persona.segundoApellido;
+    const nombreCompleto = `${sessionData?.persona?.nombres || ''} ${sessionData?.persona?.primerApellido || ''} ${sessionData?.persona?.segundoApellido || ''}`.replace(/\s+/g, ' ').trim();
     this.nombre_creacion = nombreCompleto;
     console.log('Persona:', this.persona);
     console.log('Usuario de creación:', this.usuario_creacion); 
@@ -466,7 +466,7 @@ private processDataRows(data: any[], headers: string[]) {
             value = value.replace(/\./g, '').replace(',', '.');
             value = parseFloat(value) || 0;
           } else if (typeof value === 'number') {
-            value = parseFloat(value.toFixed(2));
+            value = parseFloat(value.toFixed(6));
           } else {
             value = 0;
           }

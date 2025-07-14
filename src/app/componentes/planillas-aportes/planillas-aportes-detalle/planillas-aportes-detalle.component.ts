@@ -32,8 +32,8 @@ export class PlanillasAportesDetalleComponent implements OnInit {
   bajasNoEncontradas: any[] = [];
   bajasPorRetiro: any[] = []; 
 
-  resumenData: any = null; // Para almacenar los datos del resumen
-  resumenLoading = false; // Indicador de carga para el resumen
+  resumenData: any = null; 
+  resumenLoading = false; 
 
   progreso: number = 100;
 
@@ -158,6 +158,8 @@ export class PlanillasAportesDetalleComponent implements OnInit {
             this.obtenerDetalles();
             this.obtenerResumenPlanilla();
             this.obtenerComparacionPlanillas();
+            /* window.location.reload(); */
+            this.obtenerInformacionPlanilla();
           },
           error: (err) => {
             Swal.fire({
