@@ -9,27 +9,30 @@
               
                N° {{ planillaInfo?.planilla?.com_nro }}
             </span>
+            <span style="background-color: #018b7b; color: white; padding: 6px 10px; ">
+              {{ planillaInfo?.planilla?.tipo_planilla }}
+            </span>
             <span style="background-color: #00796b; color: white; padding: 6px 10px; ">
-              {{ planillaInfo.planilla.mes }}
+              {{ planillaInfo?.planilla?.mes }}
             </span>
             <span style="background-color: #00685a; color: white; padding: 6px 10px; ">
-              {{ planillaInfo.planilla.gestion }}
+              {{ planillaInfo?.planilla?.gestion }}
             </span>
             <span  style="background-color: #00483a; color: white; padding: 6px 10px;  ">
-              {{ planillaInfo.planilla.empresa.nombre }}
+              {{ planillaInfo?.planilla?.empresa.nombre }}
             </span>
 
             <span 
               style="background-color: #00382a; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
               {{
-                planillaInfo.planilla.empresa.tipo === 'PA' ? 'PASIVO' :
-                planillaInfo.planilla.empresa.tipo === 'AP' ? 'PÚBLICA' :
-                planillaInfo.planilla.empresa.tipo === 'AV' ? 'PRIVADA' :
-                planillaInfo.planilla.empresa.tipo === 'VA' ? 'DECRETO SUPREMO' :
-                planillaInfo.planilla.empresa.tipo // Por si acaso, muestra el valor original
+                planillaInfo?.planilla?.empresa.tipo === 'PA' ? 'PASIVO' :
+                planillaInfo?.planilla?.empresa.tipo === 'AP' ? 'PÚBLICA' :
+                planillaInfo?.planilla?.empresa.tipo === 'AV' ? 'PRIVADA' :
+                planillaInfo?.planilla?.empresa.tipo === 'VA' ? 'DECRETO SUPREMO' :
+                planillaInfo?.planilla?.empresa.tipo // Por si acaso, muestra el valor original
               }}
             </span>
-            
+            ?
           </h2>
           
           
@@ -67,7 +70,7 @@
           
             <!-- Declarado por -->
 
-            <div *ngIf="planillaInfo.planilla.fecha_declarada != null" class="list-item">
+            <div *ngIf="planillaInfo?.planilla?.fecha_declarada != null" class="list-item">
               <span class="label">Declarado Por </span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
@@ -83,7 +86,7 @@
 
         <!-- fecha y hora declaracion -->
 
-            <div *ngIf="planillaInfo.planilla.fecha_declarada != null" class="list-item">
+            <div *ngIf="planillaInfo?.planilla?.fecha_declarada != null" class="list-item">
               <span class="label">Fecha Declaración</span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatos">
                 <span class="value">
@@ -117,7 +120,7 @@
               <span class="label">Total Ingresos</span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
-                  <i class="pi pi-money-bill"></i> {{ planillaInfo.planilla.total_importe | number:'1.2-2'  }} Bs
+                  <i class="pi pi-money-bill"></i> {{ planillaInfo?.planilla?.total_importe | number:'1.2-2'  }} Bs
                 </span>
               </ng-container>
               <ng-template #sinDatosImporte>
@@ -128,15 +131,15 @@
             </div>
 
                <!-- Total Importe Tasa -->
-            <div class="list-item">
+            <div class="list-item"  *ngIf="planillaInfo?.planilla?.estado != 0">
               <span class="label">
                 Cotización tasa: 
-                {{ planillaInfo.planilla.empresa.tipo === 'PA' ? '3' : '10' }} %
+                {{ planillaInfo?.planilla?.empresa.tipo === 'PA' ? '3' : '10' }} %
               </span>
               <ng-container *ngIf="resumenData?.planilla; else sinDatosImporte">
                 <span class="value">
                   <i class="pi pi-money-bill"></i> 
-                  {{ planillaInfo.planilla.cotizacion_tasa | number:'1.2-2' }} Bs
+                  {{ planillaInfo?.planilla?.cotizacion_tasa | number:'1.2-2' }} Bs
                 </span>
               </ng-container>
               <ng-template #sinDatosImporte>
@@ -240,7 +243,7 @@
 <!-- OPCIONES DE PLANILLA ---------------------------------------------------------------------------------- -->
 
 <p-tabView [style]="{ padding: '5px' , 'border': '1px solid #ccc', borderRadius: '5px' }" >
-  <p-tabPanel header="Planilla Declarada" leftIcon="pi pi-file" >
+  <p-tabPanel header="Planilla de Salario" leftIcon="pi pi-file" >
     
     <p-table
     [value]="trabajadores"
@@ -319,8 +322,8 @@
         <th style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">CI</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Regional</th>
         <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Nombre Completo</th>
-        <th *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'" style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
-        <th *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'" style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Dias Pagados</th>
+        <th *ngIf="planillaInfo?.planilla?.empresa.tipo != 'PA'" style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Cargo</th>
+        <th *ngIf="planillaInfo?.planilla?.empresa.tipo != 'PA'" style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Dias Pagados</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
@@ -329,13 +332,13 @@
     </tr>
 </ng-template>
 <ng-template pTemplate="body" let-trabajador let-i="rowIndex">
-    <tr>
+    <tr [ngStyle]="{'background-color': trabajador.tipo === 'planilla_adicional' ? '#f3f1c7' : 'transparent'}">
         <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
         <td style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
         <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }} {{ trabajador.nombres }}</td>
-        <td  *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'" style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
-        <td  *ngIf="planillaInfo.planilla.empresa.tipo != 'PA'"style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.dias_pagados }}</td>
+        <td  *ngIf="planillaInfo?.planilla?.empresa.tipo != 'PA'" style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.cargo }}</td>
+        <td  *ngIf="planillaInfo?.planilla?.empresa.tipo != 'PA'"style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.dias_pagados }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6; background-color: #eeffeb;">{{ trabajador.salario | number:'1.2-2' }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
@@ -378,7 +381,7 @@
             </div>
             
             <!-- Tarjeta: Total Altas -->
-            <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+            <div *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
               <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Altas</span>
@@ -395,7 +398,7 @@
             </div>
             
             <!-- Tarjeta: Total Bajas por Retiro -->
-            <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+            <div *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
               <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Bajas</span>
@@ -412,7 +415,7 @@
             </div>
             
             <!-- Tarjeta: No encontrados -->
-            <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+            <div *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
               <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <span style="font-weight: 600; color: #00796b; font-size: 1rem;">No Encontrados</span>
@@ -484,7 +487,7 @@
       </div>
     </div>
   </p-tabPanel>
-  <p-tabPanel header="Bajas" leftIcon="pi pi-arrow-down">
+  <p-tabPanel  header="Bajas" leftIcon="pi pi-arrow-down" *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" >
 <!--  Bajas por Fecha de Retiro -->
 <div style="display: flex; align-items: center; justify-content: space-between;  background-color: #e3e3e3; padding: 5px;">
   <div style="display: flex; align-items: center; gap: 10px;">
@@ -621,7 +624,7 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
 </p-table>
 
   </p-tabPanel>
-  <p-tabPanel header="Altas" leftIcon="pi pi-arrow-up">
+  <p-tabPanel header="Altas" leftIcon="pi pi-arrow-up" *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'">
 
     <div style="display: flex; align-items: center; justify-content: space-between;  background-color: #e3e3e3; padding: 5px;">
       <div style="display: flex; align-items: center; gap: 10px;">
@@ -698,13 +701,13 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
         </p-table>
 
   </p-tabPanel>
-  <p-tabPanel *ngIf="planillaInfo.planilla.estado != 0" header="Pagos" leftIcon="pi pi-money-bill">
+  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0" header="Pagos" leftIcon="pi pi-money-bill">
     <app-pagos-aportes [idPlanilla]="idPlanilla"></app-pagos-aportes>
   </p-tabPanel>
-  <p-tabPanel *ngIf="planillaInfo.planilla.estado != 0 || planillaInfo.planilla.fecha_pago" header="Liquidaciones" leftIcon="pi pi-calculator">
+  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0 || planillaInfo?.planilla?.fecha_pago" header="Liquidaciones" leftIcon="pi pi-calculator">
     <app-liquidaciones-aportes [idPlanilla]="idPlanilla"></app-liquidaciones-aportes>
   </p-tabPanel>
-<!--   <p-tabPanel *ngIf="planillaInfo.planilla.estado != 0" header="Planillas Adicionales" leftIcon="pi pi-plus" styleClass="separated-tab">
+<!--   <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0" header="Planillas Adicionales" leftIcon="pi pi-plus" styleClass="separated-tab">
     <app-planillas-adicionales [idPlanilla]="idPlanilla"></app-planillas-adicionales>
   </p-tabPanel> -->
 </p-tabView>
