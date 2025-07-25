@@ -787,30 +787,42 @@ obtenerTotalImporte(): number {
             clearInterval(progressInterval);
             this.loadingProgress = 100;
             this.isLoading = false;
-            console.error('❌ Error al subir planilla:', err);
+            console.error('Error al subir planilla:', err);
             if (err.error.message.includes('Ya existe una planilla')) {
-              Swal.fire({
-                icon: 'error',
-                title: '❌ Planilla Duplicada',
-                text: 'Ya existe una planilla para este mes y gestión.',
-                confirmButtonText: 'Ok',
-                customClass: { container: 'swal2-container' },
-                willOpen: () => {
-                  document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
-                },
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: '❌ Error',
-                text: 'Hubo un problema al subir la planilla. Inténtalo nuevamente.',
-                confirmButtonText: 'Ok',
-                customClass: { container: 'swal2-container' },
-                willOpen: () => {
-                  document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
-                },
-              });
-            }
+            Swal.fire({
+              icon: 'error',
+              title: 'Planilla Duplicada',
+              text: 'Ya existe una planilla para este mes y gestión.',
+              confirmButtonText: 'Ok',
+              customClass: { container: 'swal2-container' },
+              willOpen: () => {
+                document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+              },
+            });
+          } else if (err.error.message.includes('Debe existir una planilla Mensual activa')) {
+            Swal.fire({
+              icon: 'error',
+              title: 'No valido ',
+              text: 'Para declarar una planilla adicional, primero debe existir una planilla mensual presentada.',
+              confirmButtonText: 'Ok',
+              customClass: { container: 'swal2-container' },
+              willOpen: () => {
+                document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+              },
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un problema al subir la planilla. Inténtalo nuevamente.',
+              confirmButtonText: 'Ok',
+              customClass: { container: 'swal2-container' },
+              willOpen: () => {
+                document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+              },
+            });
+          }
+
             this.cancelarSubida();
           },
         });

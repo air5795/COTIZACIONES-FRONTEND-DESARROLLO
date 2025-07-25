@@ -24,7 +24,7 @@ export class PlanillasAportesDetalleComponent implements OnInit {
   archivoSeleccionado: File | null = null;
 
   pagina: number = 1;
-  limite: number = 15;
+  limite: number = 20;
   total: number = 0;
   busqueda: string = '';
 
