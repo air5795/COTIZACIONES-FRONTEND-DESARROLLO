@@ -100,69 +100,127 @@
 
   para liqudiacion  *******************************************/
 
+  /* Global styles for the summary section */
+.summary-section {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 14px;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Group section styling */
+.group-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+/* Group header styling */
+.group-header {
+  background-color: #007a6e;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Table styling */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+}
+
+/* Table cells */
+.summary-table td {
+  padding: 0.2rem;
+  border: 1px solid #e2e8f0;
+  vertical-align: middle;
+  font-family: 'Roboto';
+  font-size: 13px;
+}
+
+/* Label column with fixed width for alignment */
+.amount-label {
+  text-align: left;
+  font-weight: 500;
+  color: #1a202c;
+  width: 40%; /* Fixed width for consistent alignment */
+  min-width: 200px; /* Minimum width for smaller screens */
+}
+
+/* Value column */
+.amount-value {
+  text-align: right;
+  color: #1a202c;
+}
+
+/* Background color variations */
+.values {
+  background-color: #ffffff;
+}
+
+.values-r {
+  background-color: #fef2f2;
+}
+
+.values-b {
+  background-color: #ecfdf5;
+}
+
+.ufv-cell {
+  background-color: #fefce8;
+}
+
+/* Subtotal and total rows */
+.subtotal, .total-row {
+  font-weight: 600;
+  background-color: #f1f5f9;
+}
+
+.total-row {
+  font-weight: 700;
+  background-color: #ecfdf5;
+}
+
+/* Button container */
+.contenedor-centrar {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+
+
+/* Responsive design */
+@media (max-width: 768px) {
   .summary-section {
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    padding-bottom: 25px;
-  }
-  
-  .group-section {
-    
-    border: 1px solid #dee2e6;
-    
-  }
-  
-  .group-header {
-    background-color: #009688;
-    padding: 4px;
-    font-weight: bold;
-    border-bottom: 1px solid #dee2e6;
-    color: white;
-  }
-  
-  .summary-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .summary-table td {
-    padding: 4px;
-    border: 1px solid #dee2e6;
-  }
-  
-  .amount-label {
-    text-align: left;
-    font-weight: bold;
-  }
-  
-  .amount-value {
-    text-align: right;
-  }
-  
-  .values {
-    background-color: #ffffff;
-  }
-  
-  .values-r {
-    background-color: #fff5f5;
-  }
-  
-  .values-b {
-    background-color: #e5ffed;
-  }
-  
-  .ufv-cell {
-    background-color: #ffffec;
-  }
-  
-  .subtotal {
-    font-weight: bold;
-    background-color: #f8f9fa;
-  }
-  
-  .total-row {
-    font-weight: bold;
-    background-color: #e5ffed;
+    padding: 1rem;
+    font-size: 13px;
   }
 
+  .summary-table td {
+    padding: 0.5rem;
+  }
+
+  .amount-label {
+    width: 50%; /* Adjust width for smaller screens */
+    min-width: 150px;
+  }
+
+  .group-header {
+    font-size: 14px;
+  }
+
+  .contenedor-centrar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
   
