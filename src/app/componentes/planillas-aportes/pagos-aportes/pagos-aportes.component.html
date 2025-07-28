@@ -151,208 +151,170 @@
         
   
       <!-- Paso 2: Revisar Detalles del Cálculo -->
-      <div *ngIf="activeStep === 1 && calculoDetalles" class="step-content">
+       <div *ngIf="activeStep === 1 && calculoDetalles" class="step-content" role="region" aria-labelledby="summary-title">
 
-        <div class="summary-section" *ngIf="calculoDetalles">
-          <!-- Grupo A: Aportes -->
-          <div class="group-section aportes">
-            <div class="group-header">Liquidación de Aportes</div>
-            <table class="summary-table">
-              <tbody>
-                <tr>
-                  <td class="amount-label">Tipo de Empresa</td>
-                  <td class="amount-value values">
-                    <ng-container [ngSwitch]="calculoDetalles.tipo_empresa">
-                      <span *ngSwitchCase="'AP'">Pública</span>
-                      <span *ngSwitchCase="'AV'">Privada</span>
-                      <span *ngSwitchCase="'PA'">Pasiva</span>
-                      <span *ngSwitchCase="'VA'">Decreto Supremo</span>
-                      <span *ngSwitchDefault>{{ calculoDetalles.tipo_empresa }}</span>
-                    </ng-container>
-                  </td>
-                  <td class="amount-label">Tasa</td>
-                  <td class="amount-value values">
-                    <ng-container [ngSwitch]="calculoDetalles.tasa_porcentaje">
-                      <span *ngSwitchCase="0.1">10 %</span>
-                      <span *ngSwitchCase="0.03">3 %</span>
-                      <span *ngSwitchDefault>{{ calculoDetalles.tasa_porcentaje }}</span>
-                    </ng-container>
-                  </td>
-                  <td class="amount-label">Salario Cotizable</td>
-                  <td
-                    class="amount-value values"
-                    [ngStyle]="{'color': calculoDetalles.total_importe === 0 ? 'red' : 'inherit'}"
-                  >
-                    {{ calculoDetalles.total_importe | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label">Aporte Patronal</td>
-                  <td class="amount-value values">
-                    {{ calculoDetalles.aporte_porcentaje | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="amount-label">Fecha Declarada</td>
-                  <td class="amount-value values">
-                    {{ calculoDetalles.fecha_declarada | date:'dd/MM/yyyy':'+0000' }}
-                  </td>
-                  <td class="amount-label">UFV FD</td>
-                  <td class="amount-value values ufv-cell">
-                    {{ calculoDetalles.ufv_dia_formal | number:'1.5-5' }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="amount-label">Fecha de Pago</td>
-                  <td class="amount-value values">
-                    {{ calculoDetalles.fecha_pago | date:'dd/MM/yyyy':'+0000' }}
-                  </td>
-                  <td class="amount-label">UFV FP</td>
-                  <td class="amount-value values ufv-cell">
-                    {{ calculoDetalles.ufv_dia_presentacion | number:'1.5-5' }}
-                  </td>
-                  <td class="amount-label">AP - AC (si corresponde)</td>
-                  <td class="amount-value values">
-                    {{ calculoDetalles.monto_actualizado | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                  
-                </tr>
-                <tr class="subtotal">
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label">Aporte Actualizado</td>
-                  <td class="amount-value values">
-                    {{ calculoDetalles.aporte_actualizado | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        
-          <!-- Grupo B: Recargos -->
-          <div class="group-section recargos">
-            <div class="group-header">Recargos de Ley</div>
-            <table class="summary-table">
-              <tbody>
-                <tr>
-                  <td class="amount-label">Días en Mora</td>
-                  <td
-                    class="amount-value values-r"
-                    
-                  >
-                    {{ calculoDetalles.dias_retraso }}
-                  </td>
-                  <td class="amount-label">Interés</td>
-                  <td
-                    class="amount-value values-r"
-                    
-                  >
-                    {{ calculoDetalles.intereses | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                  <td class="amount-label">Multas s/Interés (10%)</td>
-                  <td
-                    class="amount-value values-r"
-                    
-                  >
-                    {{ calculoDetalles.multa_sobre_intereses | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label">Multa No Presentación (1%)</td>
-                  <td
-                    class="amount-value values-r"
-                    
-                  >
-                    {{ calculoDetalles.multa_no_presentacion | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-                <tr class="subtotal">
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label"></td>
-                  <td class="amount-value"></td>
-                  <td class="amount-label">Total Recargos de Ley</td>
-                  <td class="amount-value values-r">
-                    {{ calculoDetalles.total_multas | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        
-          <!-- Grupo C: Deducciones -->
-          <div class="group-section deducciones">
-            <div class="group-header">Deducciones</div>
-            <table class="summary-table">
-              <tbody>
-                <tr>
-                  <td class="amount-label">Menos descuento de 5% para el Ministerio de Salud Ley 2042</td>
-                  <td class="amount-value values-b">
-                    {{ calculoDetalles.descuento_min_salud | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="amount-label">Otros Descuentos</td>
-                  <td class="amount-value values-b">
-                    {{ calculoDetalles.otros_descuentos | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        
-          <!-- Grupo D: Formulario DS-08 -->
-          <div class="group-section ds08">
-            <div class="group-header">Formulario DS-08</div>
-            <table class="summary-table">
-              <tbody>
-                <tr>
-                  <td class="amount-label">Formulario DS-08</td>
-                  <td class="amount-value values-b">
-                    {{ calculoDetalles.formds08 | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        
-          <!-- Total Final -->
-          <div class="group-section total">
-            <div class="group-header">Total</div>
-            <table class="summary-table">
-              <tbody>
-                <tr class="total-row">
-                  <td class="amount-label">Total a Cancelar</td>
-                  <td
-                    class="amount-value"
-                    [ngStyle]="{'background-color': '#e5ffed', 'color': calculoDetalles.total_a_cancelar === 0 ? 'red' : 'inherit'}"
-                  >
-                    {{ calculoDetalles.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+  <div class="summary-section">
+    <!-- Grupo A: Aportes -->
+    <section class="group-section aportes" aria-labelledby="aportes-header">
+      <div class="group-header" id="aportes-header">Liquidación de Aportes</div>
+      <table class="summary-table">
+        <tbody>
+          <tr>
+            <td class="amount-label">Tipo de Empresa</td>
+            <td class="amount-value values" colspan="3">
+              <ng-container [ngSwitch]="calculoDetalles.tipo_empresa">
+                <span *ngSwitchCase="'AP'">Pública</span>
+                <span *ngSwitchCase="'AV'">Privada</span>
+                <span *ngSwitchCase="'PA'">Pasiva</span>
+                <span *ngSwitchCase="'VA'">Decreto Supremo</span>
+                <span *ngSwitchDefault>{{ calculoDetalles.tipo_empresa }}</span>
+              </ng-container>
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Tasa</td>
+            <td class="amount-value values" colspan="3">
+              <ng-container [ngSwitch]="calculoDetalles.cotizacion_tasa">
+                <span *ngSwitchCase="0.1">10 %</span>
+                <span *ngSwitchCase="0.03">3 %</span>
+                <span *ngSwitchDefault>{{ calculoDetalles.cotizacion_tasa | number:'1.2-2' }} %</span>
+              </ng-container>
+            
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Fecha Presentación Oficial</td>
+            <td class="amount-value values">
+              {{ calculoDetalles.fechaFormal | date:'dd/MM/yyyy':'+0000' }}
+            </td>
+            <td class="amount-label" style="text-align: right;">UFV FD</td>
+            <td class="amount-value values ufv-cell">
+              {{ calculoDetalles.ufv_dia_formal | number:'1.5-5' }}
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Fecha de Depósito o Presentación</td>
+            <td class="amount-value values">
+              {{ calculoDetalles.fechaPagoUfv | date:'dd/MM/yyyy':'+0000' }}
+            </td>
+            <td class="amount-label" style="text-align: right;">UFV FP</td>
+            <td class="amount-value values ufv-cell">
+              {{ calculoDetalles.ufv_dia_presentacion | number:'1.5-5' }}
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Cálculo con Vigencia Hasta el Día</td>
+            <td class="amount-value values">
+              {{ calculoDetalles.fecha_pago | date:'dd/MM/yyyy':'+0000' }}
+            </td>
+            <td class="amount-label" style="text-align: right;">Salario Cotizable</td>
+            <td class="amount-value values" [ngStyle]="{'color': calculoDetalles.total_importe === 0 ? '#dc2626' : 'inherit'}">
+              {{ calculoDetalles.total_importe | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+          <tr class="subtotal">
+            <td class="amount-label">Subtotal Aportes</td>
+            <td class="amount-value values" colspan="3">
+              {{ calculoDetalles.aporte_porcentaje | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-        <div class="contenedor-centrar">
-          <div class="p-field">
-            <button pButton type="button" label="Atrás" (click)="activeStep = 0" class="p-button-secondary"></button>
-            <button pButton type="button" label="Siguiente" (click)="activeStep = 2" class="p-button-primary"></button>
-          </div>
-        </div>
-        
-      </div>
+    <!-- Grupo B: Recargos -->
+    <section class="group-section recargos" aria-labelledby="recargos-header">
+      <div class="group-header" id="recargos-header">Recargos de Ley</div>
+      <table class="summary-table">
+        <tbody>
+          <tr>
+            <td class="amount-label">Días en Mora</td>
+            <td class="amount-value values-r" colspan="3" style="color: rgb(141, 52, 52);">
+              {{ calculoDetalles.dias_retraso }}
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">AP - AC (si corresponde)</td>
+            <td class="amount-value values-r" colspan="3">
+              {{ calculoDetalles.monto_actualizado | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Interés</td>
+            <td class="amount-value values-r" colspan="3">
+              {{ calculoDetalles.intereses | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Multas s/Interés (10%)</td>
+            <td class="amount-value values-r" colspan="3">
+              {{ calculoDetalles.multa_sobre_intereses | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Multa No Presentación (1%)</td>
+            <td class="amount-value values-r" colspan="3">
+              {{ calculoDetalles.multa_no_presentacion | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+          <tr class="subtotal">
+            <td class="amount-label">Subtotal Recargos de Ley</td>
+            <td class="amount-value values-r" colspan="3">
+              {{ calculoDetalles.total_multas | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Grupo C: Deducciones -->
+    <section class="group-section deducciones" aria-labelledby="deducciones-header">
+      <div class="group-header" id="deducciones-header">Deducciones</div>
+      <table class="summary-table">
+        <tbody>
+          <tr>
+            <td class="amount-label">Descuento de 5% para el Ministerio de Salud Ley 2042</td>
+            <td class="amount-value values-b" colspan="3">
+              {{ calculoDetalles.descuento_min_salud | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+          <tr>
+            <td class="amount-label">Otros Descuentos</td>
+            <td class="amount-value values-b" colspan="3">
+              {{ calculoDetalles.otros_descuentos | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+          <tr class="subtotal">
+            <td class="amount-label">Subtotal Deducciones</td>
+            <td class="amount-value values-b" colspan="3">
+              {{ (calculoDetalles.descuento_min_salud + calculoDetalles.otros_descuentos) | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Total Final -->
+    <section class="group-section total" aria-labelledby="total-header">
+      <div class="group-header" id="total-header">Total</div>
+      <table class="summary-table">
+        <tbody>
+          <tr class="total-row">
+            <td class="amount-label">Total a Cancelar</td>
+            <td class="amount-value" colspan="3" [ngStyle]="{'color': calculoDetalles.total_a_cancelar === 0 ? '#dc2626' : 'inherit'}">
+              {{ calculoDetalles.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <div class="contenedor-centrar">
+    <button pButton type="button" label="Atrás" (click)="activeStep = 0" class="p-button-secondary" aria-label="Volver al paso anterior"></button>
+    <button pButton type="button" label="Siguiente" (click)="activeStep = 2" class="p-button-primary" aria-label="Avanzar al siguiente paso"></button>
+  </div>
+</div>
   
       <!-- Paso 3: Ingresar Detalles del Pago -->
       <div *ngIf="activeStep === 2 && calculoDetalles" class="p-fluid" style="max-width: 800px; margin: 0 auto;">
