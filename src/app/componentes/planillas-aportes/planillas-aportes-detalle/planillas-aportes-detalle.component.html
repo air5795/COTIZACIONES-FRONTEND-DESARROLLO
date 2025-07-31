@@ -150,21 +150,16 @@
             </div>
 
             
-
-
-
-
-
-            
           </div>
         </div>
 
         <div class="header-right">
           <div class="button-container">
 
+            <!--? FORM-DS08 SOLO MUESTRA CUANDO LA PLANILLA ESTA APROBADA -->
             <button 
               pButton 
-              *ngIf="planillaInfo?.planilla?.fecha_pago != null"
+              *ngIf="planillaInfo?.planilla?.estado === 2" 
               label="DS-08" 
               class="boton4"
               style="display: flex; flex-direction: column; align-items: center; font-size: 1rem; width: 80px; " 
@@ -174,6 +169,7 @@
               
               </button>
 
+              <!--? FORM-DECLARACION SOLO MUESTRA CUANDO LA PLANILLA ESTA PRESENTADA Y NO ESTA OBSERVADA  -->
               <button 
               pButton 
               *ngIf="planillaInfo?.planilla?.estado != 0 && planillaInfo?.planilla?.estado != 3"
@@ -185,6 +181,8 @@
                 <span style="font-size: 10px;color: #ffffff;border-bottom: 1px solid white;margin-bottom: 2px;" >Declaración</span>
               
               </button>
+
+              <!--? PLANILLA EXCEL DECLARADA SOLO MUESTRA CUANDO LA PLANILLA ESTA PRESENTADA Y NO ESTA OBSERVADA  -->
 
               <button 
               pButton 
@@ -199,7 +197,7 @@
               </button>
 
 
-            
+            <!--? (ENVIAR CORRECION) SOLO MUESTRA CUANDO LA PLANILLA ESTA OBSERVADA   -->
 
             <button
                 *ngIf="planillaInfo?.planilla?.estado === 3 "
@@ -212,6 +210,8 @@
                 <span class="pi pi-file-export" style="font-size: 2rem; padding-bottom: 10px;"></span>
                 <span style="font-size: 10px;color: #ffffff;border-bottom: 1px solid white;margin-bottom: 2px;" >Enviar</span>
                 </button>
+              
+            <!--? (DECLARAR PLANILLA) SOLO MUESTRA CUANDO LA PLANILLA ESTA EN ESTADO BORRADOR   -->
 
                  <button 
               *ngIf="planillaInfo?.planilla?.estado === 0"
@@ -226,6 +226,7 @@
           </div>
         </div>
       </div>
+
       <div [ngSwitch]="planillaInfo?.planilla?.estado" [ngStyle]="{'background-color': getFondoEstado(planillaInfo?.planilla?.estado)}" >
         <div *ngSwitchCase="3" style="padding: 20px;">
 
