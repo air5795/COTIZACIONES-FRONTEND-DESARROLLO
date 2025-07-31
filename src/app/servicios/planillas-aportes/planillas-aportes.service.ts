@@ -267,5 +267,23 @@ validarLiquidacion(idPlanilla: number, payload: { fecha_pago?: string }): Observ
   return this.http.put(`${environment.url}planillas_aportes/validar-liquidacion/${idPlanilla}`, payload);
 }
 
+  // NUEVO MÉTODO: Obtener liquidación (desde BD si existe, o calcular)
+  obtenerLiquidacion(idPlanilla: number): Observable<any> {
+    return this.http.get(`${environment.url}planillas_aportes/${idPlanilla}/liquidacion`);
+  }
+
+  // NUEVO MÉTODO: Recalcular liquidación (con opción de forzar)
+  recalcularLiquidacion(idPlanilla: number, forzar: boolean = false): Observable<any> {
+    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion`, { forzar });
+  }
+
+  // NUEVO MÉTODO: Recalcular con nueva fecha de pago
+  recalcularLiquidacionConFecha(idPlanilla: number, fechaPago: Date): Observable<any> {
+    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion-fecha`, { 
+      fechaPago: fechaPago.toISOString(),
+      forzar: true 
+    });
+  }
+
 
 }
