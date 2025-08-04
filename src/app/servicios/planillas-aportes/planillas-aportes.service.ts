@@ -263,9 +263,9 @@ calcularAportes(id: number): Observable<any> {
   return this.http.post(`${environment.url}planillas_aportes/calcular/${id}`, {});
 }
 
-validarLiquidacion(idPlanilla: number, payload: { fecha_pago?: string }): Observable<any> {
-  return this.http.put(`${environment.url}planillas_aportes/validar-liquidacion/${idPlanilla}`, payload);
-}
+  validarLiquidacion(idPlanilla: number, payload: { fecha_pago?: string; valido_cotizacion?: string }): Observable<any> {
+    return this.http.put(`${environment.url}planillas_aportes/validar-liquidacion/${idPlanilla}`, payload);
+  }
 
   // NUEVO MÉTODO: Obtener liquidación (desde BD si existe, o calcular)
   obtenerLiquidacion(idPlanilla: number): Observable<any> {
@@ -273,17 +273,40 @@ validarLiquidacion(idPlanilla: number, payload: { fecha_pago?: string }): Observ
   }
 
   // NUEVO MÉTODO: Recalcular liquidación (con opción de forzar)
-  recalcularLiquidacion(idPlanilla: number, forzar: boolean = false): Observable<any> {
-    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion`, { forzar });
+  recalcularLiquidacion(idPlanilla: number, forzar: boolean = false, validoCotizacion?: string): Observable<any> {
+    const body: any = { forzar };
+    if (validoCotizacion) {
+      body.valido_cotizacion = validoCotizacion;
+    }
+    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion`, body);
   }
 
   // NUEVO MÉTODO: Recalcular con nueva fecha de pago
-  recalcularLiquidacionConFecha(idPlanilla: number, fechaPago: Date): Observable<any> {
+  recalcularLiquidacionConFecha(idPlanilla: number, fechaPago: Date, validoCotizacion: string): Observable<any> {
     return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion-fecha`, { 
       fechaPago: fechaPago.toISOString(),
-      forzar: true 
+      forzar: true,
+      valido_cotizacion: validoCotizacion
     });
   }
 
 
+  /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+/* VERIFICACION AFILIACIONES ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+/* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+
+
+// ✅ MÉTODO PARA VERIFICAR CIS EN AFILIACIONES
+verificarCiEnAfiliaciones(idPlanilla: number): Observable<any> {
+  return this.http.post(`${environment.url}planillas_aportes/verificar-ci-simple/${idPlanilla}`, {});
 }
+
+// ✅ MÉTODO PARA DESCARGAR REPORTE DE VERIFICACIÓN
+descargarReporteVerificacionAfiliaciones(idPlanilla: number): Observable<Blob> {
+  return this.http.get(`${environment.url}planillas_aportes/reporte-verificacion-afiliaciones/${idPlanilla}`, {
+    responseType: 'blob'
+  });
+}
+
+}
+
