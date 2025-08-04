@@ -702,10 +702,10 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
         </p-table>
 
   </p-tabPanel>
-  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0" header="Pagos" leftIcon="pi pi-money-bill">
+  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0 && tipoEmpresa !== 'Pública'"  header="Pagos" leftIcon="pi pi-money-bill">
     <app-pagos-aportes [idPlanilla]="idPlanilla"></app-pagos-aportes>
   </p-tabPanel>
-  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0 || planillaInfo?.planilla?.fecha_pago" header="Liquidaciones" leftIcon="pi pi-calculator">
+  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado === 2 || planillaInfo?.planilla?.fecha_pago" header="Liquidación" leftIcon="pi pi-calculator">
     <app-liquidaciones-aportes [idPlanilla]="idPlanilla"></app-liquidaciones-aportes>
   </p-tabPanel>
 <!--   <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0" header="Planillas Adicionales" leftIcon="pi pi-plus" styleClass="separated-tab">

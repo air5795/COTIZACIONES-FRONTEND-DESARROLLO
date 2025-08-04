@@ -5,6 +5,8 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { LazyLoadEvent } from 'primeng/api';
+import { SessionService } from '../../../servicios/auth/session.service';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-planillas-aportes-detalle',
@@ -69,14 +71,24 @@ export class PlanillasAportesDetalleComponent implements OnInit {
 
   anios: number[] = [];
 
+// Propiedades para control de roles
+  esAdministrador: boolean = false;
+  rolUsuario: string = '';
+  tipoEmpresa: string = '';
+  nombreEmpresa: string = '';
+  // Para manejar la suscripción
+  private destroy$ = new Subject<void>();
+
   
   constructor(
     private route: ActivatedRoute,
     private planillasService: PlanillasAportesService,
+    private sessionService: SessionService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.verificarRolUsuario();
     const currentYear = new Date().getFullYear();
     for (let i = currentYear - 10; i <= currentYear + 1; i++) {
       this.anios.push(i);
@@ -91,6 +103,32 @@ export class PlanillasAportesDetalleComponent implements OnInit {
     });
     
   }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+    verificarRolUsuario() {
+    // Usar los métodos helper del SessionService
+    this.esAdministrador = this.sessionService.esAdministrador();
+    this.rolUsuario = this.sessionService.getRolActual();
+    this.tipoEmpresa = this.sessionService.getTipoEmpresa();
+    
+    const empresaInfo = this.sessionService.getEmpresaInfo();
+    if (empresaInfo) {
+      this.nombreEmpresa = empresaInfo.nombre || '';
+    }
+    
+    console.log('Verificación de rol:', {
+      esAdministrador: this.esAdministrador,
+      rol: this.rolUsuario,
+      tipoEmpresa: this.tipoEmpresa,
+      nombreEmpresa: this.nombreEmpresa
+    });
+  }
+
+
 
   // Función para seleccionar el archivo
   seleccionarArchivo(event: any) {

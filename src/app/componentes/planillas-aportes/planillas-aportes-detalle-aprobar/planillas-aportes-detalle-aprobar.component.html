@@ -672,11 +672,14 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
         </p-table>
 
   </p-tabPanel>
-  <p-tabPanel header="Pagos" leftIcon="pi pi-money-bill" *ngIf="tipoEmpresa === 'AP'">
+  <p-tabPanel header="Pagos" leftIcon="pi pi-money-bill" *ngIf="planillaInfo?.planilla?.estado === 2">
     <app-pagos-aportes [idPlanilla]="idPlanilla"></app-pagos-aportes>
   </p-tabPanel>
   <p-tabPanel header="Liquidación" leftIcon="pi pi-calculator">
     <app-liquidaciones-aportes [idPlanilla]="idPlanilla"></app-liquidaciones-aportes>
+  </p-tabPanel>
+  <p-tabPanel header="Verificación Afiliaciones" leftIcon="pi pi-verified" >
+  <app-verificacion-afiliaciones [idPlanilla]="idPlanilla"></app-verificacion-afiliaciones>
   </p-tabPanel>
 <!--   <p-tabPanel header="Planillas Adicionales" leftIcon="pi pi-plus" class="right-align-tab">
     <app-planillas-adicionales [idPlanilla]="idPlanilla"></app-planillas-adicionales>

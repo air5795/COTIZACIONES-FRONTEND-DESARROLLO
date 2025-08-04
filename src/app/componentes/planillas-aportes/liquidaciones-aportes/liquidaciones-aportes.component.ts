@@ -1,47 +1,40 @@
-// src/app/components/liquidaciones-aportes/liquidaciones-aportes.component.ts
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { PlanillasAportesService } from '../../../servicios/planillas-aportes/planillas-aportes.service';
 import { SessionService } from '../../../servicios/auth/session.service';
-import { MessageService, Message } from 'primeng/api';
+import Swal from 'sweetalert2';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-liquidaciones-aportes',
   templateUrl: './liquidaciones-aportes.component.html',
-  styleUrls: ['./liquidaciones-aportes.component.css'],
-  providers: [MessageService],
+  styleUrls: ['./liquidaciones-aportes.component.css']
 })
 export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
   @Input() idPlanilla!: number;
   planilla: any = null;
   loading: boolean = false;
   errorMessage: string | undefined = undefined;
-  messages: Message[] = [];
   displayDialog: boolean = false;
   showFechaPagoInput: boolean = false;
   fechaPago: Date | null = null;
   today: Date = new Date();
-  
-  // Nueva propiedad para indicar si los datos vienen de BD o fueron calculados
+
   datosDesdeDB: boolean = false;
-  
-  // Nueva propiedad para indicar si es empresa pública con liquidación preliminar
   esEmpresaPublicaConLiquidacionPreliminar: boolean = false;
-  
-  // Propiedades para control de roles
+
   esAdministrador: boolean = false;
   rolUsuario: string = '';
   tipoEmpresa: string = '';
   nombreEmpresa: string = '';
   
-  // Para manejar la suscripción
+  // NUEVO: Agregar propiedad para el nombre completo del administrador
+  nombreCompletoUsuario: string = '';
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private planillasService: PlanillasAportesService,
-    private sessionService: SessionService,
-    private messageService: MessageService
+    private sessionService: SessionService
   ) {}
 
   ngOnInit() {
@@ -54,240 +47,189 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Método para verificar el rol del usuario usando SessionService
   verificarRolUsuario() {
-    // Usar los métodos helper del SessionService
     this.esAdministrador = this.sessionService.esAdministrador();
     this.rolUsuario = this.sessionService.getRolActual();
     this.tipoEmpresa = this.sessionService.getTipoEmpresa();
     
+    // NUEVO: Obtener el nombre completo del usuario
+    this.nombreCompletoUsuario = this.sessionService.getNombreCompleto();
+
     const empresaInfo = this.sessionService.getEmpresaInfo();
     if (empresaInfo) {
       this.nombreEmpresa = empresaInfo.nombre || '';
     }
-    
+
     console.log('Verificación de rol:', {
       esAdministrador: this.esAdministrador,
       rol: this.rolUsuario,
       tipoEmpresa: this.tipoEmpresa,
-      nombreEmpresa: this.nombreEmpresa
+      nombreEmpresa: this.nombreEmpresa,
+      nombreCompletoUsuario: this.nombreCompletoUsuario
     });
   }
 
-  // MÉTODO OPTIMIZADO: Cargar datos de liquidación (desde BD o calcular si no existe)
   loadAportes() {
     if (!this.idPlanilla) {
       this.errorMessage = 'Por favor, asegúrate de que el ID de la planilla esté definido.';
-      this.messages = [{ severity: 'error', summary: 'Error', detail: this.errorMessage }];
+      Swal.fire('Error', this.errorMessage, 'error');
       return;
     }
 
     this.loading = true;
     this.errorMessage = undefined;
-    this.messages = [];
-    
-    // CAMBIO: Usar el nuevo método obtenerLiquidacion en lugar de calcularAportes
+
     this.planillasService.obtenerLiquidacion(this.idPlanilla).subscribe({
       next: (response: any) => {
         this.planilla = response;
-        
-        // Verificar si los datos vienen de BD (ya calculados) o se acaban de calcular
-        this.datosDesdeDB = response.fecha_liquidacion ? true : false;
-        
-        // Verificar si es empresa pública con liquidación preliminar
-        this.esEmpresaPublicaConLiquidacionPreliminar = 
-          response.tipo_empresa === 'AP' && 
-          this.datosDesdeDB && 
+        this.datosDesdeDB = !!response.fecha_liquidacion;
+        this.esEmpresaPublicaConLiquidacionPreliminar =
+          response.tipo_empresa === 'AP' &&
+          this.datosDesdeDB &&
           response.observaciones?.includes('LIQUIDACIÓN PRELIMINAR');
-        
-        // Mensajes según el contexto y rol
-        if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
-          this.messages = [{ 
-            severity: 'warn', 
-            summary: 'Liquidación Preliminar - Empresa Pública', 
-            detail: 'Esta liquidación fue calculada automáticamente. Actualice la fecha de pago cuando la empresa realice el pago.' 
-          }];
-        } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
-          this.messages = [{ 
-            severity: 'info', 
-            summary: 'Liquidación Preliminar', 
-            detail: 'Esta es una liquidación preliminar. El administrador actualizará la fecha cuando se realice el pago.' 
-          }];
-        } else if (this.datosDesdeDB) {
-          this.messages = [{ 
-            severity: 'info', 
-            summary: 'Liquidación Cargada', 
-            detail: 'Se cargaron los datos de liquidación previamente calculados.' 
-          }];
-        } else {
-          this.messages = [{ 
-            severity: 'success', 
-            summary: 'Liquidación Calculada', 
-            detail: 'Se calculó la liquidación exitosamente.' 
-          }];
-        }
-        
+
         this.loading = false;
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Error al obtener la liquidación';
-        this.messages = [{ severity: 'error', summary: 'Error', detail: this.errorMessage }];
+        Swal.fire('SIN REGISTRO DE PAGO', this.errorMessage, 'warning');
         this.loading = false;
       },
     });
   }
 
   showDialog() {
-    // Verificar permisos antes de abrir el diálogo
     if (!this.esAdministrador) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Sin permisos',
-        detail: 'Solo el administrador puede validar o actualizar liquidaciones.',
-      });
+      Swal.fire(
+        'Sin permisos',
+        'Solo el administrador puede validar o actualizar liquidaciones.',
+        'warning'
+      );
       return;
     }
-    
+
     this.fechaPago = null;
     this.showFechaPagoInput = false;
     this.displayDialog = true;
   }
 
-  // Cancelar la selección de fecha y volver a la pregunta inicial
   cancelarSeleccionFecha() {
     this.fechaPago = null;
     this.showFechaPagoInput = false;
+    this.displayDialog = false;
   }
 
-  // MÉTODO ACTUALIZADO: Para recalcular liquidación con nueva fecha
-  confirmarLiquidacion(actualizarFechaPago: boolean) {
-    // Doble verificación de permisos
-    if (!this.esAdministrador) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Sin permisos',
-        detail: 'No tiene permisos para realizar esta acción.',
-      });
-      this.displayDialog = false;
-      return;
-    }
+  
 
-    if (actualizarFechaPago && !this.fechaPago) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'Por favor, seleccione una fecha de pago.',
-      });
-      return;
-    }
+confirmarLiquidacion(actualizarFechaPago: boolean) {
+  if (!this.esAdministrador) {
+    Swal.fire('Sin permisos', 'No tiene permisos para realizar esta acción.', 'error');
+    this.displayDialog = false;
+    return;
+  }
 
-    this.loading = true;
-    
-    if (actualizarFechaPago) {
-      // Mensaje diferente según el contexto
-      const accion = this.esEmpresaPublicaConLiquidacionPreliminar 
-        ? 'Actualizando fecha de pago real para empresa pública...' 
-        : 'Recalculando liquidación con nueva fecha...';
-      
-      this.messages = [{ 
-        severity: 'info', 
-        summary: 'Procesando', 
-        detail: accion 
-      }];
-      
-      // Recalcular con la nueva fecha
-      this.planillasService.recalcularLiquidacionConFecha(this.idPlanilla, this.fechaPago!).subscribe({
+  if (actualizarFechaPago && !this.fechaPago) {
+    Swal.fire('Advertencia', 'Por favor, seleccione una fecha de pago.', 'warning');
+    return;
+  }
+
+  this.loading = true;
+
+  if (actualizarFechaPago) {
+    // Caso 1: Actualizar fecha de pago (principalmente para empresas públicas)
+    const accion = this.esEmpresaPublicaConLiquidacionPreliminar
+      ? 'Actualizando fecha de pago real para empresa pública...'
+      : 'Recalculando liquidación con nueva fecha...';
+
+    Swal.fire('Procesando', accion, 'info');
+
+    this.planillasService
+      .recalcularLiquidacionConFecha(this.idPlanilla, this.fechaPago!, this.nombreCompletoUsuario)
+      .subscribe({
         next: (response: any) => {
           this.planilla = response;
           this.datosDesdeDB = true;
-          this.esEmpresaPublicaConLiquidacionPreliminar = false; // Ya no es preliminar
-          
-          const mensaje = response.tipo_empresa === 'AP' 
+          this.esEmpresaPublicaConLiquidacionPreliminar = false;
+
+          const mensaje = response.tipo_empresa === 'AP'
             ? 'Fecha de pago actualizada correctamente para la empresa pública.'
             : 'Liquidación recalculada correctamente con la nueva fecha.';
-          
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: mensaje,
-          });
-          
+
+          Swal.fire('Éxito', mensaje, 'success');
           this.displayDialog = false;
           this.loading = false;
-          
-          // Recargar datos para refrescar la vista
           this.loadAportes();
         },
         error: (error) => {
           this.loading = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error?.message || 'Error al actualizar la liquidación.',
-          });
+          Swal.fire('Error', error.error?.message || 'Error al actualizar la liquidación.', 'error');
         },
       });
-    } else {
-      // Si no se actualiza la fecha, solo validar/confirmar la liquidación actual
-      this.planillasService.validarLiquidacion(this.idPlanilla, {}).subscribe({
-        next: (response: any) => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Liquidación validada correctamente.',
-          });
-          
-          this.displayDialog = false;
-          this.loading = false;
-        },
-        error: (error) => {
-          this.loading = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error?.message || 'Error al validar la liquidación.',
-          });
-        },
-      });
-    }
+  } else {
+    // Caso 2: Solo validar sin cambiar fecha
+    const payload = {
+      valido_cotizacion: this.nombreCompletoUsuario  // IMPORTANTE: Aquí se envía el nombre del validador
+    };
+    
+    this.planillasService.validarLiquidacion(this.idPlanilla, payload).subscribe({
+      next: () => {
+        Swal.fire('Éxito', 'Liquidación validada correctamente.', 'success');
+        this.displayDialog = false;
+        this.loading = false;
+        this.loadAportes(); // Recargar para mostrar quién validó
+      },
+      error: (error) => {
+        this.loading = false;
+        Swal.fire('Error', error.error?.message || 'Error al validar la liquidación.', 'error');
+      },
+    });
   }
+}
 
-  // Método para forzar recálculo (solo administrador)
   recalcularLiquidacion() {
     if (!this.esAdministrador) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Sin permisos',
-        detail: 'Solo el administrador puede recalcular liquidaciones.',
-      });
+      Swal.fire(
+        'Sin permisos',
+        'Solo el administrador puede recalcular liquidaciones.',
+        'error'
+      );
       return;
     }
 
-    if (confirm('¿Está seguro que desea recalcular la liquidación? Esto sobrescribirá los valores actuales.')) {
-      this.loading = true;
-      
-      this.planillasService.recalcularLiquidacion(this.idPlanilla, true).subscribe({
-        next: (response: any) => {
-          this.planilla = response;
-          this.datosDesdeDB = true;
-          
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Liquidación recalculada exitosamente.',
-          });
-          
-          this.loading = false;
-        },
-        error: (error) => {
-          this.loading = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error?.message || 'Error al recalcular la liquidación.',
-          });
-        },
-      });
-    }
+    Swal.fire({
+      title: '¿Está seguro?',
+      text: 'Esto sobrescribirá los valores actuales de la liquidación.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, recalcular',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+
+        // CAMBIO: Incluir el nombre del validador al recalcular
+        this.planillasService.recalcularLiquidacion(this.idPlanilla, true, this.nombreCompletoUsuario).subscribe({
+          next: (response: any) => {
+            this.planilla = response;
+            this.datosDesdeDB = true;
+            Swal.fire('Éxito', 'Liquidación recalculada exitosamente.', 'success');
+            this.loading = false;
+            this.loadAportes();
+          },
+          error: (error) => {
+            this.loading = false;
+            Swal.fire(
+              'Error',
+              error.error?.message || 'Error al recalcular la liquidación.',
+              'error'
+            );
+          },
+        });
+      }
+    });
+  }
+
+  get tieneMultas(): boolean {
+    return Number(this.planilla?.total_multas) > 0;
   }
 }

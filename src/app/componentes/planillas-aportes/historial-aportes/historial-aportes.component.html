@@ -95,7 +95,7 @@
 
   <ng-template pTemplate="header">
     <tr>
-      <th>Empleador</th>
+      <th style="width: 250px;">Empleador</th>
       <th>N° de Comprobante</th>
       <th>Mes</th>
       <th>Gestión</th>
@@ -103,9 +103,9 @@
       <th >Total importe</th>
       <th>Fecha Declarada</th>
       
-      <th style="width: 80px;">Planilla Declarada</th>
-      <th style="width: 80px;">Planilla Liquidada</th>
-      <th style="width: 170px;">Tipo Planilla</th>
+      <th style="width: 80px;">Declarado</th>
+      <th style="width: 80px;">Liquidado</th>
+      <th style="width: 150px;">Tipo Planilla</th>
       <th style="width: 120px;">Estado</th>
       <th>Acciones</th>
     </tr>
@@ -113,7 +113,11 @@
   <ng-template pTemplate="body" let-planilla>
    
   <tr>
-    <td style="text-align: left; "><i class="pi pi-file-import" style="color: rgb(255, 255, 255)"></i> {{planilla.empresa}}</td>
+    <td style="text-align: left; padding: 2px 10px;" >
+      {{planilla.empresa}} <br>
+      <span style="color: #767d88; font-size: 12px;">N° patronal: </span><span style="color: #64748b; font-size: 12px;">{{ planilla.cod_patronal.slice(3) }}
+</span>
+    </td>
   <td>COM-{{ planilla.com_nro }}</td>
   
   <td>{{ planilla.mes }}</td> 
@@ -171,7 +175,7 @@
       <!-- Mensual - Verde -->
       <span *ngSwitchCase="'Mensual'"
             class="p-tag p-tag-success p-tag-rounded p-text-bold"
-            style="background-color: #119967; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+            style="background-color: #119967;  display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
         <i class="pi pi-calendar" style="font-size: 1rem"></i>
         <span>Planilla {{planilla.tipo_planilla}}</span>
       </span>
@@ -179,7 +183,7 @@
       <!-- Planilla Adicional - Amarillo/Naranja -->
       <span *ngSwitchCase="'Planilla Adicional'"
             class="p-tag p-tag-warning p-tag-rounded p-text-bold"
-            style="background-color: #2262af; color:white; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+            style="background-color: #2262af; color:white;  display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
         <i class="pi pi-file" style="font-size: 1rem"></i>
         <span>{{planilla.tipo_planilla}}</span>
       </span>
@@ -187,7 +191,7 @@
       <!-- Beneficio Social - Azul -->
       <span *ngSwitchCase="'Beneficio Social'"
             class="p-tag p-tag-info p-tag-rounded p-text-bold"
-            style="background-color: #007596; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+            style="background-color: #007596;  display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
         <i class="pi pi-file" style="font-size: 1rem"></i>
         <span>Planilla {{planilla.tipo_planilla}}</span>
       </span>
@@ -195,7 +199,7 @@
       <!-- Reintegro - Rojo -->
       <span *ngSwitchCase="'Reintegro'"
             class="p-tag p-tag-danger p-tag-rounded p-text-bold"
-            style="background-color: #541883; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
+            style="background-color: #541883;  display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
         <i class="pi pi-file" style="font-size: 1rem"></i>
         <span>Planilla {{planilla.tipo_planilla}}</span>
       </span>
