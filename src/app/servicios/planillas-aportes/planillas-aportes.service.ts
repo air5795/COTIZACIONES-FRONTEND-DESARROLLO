@@ -129,18 +129,43 @@ export class PlanillasAportesService {
     return this.http.get(`${environment.url}planillas_aportes/detalles/${id_planilla}`, { params });
   }
 
-  enviarCorreccionPlanilla(id_planilla: number, data: { trabajadores: any[]; fecha_planilla?: string }): Observable<any> {
+  enviarCorreccionPlanilla(id_planilla: number, data: { 
+    trabajadores: any[]; 
+    fecha_planilla?: string;
+    usuario_procesador?: string;
+    nom_usuario?: string;
+  }): Observable<any> {
+    console.log('🔧 Servicio enviando payload para corregir:', data);
     return this.http.put(`${environment.url}planillas_aportes/corregir/${id_planilla}`, data);
   }
 
-  actualizarEstadoPlanilla(id_planilla: number, estado: number, observaciones?: string): Observable<any> {
-    const body = { estado, observaciones };
+
+  actualizarEstadoPlanilla(
+    id_planilla: number, 
+    estado: number, 
+    observaciones?: string, 
+    usuarioProcesador?: string,
+    nombreProcesador?: string
+  ): Observable<any> {
+    const body = { 
+      estado, 
+      observaciones, 
+      usuario_procesador: usuarioProcesador,
+      nom_usuario: nombreProcesador 
+    };
+    
+    console.log('🔧 Enviando al backend:', body);
+    
     return this.http.put(`${environment.url}planillas_aportes/estado/${id_planilla}`, body);
   }
 
-  actualizarEstadoAPendiente(idPlanilla: number, fechaDeclaracion?: string | null) {
-    const body = fechaDeclaracion ? { fecha_declarada: fechaDeclaracion } : {};
-    return this.http.put(`${environment.url}planillas_aportes/estado/pendiente/${idPlanilla}`, body);
+  actualizarEstadoAPendiente(idPlanilla: number, payload: {
+    fecha_declarada?: string;
+    usuario_procesador?: string;
+    nom_usuario?: string;
+  }): Observable<any> {
+    console.log('🔧 Servicio enviando payload para presentar:', payload);
+    return this.http.put(`${environment.url}planillas_aportes/estado/pendiente/${idPlanilla}`, payload);
   }
 
   eliminarDetallesPlanilla(id_planilla: number): Observable<any> {

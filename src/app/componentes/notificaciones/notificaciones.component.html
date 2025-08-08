@@ -1,44 +1,39 @@
 <div class="notification-container" (clickOutside)="closeDropdown()">
-    <p-button
-      icon="pi pi-bell"
-      styleClass="p-button-text"
-      [badge]="notificacionesNoLeidas.toString()"
-      badgeClass="p-badge-danger"
-      (click)="toggleDropdown($event)"
-    ></p-button>
-  
-    <div class="notification-dropdown" *ngIf="isDropdownVisible">
-      <div class="notification-list">
-        <!-- Si no hay notificaciones -->
-        <div *ngIf="notificaciones.length === 0" class="no-notifications">
-          <span>No tienes Notificaciones</span>
+  <p-button
+    icon="pi pi-bell"
+    styleClass="p-button-text notification-button"
+    [badge]="notificacionesNoLeidas.toString()"
+    badgeClass="p-badge-danger"
+    (click)="toggleDropdown($event)">
+  </p-button>
+
+  <div class="notification-dropdown" *ngIf="isDropdownVisible">
+    <div class="notification-header">Notificaciones</div>
+
+    <div class="notification-list">
+      <div *ngIf="notificaciones.length === 0" class="no-notifications">
+        <i class="pi pi-inbox"></i>
+        <span>No tienes notificaciones</span>
+      </div>
+
+      <div
+        *ngFor="let notificacion of notificaciones"
+        class="notification-item"
+        [ngClass]="{'unread': !notificacion.leido}"
+        (click)="onNotificacionClick(notificacion)">
+        
+        <div class="unread-indicator" *ngIf="!notificacion.leido"></div>
+        <div class="notification-icon">
+          <i class="pi pi-file"></i>
         </div>
-  
-        <!-- Lista de notificaciones -->
-        <div
-          *ngFor="let notificacion of notificaciones"
-          class="notification-item"
-          [ngClass]="{'unread': !notificacion.leido}"
-          (click)="onNotificacionClick(notificacion)"
-        >
-          <!-- Indicador de no leído (círculo azul) -->
-          <div class="unread-indicator" *ngIf="!notificacion.leido"></div>
-  
-          <!-- Ícono de la notificación -->
-          <div class="notification-icon">
-            <i class="pi pi-file" style="font-size: 1.5rem;"></i>
-          </div>
-  
-          <!-- Contenido de la notificación -->
-          <div class="notification-content">
-            <span class="titulo">{{ notificacion.empresa }}</span>
-            <hr style="margin: 3px;">
-            <span class="notification-message">{{ notificacion.mensaje }}</span>
-            <div class="notification-time">
-              {{ notificacion.fecha_creacion | date:'mediumDate' }}
-            </div>
+        <div class="notification-content">
+          <span class="titulo">{{ notificacion.empresa }}</span>
+          <span class="notification-message">{{ notificacion.mensaje }}</span>
+          <div class="notification-time">
+            {{ notificacion.fecha_creacion | date:'mediumDate' }}
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>

@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { MenuItem } from 'primeng/api';
+import { SessionService } from '../../../servicios/auth/session.service';
 
 @Component({
   selector: 'app-planillas-aportes-detalle-aprobar',
@@ -65,6 +66,7 @@ export class PlanillasAportesDetalleAprobarComponent {
       private route: ActivatedRoute, 
       private planillasService: PlanillasAportesService,
       private empresaService: EmpresaService,
+      private sessionService: SessionService,
       private router: Router
     ) {
     }
@@ -253,90 +255,104 @@ obtenerComparacionPlanillas() {
     }
 
 
-    guardarEstado() {
-      if (this.planillaInfo.planilla.estado === 1 && !this.displayModal) {
-        // Si el estado es 1 y el modal no está visible, mostramos el modal
-        this.displayModal = true;
-        return;
+guardarEstado() {
+  if (this.planillaInfo.planilla.estado === 1 && !this.displayModal) {
+    // Si el estado es 1 y el modal no está visible, mostramos el modal
+    this.displayModal = true;
+    return;
+  }
+
+  // Validaciones
+  if (this.estadoSeleccionado === 3 && !this.observaciones) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Observaciones requeridas',
+      text: 'Debe ingresar las observaciones cuando selecciona "Observar Planilla"',
+      confirmButtonText: 'Ok'
+    });
+    return;
+  }
+
+  const confirmText = this.estadoSeleccionado === 2 
+    ? '¿Estás seguro de aprobar esta planilla? Este proceso es irreversible.' 
+    : '¿Estás seguro de observar esta planilla? Este proceso es irreversible.';
+
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: confirmText,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: this.estadoSeleccionado === 2 ? 'Sí, aprobar' : 'Sí, observar',
+    cancelButtonText: 'Cancelar',
+    didOpen: () => {
+      // Aplicar estilo en línea al contenedor de SweetAlert
+      const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+      if (swalContainer) {
+        swalContainer.style.zIndex = '2000';
       }
-    
-      // Validaciones
-      if (this.estadoSeleccionado === 3 && !this.observaciones) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Observaciones requeridas',
-          text: 'Debe ingresar las observaciones cuando selecciona "Observar Planilla"',
-          confirmButtonText: 'Ok'
-        });
-        return;
-      }
-    
-      const confirmText = this.estadoSeleccionado === 2 
-        ? '¿Estás seguro de aprobar esta planilla? Este proceso es irreversible.' 
-        : '¿Estás seguro de observar esta planilla? Este proceso es irreversible.';
-    
-      Swal.fire({
-        title: '¿Estás seguro?',
-        text: confirmText,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: this.estadoSeleccionado === 2 ? 'Sí, aprobar' : 'Sí, observar',
-        cancelButtonText: 'Cancelar',
-        didOpen: () => {
-          // Aplicar estilo en línea al contenedor de SweetAlert
-          const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
-          if (swalContainer) {
-            swalContainer.style.zIndex = '2000';
-          }
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.planillasService.actualizarEstadoPlanilla(
-            this.idPlanilla, 
-            this.estadoSeleccionado!, 
-            this.observaciones
-          ).subscribe({
-            next: (response) => {
-              Swal.fire({
-                icon: 'success',
-                title: this.estadoSeleccionado === 2 ? 'Planilla aprobada' : 'Planilla observada',
-                text: response.mensaje,
-                confirmButtonText: 'Ok',
-                didOpen: () => {
-                  // Aplicar estilo en línea al contenedor de SweetAlert
-                  const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
-                  if (swalContainer) {
-                    swalContainer.style.zIndex = '2000';
-                  }
-                }
-              }).then(() => {
-                this.displayModal = false;
-                this.router.navigate(['cotizaciones/historial-aportes']);
-              });
-            },
-            error: (err) => {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo actualizar el estado de la planilla',
-                confirmButtonText: 'Ok',
-                didOpen: () => {
-                  // Aplicar estilo en línea al contenedor de SweetAlert
-                  const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
-                  if (swalContainer) {
-                    swalContainer.style.zIndex = '2000';
-                  }
-                }
-              });
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 🔧 OBTENER DATOS DEL USUARIO DE LA SESIÓN
+      const sessionData = this.sessionService.sessionDataSubject.value;
+      const usuarioProcesador = sessionData?.usuario || 'ADMIN';
+      const nombreProcesador = sessionData?.persona 
+        ? `${sessionData.persona.nombres || ''} ${sessionData.persona.primerApellido || ''} ${sessionData.persona.segundoApellido || ''}`.trim()
+        : 'Administrador';
+
+      console.log('🔧 Datos del usuario procesador:', {
+        usuario: usuarioProcesador,
+        nombre: nombreProcesador
+      });
+
+      // 🔧 LLAMADA ACTUALIZADA CON DATOS DEL USUARIO - NOMBRE CORRECTO
+      this.planillasService.actualizarEstadoPlanilla(
+        this.idPlanilla, 
+        this.estadoSeleccionado!, 
+        this.observaciones,
+        usuarioProcesador,
+        nombreProcesador      
+      ).subscribe({
+        next: (response) => {
+          Swal.fire({
+            icon: 'success',
+            title: this.estadoSeleccionado === 2 ? 'Planilla aprobada' : 'Planilla observada',
+            text: response.mensaje,
+            confirmButtonText: 'Ok',
+            didOpen: () => {
+              // Aplicar estilo en línea al contenedor de SweetAlert
+              const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+              if (swalContainer) {
+                swalContainer.style.zIndex = '2000';
+              }
+            }
+          }).then(() => {
+            this.displayModal = false;
+            this.router.navigate(['cotizaciones/historial-aportes']);
+          });
+        },
+        error: (err) => {
+          console.error('❌ Error al actualizar estado:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo actualizar el estado de la planilla',
+            confirmButtonText: 'Ok',
+            didOpen: () => {
+              // Aplicar estilo en línea al contenedor de SweetAlert
+              const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+              if (swalContainer) {
+                swalContainer.style.zIndex = '2000';
+              }
             }
           });
         }
       });
     }
-
-    
+  });
+}
 
   
     exportarExcel() {

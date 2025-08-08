@@ -422,55 +422,71 @@ obtenerComparacionPlanillas() {
   }
 
   declararPlanillaBorrador() {
-    Swal.fire({
-      title: '¿Declarar la Planilla?',
-      text: 'Esta acción enviará la planilla a revisión.',
-      icon: 'question',
-      html: `
-        <input 
-          type="date" 
-          id="fechaDeclaracion" 
-          class="swal2-input"
-          placeholder="Seleccione fecha (opcional)">
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Sí, declarar',
-      cancelButtonText: 'Cancelar',
-      preConfirm: () => {
-        const fechaDeclaracion = (document.getElementById('fechaDeclaracion') as HTMLInputElement).value;
-        return { fechaDeclaracion: fechaDeclaracion ? fechaDeclaracion : null };
+  Swal.fire({
+    title: '¿Declarar la Planilla?',
+    text: 'Esta acción enviará la planilla a revisión.',
+    icon: 'question',
+    html: `
+      <input 
+        type="date" 
+        id="fechaDeclaracion" 
+        class="swal2-input"
+        placeholder="Seleccione fecha (opcional)">
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Sí, declarar',
+    cancelButtonText: 'Cancelar',
+    preConfirm: () => {
+      const fechaDeclaracion = (document.getElementById('fechaDeclaracion') as HTMLInputElement).value;
+      return { fechaDeclaracion: fechaDeclaracion ? fechaDeclaracion : null };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let fechaDeclaracion = result.value?.fechaDeclaracion;
+      if (fechaDeclaracion) {
+        // Normalizar a formato YYYY-MM-DD sin hora
+        fechaDeclaracion = new Date(fechaDeclaracion).toISOString().split('T')[0];
       }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        let fechaDeclaracion = result.value?.fechaDeclaracion;
-        if (fechaDeclaracion) {
-          // Normalizar a formato YYYY-MM-DD sin hora
-          fechaDeclaracion = new Date(fechaDeclaracion).toISOString().split('T')[0];
-        }
-        
-        this.planillasService
-          .actualizarEstadoAPendiente(this.idPlanilla, fechaDeclaracion)
-          .subscribe({
-            next: () => {
-              Swal.fire({
-                icon: 'success',
-                title: 'Planilla enviada',
-                text: 'La planilla ha sido declarada como borrador.',
-              });
-              this.router.navigate(['cotizaciones/planillas-aportes']);
-            },
-            error: (err) => {
-              console.error('Error al actualizar estado:', err);
-              Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo declarar la planilla.',
-              });
-            },
-          });
-      }
-    });
-  }
+
+      // 🔧 OBTENER DATOS DEL USUARIO DE LA SESIÓN
+      const sessionData = this.sessionService.sessionDataSubject.value;
+      const usuarioProcesador = sessionData?.usuario || 'EMPRESA';
+      const nombreProcesador = sessionData?.persona 
+        ? `${sessionData.persona.nombres || ''} ${sessionData.persona.primerApellido || ''} ${sessionData.persona.segundoApellido || ''}`.trim()
+        : 'Usuario Empresa';
+
+      // 🔧 PAYLOAD CON DATOS DEL USUARIO
+      const payload = {
+        fecha_declarada: fechaDeclaracion,
+        usuario_procesador: usuarioProcesador,
+        nom_usuario: nombreProcesador
+      };
+
+      console.log('🔧 Presentando planilla con datos:', payload);
+      
+      this.planillasService
+        .actualizarEstadoAPendiente(this.idPlanilla, payload)
+        .subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Planilla enviada',
+              text: 'La planilla ha sido declarada como borrador.',
+            });
+            this.router.navigate(['cotizaciones/planillas-aportes']);
+          },
+          error: (err) => {
+            console.error('Error al actualizar estado:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo declarar la planilla.',
+            });
+          },
+        });
+    }
+  });
+}
 
 actualizarFecha() {
     if (this.nuevoMes && this.nuevoAnio) {
@@ -481,72 +497,84 @@ actualizarFecha() {
   }
 
   guardarYEnviar() {
-    Swal.fire({
-      title: '¿Confirmar envío?',
-      text: '¿Estás seguro de que deseas enviar la planilla corregida?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, enviar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Obtener todos los registros antes de enviar
-        this.obtenerTodosDetalles();
-        setTimeout(() => { // Esperar a que los datos se carguen
-          for (let trabajador of this.trabajadores) {
-            if (!trabajador.ci) {
+  Swal.fire({
+    title: '¿Confirmar envío?',
+    text: '¿Estás seguro de que deseas enviar la planilla corregida?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, enviar',
+    cancelButtonText: 'Cancelar',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Obtener todos los registros antes de enviar
+      this.obtenerTodosDetalles();
+      setTimeout(() => { // Esperar a que los datos se carguen
+        for (let trabajador of this.trabajadores) {
+          if (!trabajador.ci) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Campos Vacíos',
+              text: 'Hay trabajadores con campos vacíos. Verifica antes de enviar.',
+              confirmButtonText: 'Ok',
+            });
+            return;
+          }
+          if (trabajador.salario <= 0) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Salario Inválido',
+              text: `El salario de ${trabajador.nombres} debe ser mayor a 0.`,
+              confirmButtonText: 'Ok',
+            });
+            return;
+          }
+        }
+
+        // 🔧 OBTENER DATOS DEL USUARIO DE LA SESIÓN
+        const sessionData = this.sessionService.sessionDataSubject.value;
+        const usuarioProcesador = sessionData?.usuario || 'EMPRESA';
+        const nombreProcesador = sessionData?.persona 
+          ? `${sessionData.persona.nombres || ''} ${sessionData.persona.primerApellido || ''} ${sessionData.persona.segundoApellido || ''}`.trim()
+          : 'Usuario Empresa';
+
+        const datosEnviar: any = {
+          trabajadores: this.trabajadores,
+          usuario_procesador: usuarioProcesador, 
+          nom_usuario: nombreProcesador           
+        };
+
+        if (this.nuevaFechaPlanilla) {
+          datosEnviar.fecha_planilla = this.nuevaFechaPlanilla;
+        }
+
+        console.log('🔧 Corrigiendo planilla con datos:', datosEnviar);
+
+        this.planillasService
+          .enviarCorreccionPlanilla(this.idPlanilla, datosEnviar)
+          .subscribe({
+            next: (response) => {
               Swal.fire({
-                icon: 'warning',
-                title: 'Campos Vacíos',
-                text: 'Hay trabajadores con campos vacíos. Verifica antes de enviar.',
+                icon: 'success',
+                title: 'Planilla enviada',
+                text: 'La planilla corregida se ha enviado con éxito.',
                 confirmButtonText: 'Ok',
               });
-              return;
-            }
-            if (trabajador.salario <= 0) {
+              this.router.navigate(['cotizaciones/planillas-aportes']);
+            },
+            error: (err) => {
+              console.error('Error al enviar planilla corregida:', err);
               Swal.fire({
                 icon: 'error',
-                title: 'Salario Inválido',
-                text: `El salario de ${trabajador.nombres} debe ser mayor a 0.`,
+                title: 'Error al enviar',
+                text: err.error.message || 'Hubo un problema al enviar la planilla.',
                 confirmButtonText: 'Ok',
               });
-              return;
-            }
-          }
-  
-          const datosEnviar: any = {
-            trabajadores: this.trabajadores,
-          };
-  
-          if (this.nuevaFechaPlanilla) {
-            datosEnviar.fecha_planilla = this.nuevaFechaPlanilla;
-          }
-  
-          this.planillasService
-            .enviarCorreccionPlanilla(this.idPlanilla, datosEnviar)
-            .subscribe({
-              next: (response) => {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Planilla enviada',
-                  text: 'La planilla corregida se ha enviado con éxito.',
-                  confirmButtonText: 'Ok',
-                });
-              },
-              error: (err) => {
-                console.error('Error al enviar planilla corregida:', err);
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Error al enviar',
-                  text: err.error.message || 'Hubo un problema al enviar la planilla.',
-                  confirmButtonText: 'Ok',
-                });
-              },
-            });
-        }, 500); // Ajusta el tiempo según la velocidad de tu API
-      }
-    });
-  }
+            },
+          });
+      }, 500); // Ajusta el tiempo según la velocidad de tu API
+    }
+  });
+}
 
   exportarExcel() {
     if (!this.trabajadores || this.trabajadores.length === 0) {
