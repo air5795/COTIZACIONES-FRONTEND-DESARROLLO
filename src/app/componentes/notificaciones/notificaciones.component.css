@@ -9,6 +9,9 @@
   font-size: 1.2rem;
 }
 
+
+
+
 .notification-dropdown {
   position: absolute;
   top: 100%;
@@ -106,3 +109,5 @@
   color: #888;
   margin-top: 4px;
 }
+
+
