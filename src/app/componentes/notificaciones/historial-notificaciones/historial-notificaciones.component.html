@@ -1,91 +1,182 @@
-<!-- <div class="header">
-    <div class="header-left">
-        
-        <h2><i class="pi pi-bell" style="color: #ffffff; font-size: 1.5rem;"></i> HISTORIAL DE NOTIFICACIONES RECIBIDAS</h2>
+<div class="grid dashboard">
+  <div class="col-12 md:col-12 lg:6">
+    <div class="perfil-empleador">
+      <!-- Header igual que planillas-aportes-list -->
+      <div class="header">
+        <div class="header-left">
+          <h2 style="font-size: 30px;">
+             HISTORIAL DE NOTIFICACIONES
+          </h2>
+          <hr style="margin: 2px; ">
+          <span class="numero-patronal">Control de Notificaciones Recibidas</span>
+        </div>
+        <div class="header-right">
+          <div class="button-container">
 
-    </div>
-    <div class="header-right"> -->
-        <!-- <span class="razon-social">{{ empresa?.EMP_NOM || 'Cargando...' }}</span>
-        <hr style="margin: 2px; border: 1px solid rgb(225 225 225 / 43%)">
-        <span class="numero-patronal">Cod Patronal: {{ empresa?.EMP_NPATRONAL?.slice(3) || '---' }}</span> -->
-<!--         <button 
-          pButton 
-          label="Total Notificaciones" 
-          class="p-button p-button-sm total-button"
-          style="background-color: #007d00;"
-        >
-          <i class="pi pi-bell"></i>
-          <span>{{ totalRecords }}</span>
-        </button>
-    </div>
-    
-</div> -->
-  
-<!-- <div class="container">
- -->
-  
-    <!-- Tabla PrimeNG -->
-   <!--  <p-table
-      [value]="notificaciones"
-      [paginator]="true"
-      [rows]="limite"
-      [totalRecords]="totalRecords"
-      [loading]="loading"
-      [rowsPerPageOptions]="[5, 10, 15, 20]"
-      [pageLinks]="5"
-      [lazy]="true"
-      responsiveLayout="scroll"
-      styleClass="p-datatable-sm p-datatable-striped"
-      [style]="{'font-size': '12px', 'border': '1px solid #dee2e6'}"
-      (onLazyLoad)="loadNotificaciones($event)"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Mostrando registros del {first} al {last} de un total de {totalRecords} registros"
-    >
-      <ng-template pTemplate="header">
-        <tr style="background-color: #f8f9fa;">
-            <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Empresa</th>
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Tipo</th>
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Mensaje</th>
+            
+            <button pButton class="boton1" >
+              <span class="pi pi-bell" style="font-size: 2rem; padding-bottom: 10px;"></span>
+              <span style="font-size: 13px;margin-bottom: 2px;">Total: {{ totalRecords }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Leído</th>
-          
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Acción</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-notificacion>
-        <tr [ngClass]="{'no-leida': !notificacion.leido}">
-            <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ notificacion.empresa || '-' }}</td>
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ notificacion.tipo_notificacion }}</td>
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ notificacion.mensaje }}</td>
+      <!-- Tabla con el mismo estilo que planillas-aportes-list -->
+      <p-table 
+        [value]="notificaciones" 
+        [paginator]="true"
+        [rows]="limite" 
+        [totalRecords]="totalRecords" 
+        [loading]="loading"
+        [rowsPerPageOptions]="[5,10,20,25,30]"
+        [pageLinks]="3" 
+        [lazy]="true"
+        class="tabla-centrada" 
+        (onLazyLoad)="loadNotificaciones($event)"
+        #tablaNotificaciones>
 
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
-            <i class="pi pi-check" *ngIf="notificacion.leido" aria-label="Leída"></i>
-            <i class="pi pi-times" *ngIf="!notificacion.leido" aria-label="No leída"></i>
-          </td>
-          
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
-            <button 
-              pButton 
-              label="Marcar como leída"
-              icon="pi pi-check" 
-              class="p-button p-button-primary" 
-              *ngIf="!notificacion.leido"
-              (click)="marcarComoLeida(notificacion.id_notificacion)"
-              style="width: 100%;"
-            ></button>
-          </td>
-        </tr>
-      </ng-template>
-      <!-- Template para cuando no hay datos -->
-<!--       <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="7" style="text-align: center; padding: 20px; background-color: #fff;">
-            <div class="no-data-message">
-              <i class="pi pi-info-circle" style="font-size: 2.5rem; color: #888;"></i>
-              <p style="margin-top: 10px; font-size: 1.2rem; color: #888;">No hay notificaciones para mostrar</p>
+        <ng-template pTemplate="caption">
+          <div class="flex justify-content-between flex-column sm:flex-row align-items-center">
+            <button pButton label="Recargar" class="p-button-outlined mb-2" icon="pi pi-sync" (click)="recargar()"></button>
+            <div class="flex flex-column sm:flex-row gap-2 mb-2">
+
+              <!-- Filtro por Estado (Leído/No Leído) -->
+              <p-dropdown
+                [options]="estadosLeido"
+                [(ngModel)]="filtroLeido"
+                placeholder="Filtrar por estado"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="aplicarFiltros()"
+                styleClass="w-full sm:w-auto">
+              </p-dropdown>
+
+              <!-- Filtro por Tipo de Notificación -->
+              <p-dropdown
+                [options]="tiposNotificacion"
+                [(ngModel)]="filtroTipo"
+                placeholder="Filtrar por tipo"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="aplicarFiltros()"
+                styleClass="w-full sm:w-auto">
+              </p-dropdown>
+
+              <!-- Campo de búsqueda -->
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input 
+                  pInputText 
+                  type="text" 
+                  [(ngModel)]="busqueda"
+                  (input)="buscar($event)"
+                  placeholder="Buscar notificaciones..." 
+                  styleClass="w-full sm:w-auto"
+                />
+              </span>
             </div>
-          </td>
-        </tr> -->
-<!--       </ng-template>
-    </p-table>
-  </div>  -->
+          </div>
+        </ng-template>
+
+        <!-- Cabecera de la tabla -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 20px;">Lectura</th>
+            <th style="width: 150px;">Fecha</th>
+            <th style="width: 200px;">Empresa</th>
+            <th style="width: 150px;">Mensaje</th>
+            
+            
+            <th style="width: 50px;">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <!-- Cuerpo de la tabla -->
+        <ng-template pTemplate="body" let-notificacion>
+          <tr [ngClass]="{'row-pending': !notificacion.leido, 'row-assigned': notificacion.leido}">
+            
+            <!-- Estado -->
+            <td style="text-align: center;">
+              <i 
+                class="pi" 
+                [ngClass]="{
+                  'pi-check-circle': notificacion.leido,
+                  'pi-exclamation-circle': !notificacion.leido
+                }"
+                [style.color]="notificacion.leido ? '#4CAF50' : '#FF5722'"
+                [style.font-size]="'1.2rem'"
+                [title]="notificacion.leido ? 'Leída' : 'No leída'">
+              </i>
+            </td>
+
+                        <!-- Fecha -->
+            <td style="text-align: center;">
+              <small>{{ formatearFecha(notificacion.fecha_creacion) }}</small>
+            </td>
+
+             <!-- Empresa -->
+            <td style="text-align: center;">
+              <span class="empresa-badge">{{ notificacion.empresa || '-' }}</span>
+            </td>
+            
+
+            
+            <!-- Mensaje -->
+            <td>
+              <span 
+                class="mensaje-notificacion"
+                [title]="notificacion.mensaje">
+                {{ notificacion.mensaje }}
+              </span>
+            </td>
+            
+
+
+            
+            <!-- Acciones -->
+            <td style="text-align: center;">
+              <div class="flex gap-1 justify-content-center">
+                <!-- Marcar como leída -->
+                <button 
+                  *ngIf="!notificacion.leido"
+                  pButton 
+                  icon="pi pi-check" 
+                  class="p-button-success p-button-sm" 
+                  pTooltip="Marcar como leída"
+                  (click)="marcarComoLeida(notificacion.id_notificacion)">
+                </button>
+                
+                <!-- Ver detalle -->
+                <button 
+                  pButton 
+                  icon="pi pi-eye" 
+                  class="p-button-info p-button-sm" 
+                  pTooltip="Ver detalle"
+                  (click)="verDetalle(notificacion)">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Mensaje cuando no hay datos -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px;">
+              <div class="no-data-container">
+                <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No hay notificaciones</h3>
+                <p>No se encontraron notificaciones con los filtros aplicados.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Toast para mensajes -->
+<p-toast position="top-right"></p-toast>

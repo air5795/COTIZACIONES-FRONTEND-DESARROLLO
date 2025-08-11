@@ -8,5 +8,6 @@ export interface Notificacion {
     leido: boolean;
     fecha_creacion: string;
     usuario_creacion: string;
+    nom_usuario?: string;
     empresa: string;
   }
