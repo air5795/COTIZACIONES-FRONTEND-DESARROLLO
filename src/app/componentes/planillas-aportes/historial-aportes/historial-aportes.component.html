@@ -95,42 +95,42 @@
 
   <ng-template pTemplate="header">
     <tr>
-      <th style="width: 250px;">Empleador</th>
-      <th>N° de Comprobante</th>
-      <th>Mes</th>
-      <th>Gestión</th>
-      <th>Total Regitros </th>
-      <th >Total importe</th>
-      <th>Fecha Declarada</th>
+      <th style="width: 50px;">N° Comprobante</th>
+      <th style="width: 280px;">Empleador</th>
       
-      <th style="width: 80px;">Declarado</th>
-      <th style="width: 80px;">Liquidado</th>
+      <th style="width: 50px;">Mes</th>
+      <th style="width: 50px;">Gestión</th>
+      <th style="width: 50px;">Regitros </th>
+      <th style="width: 150px;">Total importe</th>
+<!--       <th>Fecha Declarada</th>
+       -->
+      <th style="width: 50px;">Declarado</th>
+      <th style="width: 50px;">Liquidado</th>
       <th style="width: 150px;">Tipo Planilla</th>
       <th style="width: 120px;">Estado</th>
-      <th>Acciones</th>
+      <th style="width: 100px;">Acciones</th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-planilla>
    
   <tr>
+    <td>{{ planilla.com_nro }}</td>
     <td style="text-align: left; padding: 2px 10px;" >
-      {{planilla.empresa}} <br>
+      <span style="color: #009688; font-weight: 600;">{{planilla.empresa}}</span> <br>
       <span style="color: #767d88; font-size: 12px;">N° patronal: </span><span style="color: #64748b; font-size: 12px;">{{ planilla.cod_patronal.slice(3) }}
 </span>
     </td>
-  <td>COM-{{ planilla.com_nro }}</td>
+ 
   
   <td>{{ planilla.mes }}</td> 
   <td>{{ planilla.gestion }}</td> 
   <td style="text-align: center;">
-    <button class="btn btn-primary" style="color: #009688; font-size: 18px; font-weight: 600; border: none; background-color: white;">
-      {{ planilla.total_trabaj }}
-    </button>
+    {{ planilla.total_trabaj }}
   </td>
   <td style="background-color: #f3fff7;">
     <span>{{ planilla.total_importe | number:'1.2-2' }} Bs</span>
   </td>
-  <td>
+<!--   <td>
     <span *ngIf="planilla.fecha_declarada; else sinFechad"> 
       <span style="color: green;">
         {{ planilla.fecha_declarada | date: 'd \'de\' MMMM \'de\' yyyy' : 'UTC' }}
@@ -143,7 +143,7 @@
     </ng-template>
 
   
-  </td>
+  </td> -->
 
   <td>
     <span *ngIf="planilla.fecha_declarada; else sinFecha"> 
