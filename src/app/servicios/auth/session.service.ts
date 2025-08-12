@@ -108,14 +108,14 @@ export class SessionService {
   esAdministrador(): boolean {
     const sessionData = this.sessionDataSubject.value;
     const rol = sessionData?.rol?.rol || '';
-    return rol === 'ADMIN_COTIZACIONES_DESARROLLO' || rol === 'ADMIN_COTIZACIONES_PRODUCCION';
+    return rol === 'ADMIN_COTIZACIONES_DESARROLLO' || rol === 'ADMIN_COTIZACIONES';
   }
 
   // Verificar si el usuario es empleador (desarrollo o producción)
   esEmpleador(): boolean {
     const sessionData = this.sessionDataSubject.value;
     const rol = sessionData?.rol?.rol || '';
-    return rol === 'EMPRESA_COTIZACIONES_DESARROLLO' || rol === 'EMPRESA_COTIZACIONES_PRODUCCION';
+    return rol === 'EMPRESA_COTIZACIONES_DESARROLLO' || rol === 'EMPRESA_COTIZACIONES';
   }
 
   // Verificar si es un rol específico de desarrollo
