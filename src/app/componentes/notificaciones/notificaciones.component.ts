@@ -151,4 +151,11 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   closeDropdown(): void {
     this.isDropdownVisible = false;
   }
+
+  get badgeText(): string {
+  if (this.notificacionesNoLeidas > 999) return '999+';
+  if (this.notificacionesNoLeidas > 99) return '99+';
+  return String(this.notificacionesNoLeidas);
+}
+
 }
