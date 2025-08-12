@@ -1,13 +1,20 @@
 <div class="notification-container" (clickOutside)="closeDropdown()">
-  <p-button
-    icon="pi pi-bell"
-    styleClass="p-button-text notification-button"
-    [badge]="notificacionesNoLeidas.toString()"
-    badgeClass="p-badge-danger"
-    (click)="toggleDropdown($event)">
-  </p-button>
+  <button
+    type="button"
+    class="notification-btn"
+    (click)="toggleDropdown($event)"
+    aria-label="Notificaciones"
+    title="{{ notificacionesNoLeidas }} notificaciones">
 
-  <div class="notification-dropdown" *ngIf="isDropdownVisible">
+      <span class="icon-wrapper">
+        <i class="pi pi-bell"></i>
+        <span *ngIf="notificacionesNoLeidas > 0" class="custom-badge">
+          {{ badgeText }}
+        </span>
+      </span>
+  </button>
+
+  <div class="notification-dropdown" *ngIf="isDropdownVisible"  (mouseleave)="closeDropdown()">
     <div class="notification-header">Notificaciones</div>
 
     <div class="notification-list">

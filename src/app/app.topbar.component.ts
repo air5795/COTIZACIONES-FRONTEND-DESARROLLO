@@ -27,7 +27,7 @@ import { environment } from '../environments/environment';
           <a class="p-2"
              style="background-color: #f3f3f3; padding: 4px !important; color: #14625b; margin: inherit; bottom: 1px; border-left: 8px solid #b0c9bb; border-bottom: 1px solid #b0c9bb;">
             <div class="profile-image pr-1" style="position: relative; display: inline-flex; align-items: center;">
-              <div class="notification-wrapper">
+              <div style="background-color: #009688; border-radius:7px">
                 <app-notificaciones></app-notificaciones>
               </div>
               <img src="assets/layout/images/user.png" alt="User Image" style="margin-left: 10px; margin-right: 10px;">
