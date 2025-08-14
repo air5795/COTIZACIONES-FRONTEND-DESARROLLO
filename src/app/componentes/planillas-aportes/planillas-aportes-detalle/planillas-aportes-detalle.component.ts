@@ -7,6 +7,7 @@ import { saveAs } from 'file-saver';
 import { LazyLoadEvent } from 'primeng/api';
 import { SessionService } from '../../../servicios/auth/session.service';
 import { Subject } from 'rxjs';
+import { TokenService } from '../../../servicios/token/token.service';
 
 @Component({
   selector: 'app-planillas-aportes-detalle',
@@ -84,25 +85,70 @@ export class PlanillasAportesDetalleComponent implements OnInit {
     private route: ActivatedRoute,
     private planillasService: PlanillasAportesService,
     private sessionService: SessionService,
-    private router: Router
+    private router: Router,
+    private tokenService: TokenService
   ) {}
 
-  ngOnInit(): void {
-    this.verificarRolUsuario();
-    const currentYear = new Date().getFullYear();
-    for (let i = currentYear - 10; i <= currentYear + 1; i++) {
-      this.anios.push(i);
-    }
-    this.idPlanilla = Number(this.route.snapshot.paramMap.get('id'));
-    this.obtenerDetalles();
-    this.obtenerInformacionPlanilla().then(() => {
-      
-      this.obtenerComparacionPlanillas();
-      this.obtenerResumenPlanilla(); 
-      
+ngOnInit(): void {
+  this.verificarRolUsuario();
+  const currentYear = new Date().getFullYear();
+  for (let i = currentYear - 10; i <= currentYear + 1; i++) {
+    this.anios.push(i);
+  }
+  
+  // ✅ NUEVA LÓGICA PARA PROCESAR ID ENCRIPTADO
+  const identificador = this.route.snapshot.paramMap.get('id');
+  if (identificador) {
+    this.procesarIdentificadorPlanilla(identificador);
+  } else {
+    console.error('❌ No se encontró ID en la ruta');
+    this.router.navigate(['/cotizaciones/planillas-aportes']);
+  }
+}
+
+// ✅ NUEVO MÉTODO PARA PROCESAR ID ENCRIPTADO
+private procesarIdentificadorPlanilla(identificador: string) {
+  console.log('🔍 Procesando identificador:', identificador);
+  
+  // Intentar desencriptar el ID
+  const idDesencriptado = this.tokenService.desencriptarId(identificador);
+  
+  if (idDesencriptado) {
+    console.log('✅ ID desencriptado exitosamente:', {
+      idEncriptado: identificador,
+      idReal: idDesencriptado
     });
     
+    // Establecer el ID y cargar datos
+    this.idPlanilla = idDesencriptado;
+    this.cargarDatosPlanilla();
+    
+  } else {
+    // Si no se puede desencriptar, podría ser un ID numérico directo (compatibilidad)
+    const idNumerico = parseInt(identificador);
+    if (!isNaN(idNumerico) && idNumerico > 0) {
+      console.log('⚠️ Usando ID numérico directo (modo compatibilidad):', idNumerico);
+      this.idPlanilla = idNumerico;
+      this.cargarDatosPlanilla();
+    } else {
+      console.error('❌ Identificador inválido:', identificador);
+      this.router.navigate(['/cotizaciones/planillas-aportes']);
+    }
   }
+}
+
+// ✅ NUEVO MÉTODO PARA CARGAR TODOS LOS DATOS
+private cargarDatosPlanilla() {
+  console.log('📊 Cargando datos para planilla ID:', this.idPlanilla);
+  
+  this.obtenerDetalles();
+  this.obtenerInformacionPlanilla().then(() => {
+    this.obtenerComparacionPlanillas();
+    this.obtenerResumenPlanilla(); 
+  }).catch((error) => {
+    console.error('❌ Error al cargar información de planilla:', error);
+  });
+}
 
   ngOnDestroy() {
     this.destroy$.next();

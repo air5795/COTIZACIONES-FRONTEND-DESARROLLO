@@ -382,7 +382,7 @@
             </div>
             
             <!-- Tarjeta: Total Altas -->
-            <div *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+            <div *ngIf="planillaInfo?.planilla?.tipo_planilla != 'Planilla Adicional'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
               <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Altas</span>
@@ -399,7 +399,7 @@
             </div>
             
             <!-- Tarjeta: Total Bajas por Retiro -->
-            <div *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+            <div *ngIf="planillaInfo?.planilla?.tipo_planilla != 'Planilla Adicional'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
               <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Bajas</span>
@@ -416,7 +416,7 @@
             </div>
             
             <!-- Tarjeta: No encontrados -->
-            <div *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+            <div *ngIf="planillaInfo?.planilla?.tipo_planilla != 'Planilla Adicional'" style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
               <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <span style="font-weight: 600; color: #00796b; font-size: 1rem;">No Encontrados</span>
@@ -488,7 +488,7 @@
       </div>
     </div>
   </p-tabPanel>
-  <p-tabPanel  header="Bajas" leftIcon="pi pi-arrow-down" *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'" >
+  <p-tabPanel  header="Bajas" leftIcon="pi pi-arrow-down" *ngIf="planillaInfo?.planilla?.tipo_planilla != 'Planilla Adicional'" >
 <!--  Bajas por Fecha de Retiro -->
 <div style="display: flex; align-items: center; justify-content: space-between;  background-color: #e3e3e3; padding: 5px;">
   <div style="display: flex; align-items: center; gap: 10px;">
@@ -625,7 +625,7 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
 </p-table>
 
   </p-tabPanel>
-  <p-tabPanel header="Altas" leftIcon="pi pi-arrow-up" *ngIf="planillaInfo?.planilla?.tipo_planilla === 'Mensual'">
+  <p-tabPanel header="Altas" leftIcon="pi pi-arrow-up" *ngIf="planillaInfo?.planilla?.tipo_planilla != 'Planilla Adicional'">
 
     <div style="display: flex; align-items: center; justify-content: space-between;  background-color: #e3e3e3; padding: 5px;">
       <div style="display: flex; align-items: center; gap: 10px;">
@@ -705,7 +705,7 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
   <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0 && tipoEmpresa !== 'Pública'"  header="Pagos" leftIcon="pi pi-money-bill">
     <app-pagos-aportes [idPlanilla]="idPlanilla"></app-pagos-aportes>
   </p-tabPanel>
-  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado === 2 || planillaInfo?.planilla?.fecha_pago" header="Liquidación" leftIcon="pi pi-calculator">
+  <p-tabPanel *ngIf="planillaInfo?.planilla?.estado === 2 || planillaInfo?.planilla?.fecha_liquidacion" header="Liquidación" leftIcon="pi pi-calculator">
     <app-liquidaciones-aportes [idPlanilla]="idPlanilla"></app-liquidaciones-aportes>
   </p-tabPanel>
 <!--   <p-tabPanel *ngIf="planillaInfo?.planilla?.estado != 0" header="Planillas Adicionales" leftIcon="pi pi-plus" styleClass="separated-tab">

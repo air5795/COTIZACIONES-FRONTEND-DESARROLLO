@@ -307,12 +307,8 @@ calcularAportes(id: number): Observable<any> {
   }
 
   // NUEVO MÉTODO: Recalcular con nueva fecha de pago
-  recalcularLiquidacionConFecha(idPlanilla: number, fechaPago: Date, validoCotizacion: string): Observable<any> {
-    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion-fecha`, { 
-      fechaPago: fechaPago.toISOString(),
-      forzar: true,
-      valido_cotizacion: validoCotizacion
-    });
+  recalcularLiquidacionConDatos(idPlanilla: number, datos: any): Observable<any> {
+    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion`, datos);
   }
 
 

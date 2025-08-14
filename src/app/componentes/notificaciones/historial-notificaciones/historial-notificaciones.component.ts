@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { TokenService } from '../../../servicios/token/token.service';
 
 interface Notificacion {
   id_notificacion: number;
@@ -59,7 +60,8 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
     private notificacionesService: NotificacionesService,
     private sessionService: SessionService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private tokenService: TokenService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -272,21 +274,30 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
 
 
 
-  verDetalle(notificacion: Notificacion): void {
-    // Marcar como leída si no lo está
-    if (!notificacion.leido) {
-      this.marcarComoLeida(notificacion.id_notificacion);
-    }
+verDetalle(notificacion: Notificacion): void {
+  // Marcar como leída si no lo está
+  if (!notificacion.leido) {
+    this.marcarComoLeida(notificacion.id_notificacion);
+  }
 
-    // Navegar según el tipo de recurso y usuario usando los métodos helper
-    if (notificacion.tipo_recurso === 'PLANILLA_APORTES') {
-      if (this.sessionService.esAdministrador()) {
-        this.router.navigate(['/cotizaciones/historial-aportes']);
-      } else if (this.sessionService.esEmpleador()) {
-        this.router.navigate([`/cotizaciones/planillas-aportes/${notificacion.id_recurso}`]);
-      }
+  // Navegar según el tipo de recurso y usuario usando los métodos helper
+  if (notificacion.tipo_recurso === 'PLANILLA_APORTES') {
+    if (this.sessionService.esAdministrador()) {
+      this.router.navigate(['/cotizaciones/historial-aportes']);
+    } else if (this.sessionService.esEmpleador()) {
+      // ✅ NUEVA LÓGICA: Encriptar el ID antes de navegar
+      const idEncriptado = this.tokenService.encriptarId(notificacion.id_recurso);
+      
+      console.log('🔒 Navegando desde historial con ID encriptado:', {
+        idReal: notificacion.id_recurso,
+        idEncriptado: idEncriptado,
+        notificacion: notificacion.tipo_notificacion
+      });
+      
+      this.router.navigate([`/cotizaciones/planillas-aportes/${idEncriptado}`]);
     }
   }
+}
 
 
 

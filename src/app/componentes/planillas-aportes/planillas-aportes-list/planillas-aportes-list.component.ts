@@ -7,6 +7,7 @@ import { EmpresaService } from '../../../servicios/empresa/empresa.service';
 import * as XLSX from 'xlsx';
 import { LazyLoadEvent } from 'primeng/api';
 import { SessionService } from '../../../servicios/auth/session.service';
+import { TokenService } from '../../../servicios/token/token.service';
 
 @Component({
   selector: 'app-planillas-aportes-list',
@@ -61,9 +62,10 @@ export class PlanillasAportesListComponent {
 
   tiposPlanilla = [
     { label: 'Mensual', value: 'Mensual' },
-    { label: 'Reintegro', value: 'Reintegro' },
-    { label: 'Beneficio Social', value: 'Beneficio Social' },
+    { label: 'Reintegro', value: 'Reintegro' , disabled: true }, // Deshabilitado
+    { label: 'Beneficio Social', value: 'Beneficio Social', disabled: true }, // Deshabilitado  
     { label: 'Planilla Adicional', value: 'Planilla Adicional' },
+    { label: 'Retroactivo', value: 'Retroactivo' },
   ];
 
   steps = [
@@ -81,7 +83,8 @@ export class PlanillasAportesListComponent {
     private empresaService: EmpresaService,
     private sessionService: SessionService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private tokenService: TokenService
   ) {}
 
   ngOnInit(): void {
@@ -276,9 +279,26 @@ export class PlanillasAportesListComponent {
 
 
 
-  verDetalle(id_planilla: number) {
-    this.router.navigate(['/cotizaciones/planillas-aportes', id_planilla]);
+verDetalle(idPlanilla: number) {
+  // ✅ LOG PARA DEBUG
+  console.log('🔍 ID recibido en verDetalle:', idPlanilla);
+  
+  // Verificar que el ID existe y es válido
+  if (!idPlanilla || idPlanilla <= 0) {
+    console.error('❌ Error: ID de planilla no válido', idPlanilla);
+    return;
   }
+  
+  // Encriptar el ID antes de navegar
+  const idEncriptado = this.tokenService.encriptarId(idPlanilla);
+  
+  console.log('🔒 Navegando con ID encriptado:', {
+    idReal: idPlanilla,
+    idEncriptado: idEncriptado
+  });
+  
+  this.router.navigate(['/cotizaciones/planillas-aportes', idEncriptado]);
+}
 
   // 1️⃣ Ir al siguiente paso en el Stepper
   nextStep() {

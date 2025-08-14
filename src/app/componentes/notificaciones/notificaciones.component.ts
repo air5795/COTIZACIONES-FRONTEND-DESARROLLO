@@ -4,6 +4,7 @@ import { Notificacion } from '../../models/notificacion.model';
 import { Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { SessionService } from '../../servicios/auth/session.service';
+import { TokenService } from '../../servicios/token/token.service';
 
 @Component({
   selector: 'app-notificaciones',
@@ -23,6 +24,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     private notificacionesService: NotificacionesService,
     private router: Router,
     private sessionService: SessionService,
+    private tokenService: TokenService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -97,51 +99,36 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   }
 
   onNotificacionClick(notificacion: Notificacion): void {
-    console.log('🔔 Notificación clickeada:', notificacion);
-    
-    // Cerrar el dropdown primero
-    this.isDropdownVisible = false;
-
-    // Marcar como leída si no está leída
-    if (!notificacion.leido) {
-      this.notificacionesService.marcarNotificacionComoLeida(notificacion.id_notificacion).subscribe({
-        next: () => {
-          console.log('✅ Notificación marcada como leída');
-          notificacion.leido = true;
-          this.cargarNotificaciones(); 
-        },
-        error: (error) => {
-          console.error('❌ Error al marcar notificación como leída:', error);
-        },
-      });
-    }
-
-    // 🔧 NAVEGACIÓN MEJORADA: Redirigir según el tipo de notificación y usuario
-    if (notificacion.tipo_recurso === 'PLANILLA_APORTES' && notificacion.id_recurso) {
-      if (this.idcNivel === 'ADMINISTRADOR_COTIZACIONES') {
-        // Para administradores: ir a la página de aprobación
-        console.log('🏛️ Navegando como administrador a aprobar planilla:', notificacion.id_recurso);
-        this.router.navigate([`/cotizaciones/aprobar-planillas-aportes/${notificacion.id_recurso}`]);
-      } else if (this.idcNivel === 'COTIZACIONES_EMPRESA') {
-        // Para empresas: ir directamente al detalle de la planilla
-        console.log('🏢 Navegando como empresa a detalle de planilla:', notificacion.id_recurso);
-        this.router.navigate([`/cotizaciones/planillas-aportes/${notificacion.id_recurso}`]);
-      } else {
-        // Fallback para otros roles
-        console.log('👤 Navegando con rol genérico a planillas');
-        this.router.navigate(['/cotizaciones/planillas-aportes']);
-      }
-    } else {
-      // Navegación por defecto según el rol
-      if (this.idcNivel === 'ADMINISTRADOR_COTIZACIONES') {
-        this.router.navigate(['/cotizaciones/historial-aportes']);
-      } else if (this.idcNivel === 'COTIZACIONES_EMPRESA') {
-        this.router.navigate(['/cotizaciones/planillas-aportes']);
-      } else {
-        this.router.navigate(['/cotizaciones/planillas-aportes']);
-      }
-    }
+  if (!notificacion.leido) {
+    this.notificacionesService.marcarNotificacionComoLeida(notificacion.id_notificacion).subscribe({
+      next: () => {
+        notificacion.leido = true;
+        this.cargarNotificaciones(); 
+        this.isDropdownVisible = false; 
+      },
+      error: (error) => {
+        // Manejo de errores vacío
+      },
+    });
+  } else {
+    this.isDropdownVisible = false; 
   }
+
+  // ✅ NUEVA LÓGICA DE NAVEGACIÓN CON IDS ENCRIPTADOS
+  if (this.idcNivel === 'ADMINISTRADOR_COTIZACIONES') {
+    this.router.navigate(['/cotizaciones/historial-aportes']);
+  } else if (this.idcNivel === 'COTIZACIONES_EMPRESA') {
+    // Encriptar el ID antes de navegar
+    const idEncriptado = this.tokenService.encriptarId(notificacion.id_recurso);
+    console.log('🔒 Navegando desde notificación con ID encriptado:', {
+      idReal: notificacion.id_recurso,
+      idEncriptado: idEncriptado
+    });
+    this.router.navigate([`/cotizaciones/planillas-aportes/${idEncriptado}`]);
+  } else {
+    this.router.navigate(['/cotizaciones/planillas-aportes']);
+  }
+}
 
   toggleDropdown(event: Event): void {
     event.stopPropagation();

@@ -23,6 +23,9 @@ import { PlanillasAportesDetalleAprobarComponent } from './componentes/planillas
 import { HistorialAportesComponent } from './componentes/planillas-aportes/historial-aportes/historial-aportes.component';
 import { PagosAportesAdminComponent } from './componentes/planillas-aportes/pagos-aportes-admin/pagos-aportes-admin.component';
 import { HistorialNotificacionesComponent } from './componentes/notificaciones/historial-notificaciones/historial-notificaciones.component';
+import { AuthGuard } from './guards/auth.guard';
+import { PlanillaAccessGuard } from './guards/planilla-access.guard'; 
+
 @NgModule({
     imports: [
         RouterModule.forRoot([
@@ -36,9 +39,17 @@ import { HistorialNotificacionesComponent } from './componentes/notificaciones/h
                     { path: 'historial-notificaciones', component: HistorialNotificacionesComponent },
                     // PLANILLAS DE APORTES -------------------------------------------------------------
                     { path: 'planillas-aportes', component: PlanillasAportesListComponent },
-                    { path: 'planillas-aportes/:id', component: PlanillasAportesDetalleComponent },
+                    { 
+                        path: 'planillas-aportes/:id', 
+                        component: PlanillasAportesDetalleComponent,
+                        canActivate: [PlanillaAccessGuard] 
+                    },
                     { path: 'aprobar-planillas-aportes', component: PlanillasAportesAprobarComponent },
-                    { path: 'aprobar-planillas-aportes/:id', component: PlanillasAportesDetalleAprobarComponent },
+                    { 
+                        path: 'aprobar-planillas-aportes/:id', 
+                        component: PlanillasAportesDetalleAprobarComponent,
+                        canActivate: [PlanillaAccessGuard] 
+                    },
                     { path: 'historial-aportes', component: HistorialAportesComponent },
                     { path: 'pagos-aportes-admin', component: PagosAportesAdminComponent },
                     // OTROS -----------------------------------------------------------------------------
