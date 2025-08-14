@@ -134,7 +134,7 @@ class="tabla-centrada"
       </ng-template>
     </td>
     <td>
-      <span *ngIf="planilla.fecha_liquidacion; else sinPago">
+      <span *ngIf="planilla.valido_cotizacion; else sinPago">
         <span style="color: green;">
           <i class="pi pi-check check-icon green-check"></i> 
         </span>

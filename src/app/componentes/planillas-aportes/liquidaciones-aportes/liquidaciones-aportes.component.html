@@ -2,7 +2,7 @@
 
     
   
-<!-- Modal para validar liquidación - REEMPLAZAR TODO EL MODAL -->
+<!-- Modal para validar liquidación - REEMPLAZAR COMPLETAMENTE EL MODAL ACTUAL -->
 <p-dialog
   [header]="esEmpresaPublica ? 
     (esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar con Datos Reales' : 'Validar Liquidación') :
@@ -240,21 +240,7 @@
         </div>
       </div>
 
-        <!-- Card 3: -->
-      <div style="background-color: #f7ffed; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
-        <div style="padding: 12px; border-bottom: 2px solid #80cbc4;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-weight: 600; color: #00796b; font-size: 0.9rem;">Total a Cancelar (Sin Multas)</span>
-            <i class="pi pi-money-bill" style="color: #00796b; font-size: 1.2rem;"></i>
-          </div>
-        </div>
-        <div style="padding: 15px; text-align: center;">
-          <div style="font-size: 1.8rem;  color: #4caf50; display: flex; align-items: center; justify-content: center; gap: 5px;">
-            {{ planilla?.total_a_cancelar - planilla?.total_multas | currency:'BOB' }}
-          </div>
-          <div style="color: #616161; font-size: 0.8rem; margin-top: 5px;">Total a Cancelar Sin Total de Recargos de Ley</div>
-        </div>
-      </div>
+
 
       
   
@@ -307,8 +293,8 @@
       <p-tabView>
 
         <!-- CORRECCIÓN: Agregar esAdministrador a la condición del botón -->
-<div style="justify-self: right;" 
-     *ngIf="esAdministrador && !esEmpresaPublicaConLiquidacionPreliminar">
+<!-- <div style="justify-self: right;" 
+     ngIf="esAdministrador && !esEmpresaPublicaConLiquidacionPreliminar">
   <button
     pButton
     type="button"
@@ -317,7 +303,7 @@
     [class]="datosDesdeDB ? 'p-button-warning' : 'p-button-success'"
     (click)="showDialog()"
   ></button>
-</div>
+</div> -->
 
 <!-- También asegúrate de que este indicador solo sea visible para administradores -->
 <div *ngIf="esAdministrador && esEmpresaPublicaConLiquidacionPreliminar" 
@@ -365,6 +351,9 @@
     </ng-container>
   </span>
 </div>
+
+
+
         
         <!-- Tab de Resumen -->
         <p-tabPanel header="Resumen">
@@ -373,7 +362,21 @@
     <div class="summary-section">
       <!-- Grupo A: Aportes -->
       <section class="group-section aportes" aria-labelledby="aportes-header">
-        <div class="group-header" id="aportes-header">Liquidación de Aportes</div>
+        <div class="group-header" id="aportes-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 1rem;">
+          <span style="font-size: 1.2rem; font-weight: bold;">Liquidación de Aportes</span>
+
+          <button
+            *ngIf="esAdministrador && !esEmpresaPublicaConLiquidacionPreliminar"
+            pButton
+            type="button"
+            [label]="obtenerTextoBoton()"
+            [icon]="obtenerIconoBoton()"
+            [class]="obtenerClaseBoton()"
+            (click)="showDialog()"
+            style="height: 100%;"
+          ></button>
+        </div>
+
         <table class="summary-table">
           <tbody>
             <tr>
