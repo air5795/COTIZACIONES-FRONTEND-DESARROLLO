@@ -35,6 +35,7 @@ export class PlanillaAccessGuard implements CanActivate {
 
 private verificarAccesoPlanilla(planillaId: string): Observable<boolean> {
   console.log('🔍 Guard verificando acceso para:', planillaId);
+  console.log('🔍 Guard URL actual:', window.location.href);
   
   // Verificar si es administrador (puede ver todas las planillas)
   if (this.sessionService.esAdministrador()) {
@@ -42,8 +43,23 @@ private verificarAccesoPlanilla(planillaId: string): Observable<boolean> {
     return of(true);
   }
 
+  // Verificar que sessionService tiene datos válidos
+  const sessionData = this.sessionService.sessionDataSubject.value;
+  console.log('🔍 Guard datos de sesión:', sessionData);
+
+  if (!sessionData || !sessionData.persona) {
+    console.warn('⚠️ Guard: No hay datos de sesión válidos, esperando...');
+    // En lugar de denegar, permitir acceso y dejar que el componente maneje la carga
+    return of(true);
+  }
+
   // Desencriptar el ID
   const idReal = this.tokenService.desencriptarId(planillaId);
+  console.log('🔓 Guard resultado desencriptación:', {
+    idEncriptado: planillaId,
+    idReal: idReal,
+    esValidoDesencriptado: idReal !== null
+  });
   
   if (!idReal) {
     // Si no se puede desencriptar, intentar como número directo (compatibilidad)
@@ -53,45 +69,59 @@ private verificarAccesoPlanilla(planillaId: string): Observable<boolean> {
       return this.verificarPlanillaPorId(idNumerico);
     } else {
       console.error('❌ Guard: ID inválido:', planillaId);
-      this.router.navigate(['/cotizaciones/planillas-aportes']);
+      // En lugar de redirigir inmediatamente, hacer una pausa
+      setTimeout(() => {
+        this.router.navigate(['/cotizaciones/planillas-aportes']);
+      }, 100);
       return of(false);
     }
   }
-
-  console.log('🔓 Guard ID desencriptado:', {
-    idEncriptado: planillaId,
-    idReal: idReal
-  });
 
   return this.verificarPlanillaPorId(idReal);
 }
 
 private verificarPlanillaPorId(planillaId: number): Observable<boolean> {
+  console.log('🔍 Guard verificando planilla ID:', planillaId);
+  
+  // Verificar que sessionService tiene los datos necesarios
+  const codigoPatronalUsuario = this.sessionService.getCodigoPatronal();
+  console.log('🔍 Guard código patronal usuario:', codigoPatronalUsuario);
+  
+  if (!codigoPatronalUsuario) {
+    console.warn('⚠️ Guard: No se pudo obtener código patronal del usuario');
+    // Permitir acceso temporalmente para evitar bloqueos durante el reload
+    return of(true);
+  }
+
   // Para usuarios no administradores, verificar si la planilla pertenece a su empresa
   return this.planillasService.getPlanillaId(planillaId).pipe(
     map((response: any) => {
+      console.log('🔍 Guard respuesta del servicio:', response);
+      
       if (!response || !response.planilla) {
         console.warn('⚠️ Guard: Planilla no encontrada');
-        this.router.navigate(['/cotizaciones/planillas-aportes']);
+        setTimeout(() => {
+          this.router.navigate(['/cotizaciones/planillas-aportes']);
+        }, 100);
         return false;
       }
 
       const planilla = response.planilla;
-      
-      // Obtener el código patronal de la empresa del usuario
-      const codigoPatronalUsuario = this.sessionService.getCodigoPatronal();
       const codigoPatronalPlanilla = planilla.cod_patronal;
 
       console.log('🔍 Guard verificando empresa:', {
         usuarioEmpresa: codigoPatronalUsuario,
         planillaEmpresa: codigoPatronalPlanilla,
-        planillaId: planillaId
+        planillaId: planillaId,
+        sonIguales: codigoPatronalUsuario === codigoPatronalPlanilla
       });
 
       // Verificar si la planilla pertenece a la empresa del usuario
       if (codigoPatronalUsuario !== codigoPatronalPlanilla) {
         console.warn('⚠️ Guard: Acceso denegado - La planilla no pertenece a tu empresa');
-        this.router.navigate(['/denegado']);
+        setTimeout(() => {
+          this.router.navigate(['/denegado']);
+        }, 100);
         return false;
       }
 
@@ -100,7 +130,12 @@ private verificarPlanillaPorId(planillaId: number): Observable<boolean> {
     }),
     catchError((error) => {
       console.error('❌ Guard: Error al verificar acceso a planilla:', error);
-      this.router.navigate(['/cotizaciones/planillas-aportes']);
+      console.error('❌ Guard: Stack trace:', error.stack);
+      
+      // En lugar de redirigir inmediatamente, hacer una pausa
+      setTimeout(() => {
+        this.router.navigate(['/cotizaciones/planillas-aportes']);
+      }, 100);
       return of(false);
     })
   );

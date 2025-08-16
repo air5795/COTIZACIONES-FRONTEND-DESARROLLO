@@ -3,199 +3,150 @@
     
   
 <!-- Modal para validar liquidación - REEMPLAZAR COMPLETAMENTE EL MODAL ACTUAL -->
+<!-- Modal para validar liquidación -->
 <p-dialog
-  [header]="esEmpresaPublica ? 
-    (esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar con Datos Reales' : 'Validar Liquidación') :
-    'Validar Liquidación'"
+  [header]="esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar Fecha de Pago Real' : 'Validar Liquidación'"
   [(visible)]="displayDialog"
   [modal]="true"
-  [style]="{ width: esEmpresaPublica ? '600px' : '500px', height: 'auto' }"
+  [style]="{ width: '500px', height: '600px' }"
   [baseZIndex]="10000"
   [draggable]="false"
   [resizable]="false"
 >
   <div style="padding: 20px;">
+    <!-- Mensaje contextual para empresa pública -->
+    <div *ngIf="esEmpresaPublicaConLiquidacionPreliminar && !showFechaPagoInput && !mostrarInputMontoTGN" 
+         style="background-color: #e3f2fd; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+      <i class="pi pi-info-circle" style="color: #1976d2;"></i>
+      <span style="color: #1976d2; margin-left: 8px;">
+        La empresa pública ha realizado el pago. Actualice con la fecha real para recalcular la liquidación.
+      </span>
+    </div>
     
-    <!-- ========== MODAL PARA EMPRESAS PÚBLICAS ========== -->
-    <div *ngIf="esEmpresaPublica">
-      <!-- Mensaje contextual para empresa pública -->
-      <div *ngIf="esEmpresaPublicaConLiquidacionPreliminar && !showFechaPagoInput" 
-           style="background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-        <i class="pi pi-info-circle" style="color: #1976d2; font-size: 1.2rem;"></i>
-        <span style="color: #1976d2; margin-left: 8px; font-weight: 500;">
-          Empresa Pública: Actualice con la fecha y monto real del TGN
-        </span>
-      </div>
-      
-      <!-- Paso 1: Preguntar si es necesario actualizar los datos -->
-      <div *ngIf="!showFechaPagoInput">
-        <p style="font-size: 1.1rem; margin-bottom: 20px;">
-          {{ esEmpresaPublicaConLiquidacionPreliminar 
-            ? '¿Desea actualizar con los datos reales de pago del TGN?' 
-            : '¿Es necesario actualizar la fecha de pago y/o cotización real?' }}
-        </p>
-        <div style="margin-top: 20px; display: flex; justify-content: space-between; gap: 10px;">
-          <button
-            pButton
-            type="button"
-            label="Sí, actualizar"
-            icon="pi pi-check"
-            class="p-button-primary"
-            (click)="mostrarCamposFecha()"
-          ></button>
-          <button
-            pButton
-            type="button"
-            label="No, validar actual"
-            icon="pi pi-times"
-            class="p-button-secondary"
-            (click)="confirmarLiquidacion(false)"
-            [disabled]="esEmpresaPublicaConLiquidacionPreliminar"
-          ></button>
-        </div>
-      </div>
-
-      <!-- Paso 2: Mostrar campos para actualizar datos (solo empresas públicas) -->
-      <div *ngIf="showFechaPagoInput">
-        <p style="font-size: 1.1rem; margin-bottom: 20px;">
-          {{ esEmpresaPublicaConLiquidacionPreliminar 
-            ? 'Ingrese los datos reales del TGN:' 
-            : 'Actualice los datos necesarios:' }}
-        </p>
-        
-        <!-- Campo de fecha de pago -->
-        <div style="margin-bottom: 20px;">
-          <label for="fechaPago" style="display: block; margin-bottom: 8px; font-weight: 500;">
-            <i class="pi pi-calendar" style="margin-right: 5px;"></i>
-            Fecha de Pago {{ esEmpresaPublicaConLiquidacionPreliminar ? 'Real' : '' }} *
-          </label>
-          <p-calendar
-            id="fechaPago"
-            [(ngModel)]="fechaPago"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            [maxDate]="today"
-            placeholder="Seleccione la fecha de pago"
-            styleClass="w-full"
-          ></p-calendar>
-          
-          <!-- Mostrar fecha tentativa actual para referencia -->
-          <div *ngIf="esEmpresaPublicaConLiquidacionPreliminar && planilla" 
-               style="margin-top: 8px; font-size: 0.9rem; color: #666; background: #f5f5f5; padding: 8px; border-radius: 4px;">
-            <i class="pi pi-info-circle"></i>
-            Fecha tentativa actual: {{ planilla.fecha_pago | date:'dd/MM/yyyy' }}
-          </div>
-        </div>
-
-        <!-- Campo de cotización real (solo para empresas públicas) -->
-        <div *ngIf="showCotizacionRealInput" style="margin-bottom: 20px;">
-          <label for="cotizacionReal" style="display: block; margin-bottom: 8px; font-weight: 500;">
-            <i class="pi pi-money-bill" style="margin-right: 5px;"></i>
-            Monto Real Desembolsado por TGN (BOB)
-          </label>
-          
-          <!-- Mostrar cotización teórica para referencia -->
-          <div style="background: #fff3cd; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 0.9rem;">
-            <strong>Cotización Teórica (10%):</strong> {{ cotizacionTeorica | currency:'BOB':'symbol':'1.2-2' }}
-            <div *ngIf="cotizacionReal !== null" style="margin-top: 5px;">
-              <strong>Diferencia:</strong> 
-              <span [style.color]="calcularDiferencia() >= 0 ? 'green' : 'red'">
-                {{ calcularDiferencia() | currency:'BOB':'symbol':'1.2-2' }}
-              </span>
-            </div>
-          </div>
-          
-          <p-inputNumber
-            id="cotizacionReal"
-            [(ngModel)]="cotizacionReal"
-            mode="currency"
-            currency="BOB"
-            locale="es-BO"
-            [minFractionDigits]="2"
-            [maxFractionDigits]="2"
-            placeholder="Ingrese el monto real del TGN"
-            styleClass="w-full"
-            (onInput)="validarCotizacionReal()"
-          ></p-inputNumber>
-          
-          <!-- Mostrar valor actual si existe -->
-          <div *ngIf="planilla.cotizacion_tasa_real" 
-               style="margin-top: 8px; font-size: 0.9rem; color: #666; background: #f5f5f5; padding: 8px; border-radius: 4px;">
-            <i class="pi pi-info-circle"></i>
-            Monto actual en sistema: {{ planilla.cotizacion_tasa_real | currency:'BOB':'symbol':'1.2-2' }}
-          </div>
-        </div>
-
-        <!-- Botones de acción para empresas públicas -->
-        <div style="margin-top: 30px; display: flex; justify-content: space-between; gap: 10px;">
-          <button
-            pButton
-            type="button"
-            label="Cancelar"
-            icon="pi pi-times"
-            class="p-button-secondary"
-            (click)="cancelarSeleccionFecha()"
-          ></button>
-          <button
-            pButton
-            type="button"
-            [label]="esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar con Datos Reales' : 'Recalcular Liquidación'"
-            icon="pi pi-check"
-            class="p-button-primary"
-            (click)="confirmarLiquidacion(true)"
-            [disabled]="!fechaPago"
-          ></button>
-        </div>
+    <!-- Paso 1: Preguntar si es necesario actualizar la fecha de pago -->
+    <div *ngIf="!showFechaPagoInput && !mostrarInputMontoTGN">
+      <p>{{ esEmpresaPublicaConLiquidacionPreliminar 
+          ? '¿Desea actualizar la fecha de pago con la fecha real?' 
+          : '¿Es necesario actualizar la fecha de pago?' }}</p>
+      <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+        <button
+          pButton
+          type="button"
+          label="Sí"
+          icon="pi pi-check"
+          class="p-button-primary"
+          (click)="showFechaPagoInput = true"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="No"
+          icon="pi pi-times"
+          class="p-button-secondary"
+          (click)="confirmarLiquidacion(false)"
+          [disabled]="esEmpresaPublicaConLiquidacionPreliminar"
+        ></button>
       </div>
     </div>
 
-    <!-- ========== MODAL PARA EMPRESAS PRIVADAS ========== -->
-    <div *ngIf="!esEmpresaPublica">
-      <!-- Información de la liquidación -->
-      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-        <h4 style="margin: 0 0 10px 0; color: #495057;">
-          <i class="pi pi-info-circle" style="color: #6c757d; margin-right: 8px;"></i>
-          Resumen de Liquidación
-        </h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
-          <div><strong>Total Aportes:</strong> {{ planilla?.aporte_porcentaje | currency:'BOB':'symbol':'1.2-2' }}</div>
-          <div><strong>Recargos de Ley:</strong> {{ planilla?.total_multas | currency:'BOB':'symbol':'1.2-2' }}</div>
-          <div><strong>Deducciones:</strong> {{ (planilla?.descuento_min_salud + planilla?.otros_descuentos) | currency:'BOB':'symbol':'1.2-2' }}</div>
-          <div><strong>Total a Cancelar:</strong> 
-            <span style="font-weight: bold; color: #28a745;">
-              {{ planilla?.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}
-            </span>
-          </div>
+    <!-- Paso 2: Mostrar campo para seleccionar fecha de pago -->
+    <div *ngIf="showFechaPagoInput && !mostrarInputMontoTGN">
+      <p>{{ esEmpresaPublicaConLiquidacionPreliminar 
+          ? 'Seleccione la fecha real de pago:' 
+          : 'Seleccione la nueva fecha de pago:' }}</p>
+      <div style="margin-top: 20px;">
+        <label for="fechaPago" style="display: block; margin-bottom: 5px;">
+          Fecha de Pago {{ esEmpresaPublicaConLiquidacionPreliminar ? 'Real' : '' }}
+        </label>
+        <p-calendar
+          id="fechaPago"
+          [(ngModel)]="fechaPago"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          [maxDate]="today"
+          placeholder="Seleccione la fecha de pago"
+        ></p-calendar>
+        
+        <!-- Mostrar fecha tentativa actual para referencia -->
+        <div *ngIf="esEmpresaPublicaConLiquidacionPreliminar && planilla" 
+             style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+          <i class="pi pi-info-circle"></i>
+          Fecha tentativa actual: {{ planilla.fecha_pago | date:'dd/MM/yyyy' }}
         </div>
       </div>
 
-      <!-- Pregunta de aprobación -->
-      <div style="text-align: center; margin-bottom: 20px;">
-        <p style="font-size: 1.1rem; margin-bottom: 15px;">
-          ¿Está de acuerdo con esta liquidación y desea aprobarla?
-        </p>
-        <p style="font-size: 0.9rem; color: #6c757d;">
-          Una vez aprobada, la liquidación quedará validada en el sistema.
-        </p>
-      </div>
-
-      <!-- Botones de acción para empresas privadas -->
-      <div style="margin-top: 20px; display: flex; justify-content: space-between; gap: 10px;">
+      <!-- Botones para continuar después de seleccionar fecha -->
+      <div style="margin-top: 20px; display: flex; justify-content: space-between;">
         <button
           pButton
           type="button"
           label="Cancelar"
           icon="pi pi-times"
           class="p-button-secondary"
-          (click)="displayDialog = false"
+          (click)="cancelarSeleccionFecha()"
         ></button>
         <button
           pButton
           type="button"
-          label="Aprobar Liquidación"
+          [label]="esEmpresaPublicaConLiquidacionPreliminar ? 'Continuar' : 'Actualizar'"
+          icon="pi pi-arrow-right"
+          class="p-button-primary"
+          [disabled]="!fechaPago"
+          (click)="esEmpresaPublicaConLiquidacionPreliminar ? mostrarInputMontoTGN = true : confirmarLiquidacion(true)"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Paso 3: Input para nuevo monto TGN (solo para empresas públicas) -->
+    <div *ngIf="mostrarInputMontoTGN" style="padding: 15px; background-color: #fff3cd; border-radius: 4px;">
+      <h4 style="color: #856404; margin-bottom: 10px;">
+        <i class="pi pi-exclamation-triangle"></i>
+        Nuevo Monto TGN Real
+      </h4>
+      <p style="color: #856404; margin-bottom: 15px;">
+        La empresa pública ha realizado el pago con un monto TGN diferente al teórico. 
+        Ingrese el monto real del TGN para recalcular la liquidación.
+      </p>
+      
+      <!-- Mostrar valor actual para referencia -->
+      <div *ngIf="planilla" style="margin-bottom: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+        <strong>Valor TGN anterior (teórico):</strong> {{ planilla.aporte_porcentaje | currency:'BOB':'symbol':'1.2-6' }}
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <label for="nuevoMontoTGN" style="display: block; margin-bottom: 5px; font-weight: bold;">
+          Nuevo Monto TGN Real:
+        </label>
+        <p-inputNumber
+          id="nuevoMontoTGN"
+          [(ngModel)]="nuevoMontoTGN"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="6"
+          placeholder="Ej: 310169.73"
+          [style]="{'width': '100%'}"
+          currency="BOB"
+          locale="es-BO">
+        </p-inputNumber>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; gap: 10px;">
+        <button
+          pButton
+          type="button"
+          label="Volver"
+          icon="pi pi-arrow-left"
+          class="p-button-secondary"
+          (click)="cancelarNuevoMonto()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="Actualizar con Nuevo TGN"
           icon="pi pi-check"
           class="p-button-success"
-          (click)="aprobarLiquidacionPrivada()"
+          (click)="validarNuevoMonto()"
+          [disabled]="!nuevoMontoTGN || nuevoMontoTGN <= 0"
         ></button>
       </div>
     </div>
@@ -397,8 +348,8 @@
                   {{ planilla.tipo_empresa === 'PA' ? '3' : '10' }} %
               </td>
             </tr>
-            <tr>
-              <td class="amount-label">Fecha Presentación Oficial</td>
+            <tr *ngIf="planilla.total_multas > 0">
+              <td class="amount-label">Fecha Presentación Oficial para calculo</td>
               <td class="amount-value values">
                 {{ planilla.fechaFormal | date:'dd/MM/yyyy' : '-0400' }}
               </td>
@@ -407,8 +358,9 @@
                 {{ planilla.ufv_dia_formal | number:'1.5-5' }}
               </td>
             </tr>
-            <tr>
-              <td class="amount-label">Fecha de Depósito o Presentación</td>
+            <tr *ngIf="planilla.total_multas > 0">
+              <td class="amount-label">Fecha de Depósito o Presentación para calculo</td> 
+               
               <td class="amount-value values">
                 {{ planilla.fechaPagoUfv | date:'dd/MM/yyyy':'+0000' }}
               </td>
@@ -418,7 +370,8 @@
               </td>
             </tr>
             <tr>
-            <td class="amount-label">Cálculo con Vigencia Hasta el Día</td>
+            <!-- <td  class="amount-label">Cálculo con Vigencia Hasta el Día (Fecha Pago)</td> -->
+             <td  class="amount-label">Fecha Pago</td>
             <td class="amount-value values">
               {{ planilla.fecha_pago | date:'dd/MM/yyyy':'+0000' }}
             </td>
@@ -630,9 +583,9 @@
   </div>
   
   <!-- Error Message -->
-  <div *ngIf="errorMessage && !planilla" class="error-message">
+   <div *ngIf="errorMessage && !planilla" class="error-message">
     <i class="pi pi-exclamation-triangle"></i>
     <p>No se puede realizar el cálculo de su liquidación.</p>
     <button pButton type="button" label="Volver" icon="pi pi-arrow-left" class="p-button-sm"></button>
-  </div>
+  </div> 
   

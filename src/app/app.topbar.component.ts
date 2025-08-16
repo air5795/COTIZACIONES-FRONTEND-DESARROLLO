@@ -91,6 +91,6 @@ export class AppTopbarComponent implements OnInit {
 
   cerrarSession() {
     this.sessionService.clearSession();
-    window.location.href = environment.login;
+    /* window.location.href = environment.login; */
   }
 }

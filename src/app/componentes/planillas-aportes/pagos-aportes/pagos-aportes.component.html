@@ -3,7 +3,7 @@
     <div style="display: flex; align-items: center; justify-content: space-between;  background-color: #e3e3e3; padding: 5px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <i class="pi pi-money-bill" style="color: #2f7a3f; font-size: 1.5rem;"></i>
-          <span style="font-size: 1.25rem; font-weight: bold; color: #5f5f5f;">Pagos Mensuales</span>
+          <span style="font-size: 1.25rem; font-weight: bold; color: #5f5f5f;">Pagos</span>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
           <button 
@@ -325,11 +325,11 @@
           <div class="p-col-12 p-md-6" style="display: flex; gap: 1rem;flex-wrap: wrap;">
             <div class="p-form">
               <label for="monto_pagado" style="font-weight: 500; color: #555; font-size: 0.9rem;">Monto Pagado (BOB)</label>
-              <input pInputText type="number" id="monto_pagado" formControlName="monto_pagado" step="0.01" required 
-                     style="width: 100%; padding: 0.5rem;">
+              <input pInputText type="number" id="monto_pagado" formControlName="monto_pagado" step="0.01" required [readonly]="true"
+                     style="width: 100%; padding: 0.5rem;" >
               <small *ngIf="pagoForm.get('monto_pagado')?.hasError('montoInsuficiente') && pagoForm.get('monto_pagado')?.touched" 
                      class="p-error" style="color: #f44336;">
-                El monto pagado no puede ser menor que el total a cancelar ({{ calculoDetalles.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}).
+                El monto pagado no puede ser menor que el total a cancelar | ({{ calculoDetalles.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}).
               </small>
               <small *ngIf="pagoForm.get('monto_pagado')?.hasError('required') && pagoForm.get('monto_pagado')?.touched" 
                      class="p-error" style="color: #f44336;">

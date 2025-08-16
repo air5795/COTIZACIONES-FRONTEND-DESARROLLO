@@ -297,19 +297,53 @@ calcularAportes(id: number): Observable<any> {
     return this.http.get(`${environment.url}planillas_aportes/${idPlanilla}/liquidacion`);
   }
 
-  // NUEVO MÉTODO: Recalcular liquidación (con opción de forzar)
-  recalcularLiquidacion(idPlanilla: number, forzar: boolean = false, validoCotizacion?: string): Observable<any> {
-    const body: any = { forzar };
-    if (validoCotizacion) {
-      body.valido_cotizacion = validoCotizacion;
-    }
-    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion`, body);
-  }
+/* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+/* LIQUIDACIÓN ESPECÍFICA POR TIPO DE EMPRESA ///////////////////////////////////////////////////////////////////////////////////////// */
+/* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
-  // NUEVO MÉTODO: Recalcular con nueva fecha de pago
-  recalcularLiquidacionConDatos(idPlanilla: number, datos: any): Observable<any> {
-    return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/recalcular-liquidacion`, datos);
-  }
+// 🏢 EMPRESAS PRIVADAS: Recalcular liquidación con nueva fecha
+recalcularLiquidacionPrivada(idPlanilla: number, fechaPago: Date): Observable<any> {
+  console.log('🏢 Service Frontend: Recalculando liquidación EMPRESA PRIVADA');
+  
+  const body = {
+    fechaPago: fechaPago.toISOString()
+  };
+  
+  return this.http.post(`${environment.url}planillas_aportes/privada/${idPlanilla}/recalcular-fecha`, body);
+}
+
+// 🏛️ EMPRESAS PÚBLICAS: Actualizar con nuevo monto TGN real
+actualizarEmpresaPublicaConTGN(idPlanilla: number, fechaPago: Date, nuevoMontoTGN: number): Observable<any> {
+  console.log('🏛️ Service Frontend: Actualizando EMPRESA PÚBLICA con nuevo TGN:', nuevoMontoTGN);
+  
+  const body = {
+    fechaPago: fechaPago.toISOString(),
+    nuevoMontoTGN: nuevoMontoTGN
+  };
+  
+  return this.http.post(`${environment.url}planillas_aportes/publica/${idPlanilla}/actualizar-tgn`, body);
+}
+
+// 🏛️ EMPRESAS PÚBLICAS: Recalcular liquidación normal (sin nuevo TGN)
+recalcularLiquidacionPublica(idPlanilla: number, fechaPago: Date): Observable<any> {
+  console.log('🏛️ Service Frontend: Recalculando liquidación EMPRESA PÚBLICA sin nuevo TGN');
+  
+  const body = {
+    fechaPago: fechaPago.toISOString()
+  };
+  
+  return this.http.post(`${environment.url}planillas_aportes/publica/${idPlanilla}/recalcular-fecha`, body);
+}
+
+// 🔧 HELPER: Determinar tipo de empresa desde datos de planilla
+determinarTipoEmpresa(planilla: any): 'publica' | 'privada' {
+  const tipo = planilla?.tipo_empresa?.toUpperCase();
+  return tipo === 'AP' ? 'publica' : 'privada';
+}
+
+
+
+
 
 
   /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */

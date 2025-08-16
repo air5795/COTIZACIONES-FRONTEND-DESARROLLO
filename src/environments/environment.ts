@@ -33,6 +33,7 @@
 
   urlMSAuth: 'http://10.0.0.152:3000/api/auth/get-session',
   urlMSAuthToken: 'http://10.0.0.152:3000/api/auth',
+  urlMSAuthRefreshToken: 'http://10.0.0.152:3000/api/',
   login: 'http://10.0.0.152:3999/',
 };   
  

@@ -13,6 +13,7 @@ import { takeUntil } from 'rxjs/operators';
   providers: [MessageService],
 })
 export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
+
   @Input() idPlanilla!: number;
   planilla: any = null;
   loading: boolean = false;
@@ -22,29 +23,18 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
   showFechaPagoInput: boolean = false;
   fechaPago: Date | null = null;
   today: Date = new Date();
-  
-  // PROPIEDADES PARA COTIZACIÓN REAL
-  showCotizacionRealInput: boolean = false;
-  cotizacionReal: number | null = null;
-  cotizacionTeorica: number = 0;
-  
-  // PROPIEDADES PARA TIPO DE EMPRESA Y VALIDACIÓN
-  esEmpresaPublica: boolean = false;
-  liquidacionValidada: boolean = false;
-  fechaValidacion: Date | null = null;
-  validadoPor: string = '';
-  
-  // Nueva propiedad para indicar si los datos vienen de BD o fueron calculados
   datosDesdeDB: boolean = false;
-  
-  // Nueva propiedad para indicar si es empresa pública con liquidación preliminar
   esEmpresaPublicaConLiquidacionPreliminar: boolean = false;
-  
-  // Propiedades para control de roles
   esAdministrador: boolean = false;
   rolUsuario: string = '';
   tipoEmpresa: string = '';
   nombreEmpresa: string = '';
+  nuevoMontoTGN: number | null = null;
+  mostrarInputMontoTGN: boolean = false;
+  validadoPor: string = '';
+  liquidacionValidada: boolean = false;
+  cotizacionReal: number | null = null;
+  showCotizacionRealInput: boolean = false;
   
   // Para manejar la suscripción
   private destroy$ = new Subject<void>();
@@ -59,13 +49,10 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
     this.verificarRolUsuario();
     this.loadAportes();
   }
-
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  // Método para verificar el rol del usuario usando SessionService
   verificarRolUsuario() {
     this.esAdministrador = this.sessionService.esAdministrador();
     this.rolUsuario = this.sessionService.getRolActual();
@@ -83,169 +70,47 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       nombreEmpresa: this.nombreEmpresa
     });
   }
-
-  // MÉTODO OPTIMIZADO: Cargar datos de liquidación
+  // REEMPLAZAR COMPLETAMENTE el método loadAportes()
   loadAportes() {
     if (!this.idPlanilla) {
       this.errorMessage = 'Por favor, asegúrate de que el ID de la planilla esté definido.';
+      this.messages = [{ severity: 'error', summary: 'Error', detail: this.errorMessage }];
       return;
     }
 
     this.loading = true;
     this.errorMessage = undefined;
     this.messages = [];
-
-    this.planillasService
-      .obtenerLiquidacion(this.idPlanilla)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: any) => {
-          this.planilla = response;
-          this.datosDesdeDB = true;
-          
-          // LÓGICA: Identificar tipo de empresa
-          this.esEmpresaPublica = this.planilla.tipo_empresa === 'AP';
-          
-          // LÓGICA: Verificar estado de validación
-          this.liquidacionValidada = response.esta_validada || false;
-          this.validadoPor = response.valido_cotizacion || '';
-          this.fechaValidacion = response.fecha_liquidacion ? new Date(response.fecha_liquidacion) : null;
-          
-          // LÓGICA: Establecer cotización teórica para empresas públicas
-          if (this.esEmpresaPublica) {
-            this.cotizacionTeorica = this.planilla.total_importe * 0.1; // 10% teórico
-            this.cotizacionReal = this.planilla.cotizacion_tasa_real || null;
-          }
-
-          // LÓGICA: Determinar mensajes según el estado
-          if (this.liquidacionValidada) {
-            this.messages = [{
-              severity: 'success',
-              summary: 'Liquidación Validada',
-              detail: `Liquidación validada por ${this.validadoPor} el ${this.fechaValidacion?.toLocaleDateString('es-BO')}`
-            }];
-          } else if (this.esEmpresaPublica && !this.planilla.fecha_liquidacion) {
-            this.esEmpresaPublicaConLiquidacionPreliminar = true;
-            this.messages = [{
-              severity: 'info',
-              summary: 'Liquidación Preliminar',
-              detail: 'Esta es una liquidación preliminar para empresa pública. Se requiere actualizar con los datos reales.'
-            }];
-          } else {
-            this.esEmpresaPublicaConLiquidacionPreliminar = false;
-            this.messages = [{
-              severity: 'info',
-              summary: 'Liquidación Pendiente',
-              detail: 'Liquidación calculada y pendiente de validación.'
-            }];
-          }
-          
-          this.loading = false;
-        },
-        error: (error) => {
-          this.errorMessage = error.error?.message || 'Error al obtener la liquidación';
-          this.messages = [{ severity: 'error', summary: 'Error', detail: this.errorMessage }];
-          this.loading = false;
-        },
-      });
-  }
-
-  showDialog() {
-    if (!this.esAdministrador) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Sin permisos',
-        detail: 'Solo el administrador puede validar o actualizar liquidaciones.',
-      });
-      return;
-    }
-
-    // VALIDACIÓN: No permitir cambios en liquidaciones ya validadas
-    if (this.liquidacionValidada) {
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Liquidación ya validada',
-        detail: `Esta liquidación ya fue validada por ${this.validadoPor} y no puede modificarse.`,
-      });
-      return;
-    }
     
-    // Resetear valores
-    this.fechaPago = null;
-    this.cotizacionReal = null;
-    this.showFechaPagoInput = false;
-    this.showCotizacionRealInput = false;
-    this.displayDialog = true;
-  }
-
-  // MÉTODO: Para empresas privadas - aprobar directamente
-  aprobarLiquidacionPrivada() {
-    if (!this.esAdministrador) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Sin permisos',
-        detail: 'No tiene permisos para realizar esta acción.',
-      });
-      return;
-    }
-
-    this.loading = true;
+    console.log('🔄 Cargando liquidación para planilla:', this.idPlanilla);
     
-    // Obtener nombre del usuario actual
-    const nombreValidador = this.sessionService.getRolActual() || 'Administrador';
-    
-    const payload = {
-      valido_cotizacion: nombreValidador
-    };
-
-    this.planillasService.validarLiquidacion(this.idPlanilla, payload).subscribe({
+    // El dispatcher del backend maneja automáticamente el tipo de empresa
+    this.planillasService.obtenerLiquidacion(this.idPlanilla).subscribe({
       next: (response: any) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Liquidación Aprobada',
-          detail: `Liquidación aprobada correctamente por ${nombreValidador}.`,
-        });
+        console.log('📊 Respuesta obtenerLiquidacion:', response);
+        console.log('🏢 Tipo empresa:', response.tipo_empresa);
         
-        this.displayDialog = false;
+        this.planilla = response;
+        this.datosDesdeDB = response.fecha_liquidacion ? true : false;
+        
+        // Verificar si es empresa pública con liquidación preliminar
+        this.esEmpresaPublicaConLiquidacionPreliminar = 
+          response.tipo_empresa === 'AP' && 
+          (response.es_liquidacion_preliminar || 
+          response.observaciones?.includes('LIQUIDACIÓN PRELIMINAR'));
+        
+        console.log('📋 Es liquidación preliminar:', this.esEmpresaPublicaConLiquidacionPreliminar);
+        
+        this.mostrarMensajesSegunContexto(response);
         this.loading = false;
-        
-        // Recargar datos para refrescar la vista
-        this.loadAportes();
       },
       error: (error) => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error?.message || 'Error al aprobar la liquidación.',
-        });
+        console.error('❌ Error en obtenerLiquidacion:', error);
+        this.manejarErrorCarga(error);
       },
     });
   }
-
-  // Cancelar la selección de fecha y volver a la pregunta inicial
-  cancelarSeleccionFecha() {
-    this.fechaPago = null;
-    this.cotizacionReal = null;
-    this.showFechaPagoInput = false;
-    this.showCotizacionRealInput = false;
-  }
-
-  // MÉTODO: Para manejar el flujo del modal de empresas públicas
-  mostrarCamposFecha() {
-    this.showFechaPagoInput = true;
-    
-    // Si es empresa pública, también mostrar campo de cotización real
-    if (this.esEmpresaPublica) {
-      this.showCotizacionRealInput = true;
-      // Pre-llenar con el valor actual si existe
-      if (this.planilla.cotizacion_tasa_real) {
-        this.cotizacionReal = this.planilla.cotizacion_tasa_real;
-      }
-    }
-  }
-
-  // MÉTODO: Para recalcular liquidación (empresas públicas)
+  // REEMPLAZAR COMPLETAMENTE el método confirmarLiquidacion()
   confirmarLiquidacion(actualizarFechaPago: boolean) {
     if (!this.esAdministrador) {
       this.messageService.add({
@@ -266,223 +131,403 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validar cotización real para empresas públicas
-    if (actualizarFechaPago && this.esEmpresaPublica && this.cotizacionReal !== null) {
-      if (this.cotizacionReal <= 0) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Advertencia',
-          detail: 'La cotización real debe ser mayor a 0.',
-        });
-        return;
-      }
-    }
-
     this.loading = true;
     
     if (actualizarFechaPago) {
-      const accion = this.esEmpresaPublicaConLiquidacionPreliminar 
-        ? 'Actualizando con datos reales de empresa pública...' 
-        : 'Recalculando liquidación con nueva fecha...';
-      
-      this.messages = [{ 
-        severity: 'info', 
-        summary: 'Procesando', 
-        detail: accion 
-      }];
-
-      // Recalcular con nuevos datos (empresas públicas)
-      this.recalcularConNuevosDatos();
+      this.ejecutarRecalculoSegunTipoEmpresa();
     } else {
-      // Validar sin cambios (empresas públicas)
-      this.validarLiquidacionEmpresaPublica();
+      this.validarLiquidacionActual();
     }
   }
-
-  // MÉTODO PRIVADO: Para recalcular con nuevos datos (empresas públicas)
-  private recalcularConNuevosDatos() {
-    const payload: any = {
-      forzar: true,
-      nueva_fecha_pago: this.fechaPago?.toISOString()
-    };
-
-    // Agregar cotización real si es empresa pública y se proporcionó
-    if (this.esEmpresaPublica && this.cotizacionReal !== null) {
-      payload.cotizacion_real = this.cotizacionReal;
-    }
-
-    this.planillasService.recalcularLiquidacionConDatos(this.idPlanilla, payload).subscribe({
-      next: (response: any) => {
-        this.planilla = response;
-        this.datosDesdeDB = true;
-        this.esEmpresaPublicaConLiquidacionPreliminar = false;
-        
-        let mensaje = 'Liquidación recalculada correctamente.';
-        
-        if (response.cotizacion_real !== undefined) {
-          mensaje += ` Cotización ajustada: ${response.cotizacion_real} BOB (Diferencia: ${response.diferencia || 0} BOB)`;
-        }
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: mensaje,
-        });
-        
-        this.displayDialog = false;
-        this.loading = false;
-        
-        // Recargar datos para refrescar la vista
-        this.loadAportes();
-      },
-      error: (error) => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error?.message || 'Error al recalcular la liquidación.',
-        });
-      },
-    });
-  }
-
-  // MÉTODO PRIVADO: Para validar liquidación de empresa pública sin cambios
-  private validarLiquidacionEmpresaPublica() {
-    const nombreValidador = this.sessionService.getRolActual() || 'Administrador';
+  // REEMPLAZAR COMPLETAMENTE el método ejecutarRecalculo() con ejecutarRecalculoSegunTipoEmpresa()
+  private ejecutarRecalculoSegunTipoEmpresa() {
+    const tipoEmpresa = this.planilla?.tipo_empresa?.toUpperCase();
+    console.log('🔄 Ejecutando recálculo para tipo empresa:', tipoEmpresa);
     
-    const payload = {
-      valido_cotizacion: nombreValidador
-    };
-
-    this.planillasService.validarLiquidacion(this.idPlanilla, payload).subscribe({
-      next: (response: any) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Liquidación Validada',
-          detail: `Liquidación validada correctamente por ${nombreValidador}.`,
-        });
-        
-        this.displayDialog = false;
-        this.loading = false;
-        
-        // Recargar datos para refrescar la vista
-        this.loadAportes();
-      },
-      error: (error) => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error?.message || 'Error al validar la liquidación.',
-        });
-      },
-    });
-  }
-
-  // MÉTODO: Texto del botón según el tipo de empresa y estado
-  obtenerTextoBoton(): string {
-    if (this.liquidacionValidada) {
-      return 'Liquidación Validada';
-    }
-    
-    if (this.esEmpresaPublica) {
-      return this.esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar Datos Reales' : 'Validar Liquidación';
+    if (tipoEmpresa === 'AP') {
+      this.ejecutarRecalculoEmpresaPublica();
     } else {
-      return 'Validar Liquidación';
+      this.ejecutarRecalculoEmpresaPrivada();
     }
   }
-
-  // MÉTODO: Icono del botón según el estado
-  obtenerIconoBoton(): string {
-    if (this.liquidacionValidada) {
-      return 'pi pi-check-circle';
-    }
-    
-    if (this.esEmpresaPublica) {
-      return this.esEmpresaPublicaConLiquidacionPreliminar ? 'pi pi-refresh' : 'pi pi-check';
-    } else {
-      return 'pi pi-check';
-    }
-  }
-
-  // MÉTODO: Clase del botón según el estado
-  obtenerClaseBoton(): string {
-    if (this.liquidacionValidada) {
-      return 'p-button-success p-button-outlined';
-    }
-    
-    if (this.esEmpresaPublica) {
-      return this.esEmpresaPublicaConLiquidacionPreliminar ? 'p-button-warning' : 'p-button-success';
-    } else {
-      return 'p-button-success';
-    }
-  }
-
-  // MÉTODO: Verificar si el botón debe estar deshabilitado
-  esBotonDeshabilitado(): boolean {
-    return this.liquidacionValidada;
-  }
-
-  // Método para forzar recálculo (mantener compatibilidad)
-  recalcularLiquidacion() {
+  showDialog() {
     if (!this.esAdministrador) {
       this.messageService.add({
-        severity: 'error',
+        severity: 'warn',
         summary: 'Sin permisos',
-        detail: 'Solo el administrador puede recalcular liquidaciones.',
+        detail: 'Solo el administrador puede validar o actualizar liquidaciones.',
       });
       return;
     }
 
+    // VALIDACIÓN: No permitir cambios en liquidaciones ya validadas
     if (this.liquidacionValidada) {
       this.messageService.add({
         severity: 'info',
         summary: 'Liquidación ya validada',
-        detail: 'Esta liquidación ya está validada y no puede modificarse.',
+        detail: `Esta liquidación ya fue validada por ${this.validadoPor} y no puede modificarse.`,
       });
       return;
     }
 
-    if (confirm('¿Está seguro que desea recalcular la liquidación? Esto sobrescribirá los valores actuales.')) {
-      this.loading = true;
-      
-      this.planillasService.recalcularLiquidacion(this.idPlanilla, true).subscribe({
-        next: (response: any) => {
-          this.planilla = response;
-          this.datosDesdeDB = true;
-          
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Liquidación recalculada exitosamente.',
-          });
-          
-          this.loading = false;
-          this.loadAportes();
-        },
-        error: (error) => {
-          this.loading = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error?.message || 'Error al recalcular la liquidación.',
-          });
-        },
+    this.resetearVariablesModal();
+    this.displayDialog = true;
+    
+    // Resetear valores
+    this.fechaPago = null;
+    this.cotizacionReal = null;
+    this.showFechaPagoInput = false;
+    this.showCotizacionRealInput = false;
+    this.displayDialog = true;
+  }
+  cancelarSeleccionFecha() {
+    this.fechaPago = null;
+    this.showFechaPagoInput = false;
+    this.nuevoMontoTGN = null;
+    this.mostrarInputMontoTGN = false;
+  }
+  confirmarLiquidacionConNuevoMonto() {
+    if (!this.fechaPago || !this.nuevoMontoTGN) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Faltan datos requeridos (fecha de pago y nuevo monto TGN).',
       });
+      return;
     }
-  }
 
-  // Métodos auxiliares
-  calcularDiferencia(): number {
-    if (this.cotizacionReal !== null && this.cotizacionTeorica > 0) {
-      return this.cotizacionReal - this.cotizacionTeorica;
-    }
-    return 0;
+    this.loading = true;
+    this.ejecutarRecalculo();
   }
+  private resetearVariablesModal() {
+    this.nuevoMontoTGN = null;
+    this.mostrarInputMontoTGN = false;
+    this.fechaPago = null;
+    this.showFechaPagoInput = false;
+  }
+  recargarDatosSinRecalcular() {
+    console.log('🔄 Recargando datos sin recalcular para planilla:', this.idPlanilla);
+    
+    this.loading = true;
+    this.errorMessage = undefined;
+    this.messages = [{ 
+      severity: 'info', 
+      summary: 'Cargando', 
+      detail: 'Obteniendo datos de liquidación...' 
+    }];
+    
+    // Solo obtener liquidación existente sin recalcular
+    this.planillasService.obtenerLiquidacion(this.idPlanilla).subscribe({
+      next: (response: any) => {
+        console.log('📋 Datos recargados desde BD:', response);
+        console.log('🔢 Aporte porcentaje cargado:', response.aporte_porcentaje);
+        console.log('📅 Fecha liquidación:', response.fecha_liquidacion);
+        
+        this.planilla = response;
+        this.datosDesdeDB = true;
+        
+        // Verificar si es empresa pública con liquidación preliminar
+        this.esEmpresaPublicaConLiquidacionPreliminar = 
+          response.tipo_empresa === 'AP' && 
+          this.datosDesdeDB && 
+          response.observaciones?.includes('LIQUIDACIÓN PRELIMINAR');
+        
+        // Mensaje informativo según el estado
+        if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
+          this.messages = [{ 
+            severity: 'warn', 
+            summary: 'Liquidación Preliminar - Empresa Pública', 
+            detail: 'Esta liquidación fue calculada automáticamente. Actualice la fecha de pago cuando la empresa realice el pago.' 
+          }];
+        } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
+          this.messages = [{ 
+            severity: 'info', 
+            summary: 'Liquidación Preliminar', 
+            detail: 'Esta es una liquidación preliminar. El administrador actualizará la fecha cuando se realice el pago.' 
+          }];
+        } else if (this.datosDesdeDB) {
+          this.messages = [{ 
+            severity: 'success', 
+            summary: 'Liquidación Cargada', 
+            detail: `Datos de liquidación cargados correctamente. TGN: ${response.aporte_porcentaje}` 
+          }];
+        }
+        
+        this.loading = false;
+        console.log('✅ Datos recargados exitosamente sin recalcular');
+      },
+      error: (error) => {
+        console.error('❌ Error al recargar datos:', error);
+        this.errorMessage = error.error?.message || 'Error al obtener la liquidación';
+        this.messages = [{ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: this.errorMessage 
+        }];
+        this.loading = false;
+      }
+    });
+  }
+  cancelarNuevoMonto() {
+    this.nuevoMontoTGN = null;
+    this.mostrarInputMontoTGN = false;
+    console.log('❌ Cancelado ingreso de nuevo monto TGN');
+  }
+  validarNuevoMonto() {
+    if (!this.nuevoMontoTGN || this.nuevoMontoTGN <= 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Por favor, ingrese un monto TGN válido mayor a 0.',
+      });
+      return;
+    }
+    
+    console.log('✅ Nuevo monto TGN validado:', this.nuevoMontoTGN);
+    console.log('📅 Fecha de pago seleccionada:', this.fechaPago);
+    
+    // Ocultar el input del monto
+    this.mostrarInputMontoTGN = false;
+    
+    // Continuar con el proceso de recálculo usando el nuevo monto
+    this.confirmarLiquidacionConNuevoMonto();
+  }
+  /* =========================================================================== */
+/* MÉTODOS ESPECÍFICOS POR TIPO DE EMPRESA                                    */
+/* =========================================================================== */
 
-  validarCotizacionReal() {
-    if (this.cotizacionReal !== null && this.cotizacionReal < 0) {
-      this.cotizacionReal = 0;
+// 🏢 EMPRESAS PRIVADAS: Ejecutar recálculo
+private ejecutarRecalculoEmpresaPrivada() {
+  console.log('🏢 Ejecutando recálculo EMPRESA PRIVADA');
+  
+  this.messages = [{ 
+    severity: 'info', 
+    summary: 'Procesando', 
+    detail: 'Recalculando liquidación de empresa privada...' 
+  }];
+  
+  this.planillasService.recalcularLiquidacionPrivada(this.idPlanilla, this.fechaPago!).subscribe({
+    next: (response: any) => {
+      this.manejarRespuestaExitosa(response, 'Liquidación de empresa privada recalculada correctamente');
+    },
+    error: (error) => {
+      this.manejarError(error);
     }
+  });
+}
+
+// 🏛️ EMPRESAS PÚBLICAS: Ejecutar recálculo
+private ejecutarRecalculoEmpresaPublica() {
+  console.log('🏛️ Ejecutando recálculo EMPRESA PÚBLICA');
+  
+  if (this.esEmpresaPublicaConLiquidacionPreliminar && this.nuevoMontoTGN) {
+    // Actualizar con nuevo monto TGN real
+    this.actualizarConNuevoTGN();
+  } else {
+    // Recalcular sin nuevo TGN
+    this.recalcularSinNuevoTGN();
   }
+}
+
+// 🏛️ EMPRESAS PÚBLICAS: Actualizar con nuevo TGN
+private actualizarConNuevoTGN() {
+  console.log('🏛️ Actualizando empresa pública con nuevo TGN:', this.nuevoMontoTGN);
+  
+  this.messages = [{ 
+    severity: 'info', 
+    summary: 'Procesando', 
+    detail: 'Actualizando fecha de pago real y nuevo monto TGN...' 
+  }];
+  
+  this.planillasService.actualizarEmpresaPublicaConTGN(this.idPlanilla, this.fechaPago!, this.nuevoMontoTGN!).subscribe({
+    next: (response: any) => {
+      const mensaje = `Empresa pública actualizada: Nuevo TGN ${response.aporte_porcentaje}, Descuento 5%: ${response.descuento_min_salud}`;
+      this.manejarRespuestaExitosa(response, mensaje);
+    },
+    error: (error) => {
+      this.manejarError(error);
+    }
+  });
+}
+
+// 🏛️ EMPRESAS PÚBLICAS: Recalcular sin nuevo TGN
+private recalcularSinNuevoTGN() {
+  console.log('🏛️ Recalculando empresa pública sin nuevo TGN');
+  
+  this.messages = [{ 
+    severity: 'info', 
+    summary: 'Procesando', 
+    detail: 'Recalculando liquidación de empresa pública...' 
+  }];
+  
+  this.planillasService.recalcularLiquidacionPublica(this.idPlanilla, this.fechaPago!).subscribe({
+    next: (response: any) => {
+      this.manejarRespuestaExitosa(response, 'Liquidación de empresa pública recalculada correctamente');
+    },
+    error: (error) => {
+      this.manejarError(error);
+    }
+  });
+}
+
+// 📝 Validar liquidación actual (sin cambios)
+private validarLiquidacionActual() {
+  this.planillasService.validarLiquidacion(this.idPlanilla, {}).subscribe({
+    next: (response: any) => {
+      console.log('✅ Liquidación validada sin cambios:', response);
+      
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'Liquidación validada correctamente.',
+      });
+      
+      this.displayDialog = false;
+      this.loading = false;
+      this.recargarDatosSinRecalcular();
+    },
+    error: (error) => {
+      this.manejarError(error);
+    },
+  });
+}
+
+/* =========================================================================== */
+/* MÉTODOS AUXILIARES PARA MANEJO DE RESPUESTAS                              */
+/* =========================================================================== */
+
+// 📊 Mostrar mensajes según el contexto
+private mostrarMensajesSegunContexto(response: any) {
+  if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
+    this.messages = [{ 
+      severity: 'warn', 
+      summary: 'Liquidación Preliminar - Empresa Pública', 
+      detail: 'Esta liquidación fue calculada automáticamente. Actualice la fecha de pago cuando la empresa realice el pago.' 
+    }];
+  } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
+    this.messages = [{ 
+      severity: 'info', 
+      summary: 'Liquidación Preliminar', 
+      detail: 'Esta es una liquidación preliminar. El administrador actualizará la fecha cuando se realice el pago.' 
+    }];
+  } else if (this.datosDesdeDB) {
+    const fechaLiq = response.fecha_liquidacion ? new Date(response.fecha_liquidacion).toLocaleDateString() : '';
+    this.messages = [{ 
+      severity: 'success', 
+      summary: 'Liquidación Cargada', 
+      detail: `Liquidación calculada el ${fechaLiq}` 
+    }];
+  } else {
+    this.messages = [{ 
+      severity: 'success', 
+      summary: 'Liquidación Calculada', 
+      detail: 'Se calculó la liquidación exitosamente.' 
+    }];
+  }
+}
+
+// ✅ Manejar respuesta exitosa
+private manejarRespuestaExitosa(response: any, mensajeBase: string) {
+  console.log('📊 RESPUESTA EXITOSA:', response);
+  console.log('🔢 Aporte porcentaje:', response.aporte_porcentaje);
+  console.log('📉 Total deducciones:', response.total_deducciones);
+  
+  this.planilla = response;
+  this.datosDesdeDB = true;
+  this.esEmpresaPublicaConLiquidacionPreliminar = false;
+  
+  this.messageService.add({
+    severity: 'success',
+    summary: 'Éxito',
+    detail: mensajeBase,
+  });
+  
+  this.displayDialog = false;
+  this.loading = false;
+  this.resetearVariablesModal();
+  
+  console.log('✅ Proceso completado exitosamente');
+}
+
+// ❌ Manejar errores
+private manejarError(error: any) {
+  console.error('❌ Error en proceso:', error);
+  this.loading = false;
+  this.messageService.add({
+    severity: 'error',
+    summary: 'Error',
+    detail: error.error?.message || 'Error al procesar la solicitud.',
+  });
+}
+
+// ❌ Manejar errores de carga
+private manejarErrorCarga(error: any) {
+  this.errorMessage = error.error?.message || 'Error al obtener la liquidación';
+  this.planilla = null;
+  this.datosDesdeDB = false;
+  this.esEmpresaPublicaConLiquidacionPreliminar = false;
+  
+  if (this.errorMessage && this.errorMessage.includes('no tiene fecha de pago')) {
+    this.messages = [{ 
+      severity: 'warn', 
+      summary: 'Sin Fecha de Pago', 
+      detail: 'Esta planilla no tiene fecha de pago asignada. No se puede calcular la liquidación.' 
+    }];
+  } else {
+    this.messages = [{ 
+      severity: 'error', 
+      summary: 'Error', 
+      detail: this.errorMessage 
+    }];
+  }
+  
+  this.loading = false;
+}
+
+// botones
+
+obtenerTextoBoton() {
+  if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
+    return 'Actualizar Fecha de Pago';
+  } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
+    return 'Esperando Actualización del Administrador';
+  } else if (this.datosDesdeDB) {
+    return 'Recalcular Liquidación';
+  } else {
+    return 'Calcular Liquidación';
+  }
+  
+  
+}
+
+obtenerIconoBoton() {
+  if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
+    return 'pi pi-refresh';
+  } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
+    return 'pi pi-info-circle';
+  } else if (this.datosDesdeDB) {
+    return 'pi pi-check';
+  } else {
+    return 'pi pi-plus';
+  } 
+}
+
+obtenerClaseBoton() {
+  if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
+    return 'p-button-warning';
+  } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
+    return 'p-button-secondary';
+  } else if (this.datosDesdeDB) {
+    return 'p-button-success';
+  } else {
+    return 'p-button-primary';
+  } 
+}
+
+//-------------------------------
+
+private ejecutarRecalculo() {
+  console.log('🔄 Método legacy ejecutarRecalculo() llamado - redirigiendo a método específico');
+  this.ejecutarRecalculoSegunTipoEmpresa();
+}
 }
