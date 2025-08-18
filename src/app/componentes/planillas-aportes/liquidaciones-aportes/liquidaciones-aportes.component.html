@@ -1,8 +1,3 @@
-<div class="liquidaciones-container">
-
-    
-  
-<!-- Modal para validar liquidación - REEMPLAZAR COMPLETAMENTE EL MODAL ACTUAL -->
 <!-- Modal para validar liquidación -->
 <p-dialog
   [header]="esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar Fecha de Pago Real' : 'Validar Liquidación'"
@@ -155,6 +150,38 @@
 </p-dialog>
 
 
+  <!-- También asegúrate de que este indicador solo sea visible para administradores -->
+<div *ngIf="esAdministrador && esEmpresaPublicaConLiquidacionPreliminar" 
+     style="background-color: #fff3cd; 
+            border: 1px solid #ffeaa7; 
+            border-radius: 4px; 
+            padding: 12px; 
+            margin: 15px 0; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;">
+  <i class="pi pi-exclamation-triangle" style="color: #f39c12; font-size: 1.5rem;"></i>
+  <div style="flex: 1;">
+    <strong style="color: #856404;">Realizar Liquidación  - Empresa Pública</strong>
+    <p style="margin: 5px 0 0 0; color: #856404; font-size: 0.9rem;"> 
+      Por favor, actualice con la fecha real cuando la empresa realice el pago. y el monto Real Desembolsado por el TGN
+    </p>
+  </div>
+  <button pButton 
+          type="button" 
+          label="Actualizar Fecha de Pago" 
+          icon="pi pi-calendar" 
+          class="p-button-warning"
+          (click)="showDialog()">
+  </button>
+</div>
+
+
+<div class="liquidaciones-container" *ngIf="planilla.fecha_liquidacion != null">
+
+
+
+
   <!-- Dashboard de resumen -->
   <div *ngIf="planilla" style="display: grid; grid-template-columns: 2fr 6fr; gap: 20px; padding: 15px;">
     <!-- Left Column: Cards -->
@@ -256,32 +283,7 @@
   ></button>
 </div> -->
 
-<!-- También asegúrate de que este indicador solo sea visible para administradores -->
-<div *ngIf="esAdministrador && esEmpresaPublicaConLiquidacionPreliminar" 
-     style="background-color: #fff3cd; 
-            border: 1px solid #ffeaa7; 
-            border-radius: 4px; 
-            padding: 12px; 
-            margin: 15px 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;">
-  <i class="pi pi-exclamation-triangle" style="color: #f39c12; font-size: 1.5rem;"></i>
-  <div style="flex: 1;">
-    <strong style="color: #856404;">Liquidación Preliminar - Empresa Pública</strong>
-    <p style="margin: 5px 0 0 0; color: #856404; font-size: 0.9rem;">
-      La fecha de pago es tentativa. 
-      Por favor, actualice con la fecha real cuando la empresa realice el pago.
-    </p>
-  </div>
-  <button pButton 
-          type="button" 
-          label="Actualizar Fecha de Pago" 
-          icon="pi pi-calendar" 
-          class="p-button-warning"
-          (click)="showDialog()">
-  </button>
-</div>
+
 
 <!-- Información para el empleador (NO administrador) -->
 <div *ngIf="!esAdministrador && planilla" 

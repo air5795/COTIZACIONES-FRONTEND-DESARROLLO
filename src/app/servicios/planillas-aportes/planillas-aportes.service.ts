@@ -341,6 +341,11 @@ determinarTipoEmpresa(planilla: any): 'publica' | 'privada' {
   return tipo === 'AP' ? 'publica' : 'privada';
 }
 
+validarPlanilla(idPlanilla: number, nombreAdministrador: string): Observable<any> {
+  return this.http.post(`${environment.url}planillas_aportes/${idPlanilla}/validar-planilla`, {
+    nombreAdministrador: nombreAdministrador
+  });
+}
 
 
 
