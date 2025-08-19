@@ -70,7 +70,7 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       nombreEmpresa: this.nombreEmpresa
     });
   }
-  // REEMPLAZAR COMPLETAMENTE el método loadAportes()
+
   loadAportes() {
     if (!this.idPlanilla) {
       this.errorMessage = 'Por favor, asegúrate de que el ID de la planilla esté definido.';
@@ -110,7 +110,7 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       },
     });
   }
-  // REEMPLAZAR COMPLETAMENTE el método confirmarLiquidacion()
+
   confirmarLiquidacion(actualizarFechaPago: boolean) {
     if (!this.esAdministrador) {
       this.messageService.add({
@@ -139,7 +139,6 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       this.validarLiquidacionActual();
     }
   }
-  // REEMPLAZAR COMPLETAMENTE el método ejecutarRecalculo() con ejecutarRecalculoSegunTipoEmpresa()
   private ejecutarRecalculoSegunTipoEmpresa() {
     const tipoEmpresa = this.planilla?.tipo_empresa?.toUpperCase();
     console.log('🔄 Ejecutando recálculo para tipo empresa:', tipoEmpresa);

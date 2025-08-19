@@ -1,4 +1,4 @@
-<!-- Modal para validar liquidación -->
+<!-- Modal para actualizar fecha pago y tgn  -->
 <p-dialog
   [header]="esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar Fecha de Pago Real' : 'Validar Liquidación'"
   [(visible)]="displayDialog"
@@ -270,18 +270,6 @@
     <div class="data-container">
       <p-tabView>
 
-        <!-- CORRECCIÓN: Agregar esAdministrador a la condición del botón -->
-<!-- <div style="justify-self: right;" 
-     ngIf="esAdministrador && !esEmpresaPublicaConLiquidacionPreliminar">
-  <button
-    pButton
-    type="button"
-    [label]="datosDesdeDB ? 'Validar Liquidación' : 'Validar Liquidación'"
-    [icon]="datosDesdeDB ? 'pi pi-refresh' : 'pi pi-check'"
-    [class]="datosDesdeDB ? 'p-button-warning' : 'p-button-success'"
-    (click)="showDialog()"
-  ></button>
-</div> -->
 
 
 
