@@ -719,6 +719,13 @@ parseNumber(value: string): number {
     return parseFloat(value.replace(/,/g, ''));
   }
     
-    
+  
+  tieneObservacionesEnAlgunTrabajador(): boolean {
+  // Asumiendo que tienes una lista de trabajadores llamada 'trabajadores'
+  return this.trabajadores.some(trabajador => 
+    trabajador.observaciones_afiliacion && 
+    trabajador.observaciones_afiliacion.trim() !== ''
+  );
+}
 
 }
