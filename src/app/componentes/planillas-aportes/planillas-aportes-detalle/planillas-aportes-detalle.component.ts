@@ -970,6 +970,65 @@ actualizarFecha() {
   }
 
 
+  verificarAfiliaciones() {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Se verificará el estado de afiliación de todos los trabajadores en la planilla.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, verificar',
+      cancelButtonText: 'Cancelar',
+      didOpen: () => {
+        const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+        if (swalContainer) {
+          swalContainer.style.zIndex = '2000';
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true; // Mostrar indicador de carga
+        this.planillasService.verificarAfiliacionDetalles(this.idPlanilla).subscribe({
+          next: (response) => {
+            this.loading = false;
+            Swal.fire({
+              icon: 'success',
+              title: 'Verificación Completada',
+              text: response.mensaje,
+              confirmButtonText: 'Ok',
+              didOpen: () => {
+                const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+                if (swalContainer) {
+                  swalContainer.style.zIndex = '2000';
+                }
+              }
+            }).then(() => {
+              // Recargar los detalles de la planilla para reflejar los cambios en es_afiliado
+              this.obtenerDetalles();
+            });
+          },
+          error: (err) => {
+            this.loading = false;
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: `No se pudo verificar las afiliaciones: ${err.error.message || 'Error desconocido'}`,
+              confirmButtonText: 'Ok',
+              didOpen: () => {
+                const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+                if (swalContainer) {
+                  swalContainer.style.zIndex = '2000';
+                }
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
+
 
 
 

@@ -259,7 +259,7 @@
     styleClass="p-datatable-sm p-datatable-striped"
     [style]="{'font-size': '12px', 'border': '1px solid #dee2e6'}"
     (onPage)="onPageChange($event)"
-    [showCurrentPageReport]="true"
+    [showCurrentPageReport]="false"
     currentPageReportTemplate="Mostrando registros del {first} al {last} de un total de {totalRecords} registros"
   >
   <ng-template pTemplate="caption">
@@ -310,10 +310,18 @@
             
             pButton style="border: 1px;" 
             label="Recargar" 
-            class="p-button-outlined p-button-plain " 
+            class="p-button-outlined p-button-plain mr-2 " 
             icon="pi pi-sync" 
             (click)="recargar()">
           </button>
+        <button 
+          pButton 
+          *ngIf="planillaInfo?.planilla?.estado === 0"
+          style="border: 1px;" 
+          label="Verificar Afiliaciones" 
+          class="p-button-outlined p-button-success" 
+          (click)="verificarAfiliaciones()">
+        </button>
         </div>
     </div>
 </ng-template>
@@ -328,7 +336,8 @@
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
-        
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Asegurado Estado</th>
+        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Observaciones Afiliación</th>
         <th *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Acciones</th>
     </tr>
 </ng-template>
@@ -343,7 +352,8 @@
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6; background-color: #eeffeb;">{{ trabajador.salario | number:'1.2-2' }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
-        
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.asegurado_estado }}</td>
+        <td style="width: 150px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.observaciones_afiliacion }}</td>
         <td *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="width: 80px; text-align: center; padding: 1px; border: 1px solid #dee2e6;">
             <button
                 pButton

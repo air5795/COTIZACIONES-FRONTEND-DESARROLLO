@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HashLocationStrategy, LocationStrategy, registerLocaleData } from '@angular/common';
 
@@ -147,7 +147,6 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { LoadingComponent } from './componentes/loading/loading.component';
 import { LoadingComponenteComponent } from './componentes/layout/loading-componente/loading-componente.component';
 import { VerificacionAfiliacionesComponent } from './componentes/planillas-aportes/verificacion-afiliaciones/verificacion-afiliaciones.component';
-
 registerLocaleData(localeEs);
 
 @NgModule({
@@ -288,7 +287,8 @@ registerLocaleData(localeEs);
     LoadingComponenteComponent,
     VerificacionAfiliacionesComponent,
   ],
-  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }, CountryService, CustomerService, EventService, IconService, NodeService,
+  providers: [
+    { provide: LocationStrategy, useClass: HashLocationStrategy }, CountryService, CustomerService, EventService, IconService, NodeService,
     PhotoService, ProductService, MenuService , MessageService , { provide: LOCALE_ID, useValue: 'es' } ],
   bootstrap: [AppComponent],
 })

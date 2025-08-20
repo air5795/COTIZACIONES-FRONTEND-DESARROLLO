@@ -81,15 +81,11 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.errorMessage = undefined;
     this.messages = [];
-    
-    console.log('🔄 Cargando liquidación para planilla:', this.idPlanilla);
+
     
     // El dispatcher del backend maneja automáticamente el tipo de empresa
     this.planillasService.obtenerLiquidacion(this.idPlanilla).subscribe({
       next: (response: any) => {
-        console.log('📊 Respuesta obtenerLiquidacion:', response);
-        console.log('🏢 Tipo empresa:', response.tipo_empresa);
-        
         this.planilla = response;
         this.datosDesdeDB = response.fecha_liquidacion ? true : false;
         
@@ -98,8 +94,6 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
           response.tipo_empresa === 'AP' && 
           (response.es_liquidacion_preliminar || 
           response.observaciones?.includes('LIQUIDACIÓN PRELIMINAR'));
-        
-        console.log('📋 Es liquidación preliminar:', this.esEmpresaPublicaConLiquidacionPreliminar);
         
         this.mostrarMensajesSegunContexto(response);
         this.loading = false;
@@ -141,7 +135,6 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
   }
   private ejecutarRecalculoSegunTipoEmpresa() {
     const tipoEmpresa = this.planilla?.tipo_empresa?.toUpperCase();
-    console.log('🔄 Ejecutando recálculo para tipo empresa:', tipoEmpresa);
     
     if (tipoEmpresa === 'AP') {
       this.ejecutarRecalculoEmpresaPublica();
@@ -205,7 +198,6 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
     this.showFechaPagoInput = false;
   }
   recargarDatosSinRecalcular() {
-    console.log('🔄 Recargando datos sin recalcular para planilla:', this.idPlanilla);
     
     this.loading = true;
     this.errorMessage = undefined;
@@ -218,9 +210,7 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
     // Solo obtener liquidación existente sin recalcular
     this.planillasService.obtenerLiquidacion(this.idPlanilla).subscribe({
       next: (response: any) => {
-        console.log('📋 Datos recargados desde BD:', response);
-        console.log('🔢 Aporte porcentaje cargado:', response.aporte_porcentaje);
-        console.log('📅 Fecha liquidación:', response.fecha_liquidacion);
+
         
         this.planilla = response;
         this.datosDesdeDB = true;
@@ -253,10 +243,8 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
         }
         
         this.loading = false;
-        console.log('✅ Datos recargados exitosamente sin recalcular');
       },
       error: (error) => {
-        console.error('❌ Error al recargar datos:', error);
         this.errorMessage = error.error?.message || 'Error al obtener la liquidación';
         this.messages = [{ 
           severity: 'error', 
@@ -270,7 +258,6 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
   cancelarNuevoMonto() {
     this.nuevoMontoTGN = null;
     this.mostrarInputMontoTGN = false;
-    console.log('❌ Cancelado ingreso de nuevo monto TGN');
   }
   validarNuevoMonto() {
     if (!this.nuevoMontoTGN || this.nuevoMontoTGN <= 0) {
@@ -281,9 +268,7 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       });
       return;
     }
-    
-    console.log('✅ Nuevo monto TGN validado:', this.nuevoMontoTGN);
-    console.log('📅 Fecha de pago seleccionada:', this.fechaPago);
+
     
     // Ocultar el input del monto
     this.mostrarInputMontoTGN = false;
@@ -297,7 +282,6 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
 
 // 🏢 EMPRESAS PRIVADAS: Ejecutar recálculo
 private ejecutarRecalculoEmpresaPrivada() {
-  console.log('🏢 Ejecutando recálculo EMPRESA PRIVADA');
   
   this.messages = [{ 
     severity: 'info', 
@@ -317,7 +301,6 @@ private ejecutarRecalculoEmpresaPrivada() {
 
 // 🏛️ EMPRESAS PÚBLICAS: Ejecutar recálculo
 private ejecutarRecalculoEmpresaPublica() {
-  console.log('🏛️ Ejecutando recálculo EMPRESA PÚBLICA');
   
   if (this.esEmpresaPublicaConLiquidacionPreliminar && this.nuevoMontoTGN) {
     // Actualizar con nuevo monto TGN real
@@ -330,7 +313,6 @@ private ejecutarRecalculoEmpresaPublica() {
 
 // 🏛️ EMPRESAS PÚBLICAS: Actualizar con nuevo TGN
 private actualizarConNuevoTGN() {
-  console.log('🏛️ Actualizando empresa pública con nuevo TGN:', this.nuevoMontoTGN);
   
   this.messages = [{ 
     severity: 'info', 
@@ -351,7 +333,6 @@ private actualizarConNuevoTGN() {
 
 // 🏛️ EMPRESAS PÚBLICAS: Recalcular sin nuevo TGN
 private recalcularSinNuevoTGN() {
-  console.log('🏛️ Recalculando empresa pública sin nuevo TGN');
   
   this.messages = [{ 
     severity: 'info', 
@@ -373,7 +354,6 @@ private recalcularSinNuevoTGN() {
 private validarLiquidacionActual() {
   this.planillasService.validarLiquidacion(this.idPlanilla, {}).subscribe({
     next: (response: any) => {
-      console.log('✅ Liquidación validada sin cambios:', response);
       
       this.messageService.add({
         severity: 'success',
@@ -427,9 +407,7 @@ private mostrarMensajesSegunContexto(response: any) {
 
 // ✅ Manejar respuesta exitosa
 private manejarRespuestaExitosa(response: any, mensajeBase: string) {
-  console.log('📊 RESPUESTA EXITOSA:', response);
-  console.log('🔢 Aporte porcentaje:', response.aporte_porcentaje);
-  console.log('📉 Total deducciones:', response.total_deducciones);
+
   
   this.planilla = response;
   this.datosDesdeDB = true;

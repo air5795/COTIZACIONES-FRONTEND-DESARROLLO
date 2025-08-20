@@ -81,10 +81,6 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
       this.idUsuario = sessionData?.persona?.usuario || 'ADMINISTRADOR_COTIZACIONES';
     }
     
-    console.log('ID Usuario para notificaciones:', this.idUsuario);
-    console.log('Empresa del usuario:', this.empresaUsuario);
-    console.log('Es Administrador:', this.sessionService.esAdministrador());
-    console.log('Es Empleador:', this.sessionService.esEmpleador());
     
     // Cargar las notificaciones automáticamente al inicializar
     this.obtenerNotificaciones();
@@ -101,7 +97,7 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
         this.limite
       ).subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
+
           
           // Mapear la respuesta del backend
           let notificacionesBruto = response.notificaciones?.map((notif: any) => ({
@@ -131,10 +127,10 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
           }
           
           this.loading = false;
-          console.log('Notificaciones cargadas:', this.notificaciones.length);
+
         },
         error: (error) => {
-          console.error('Error al cargar notificaciones:', error);
+
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -159,7 +155,7 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
         limite
       ).subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
+
           
           // Mapear la respuesta del backend
           let notificacionesBruto = response.notificaciones?.map((notif: any) => ({
@@ -193,7 +189,7 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
           this.first = event.first || 0;
           this.loading = false;
           
-          console.log('Notificaciones filtradas:', this.notificaciones.length);
+
         },
         error: (error) => {
 
@@ -218,7 +214,7 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
             });
           },
           error: (error) => {
-            console.error('Error al marcar como leída:', error);
+
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
@@ -287,12 +283,7 @@ verDetalle(notificacion: Notificacion): void {
     } else if (this.sessionService.esEmpleador()) {
       // ✅ NUEVA LÓGICA: Encriptar el ID antes de navegar
       const idEncriptado = this.tokenService.encriptarId(notificacion.id_recurso);
-      
-      console.log('🔒 Navegando desde historial con ID encriptado:', {
-        idReal: notificacion.id_recurso,
-        idEncriptado: idEncriptado,
-        notificacion: notificacion.tipo_notificacion
-      });
+    
       
       this.router.navigate([`/cotizaciones/planillas-aportes/${idEncriptado}`]);
     }

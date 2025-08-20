@@ -43,22 +43,17 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         // Si no coincide con ninguno, usar el rol completo
         this.idcNivel = rolCompleto;
       }
-      
-      console.log('🔍 Rol detectado:', rolCompleto);
-      console.log('🔍 idcNivel asignado:', this.idcNivel);
     } else {
-      console.error('❌ No se pudo obtener el rol del usuario desde la sesión');
       return;
     }
 
     this.empresaUsuario = sessionData?.persona?.empresa?.nombre || null;
-    console.log('🏢 Empresa del usuario:', this.empresaUsuario);
 
     // Cargar notificaciones inicialmente
     await this.cargarNotificaciones();
 
-    // Configurar el intervalo de actualización cada 30 segundos
-    this.subscription = interval(30000).subscribe(() => {
+    // Configurar el intervalo de actualización cada 2 min 
+    this.subscription = interval(10000).subscribe(() => {
       this.cargarNotificaciones();
     });
   }
@@ -71,13 +66,9 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
 
   async cargarNotificaciones(): Promise<void> {
     try {
-      console.log('🔄 Cargando notificaciones para:', this.idcNivel);
-      
       const responseNoLeidas = await this.notificacionesService
         .getNotificaciones(this.idcNivel, false)
         .toPromise();
-
-      console.log('📨 Respuesta del servidor:', responseNoLeidas);
 
       // Filtramos las notificaciones según la empresa si el usuario es COTIZACIONES_EMPRESA
       let notificacionesFiltradas = responseNoLeidas?.notificaciones || [];
@@ -86,15 +77,11 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         notificacionesFiltradas = notificacionesFiltradas.filter(
           (notificacion: Notificacion) => notificacion.empresa === this.empresaUsuario
         );
-        console.log('🔍 Notificaciones filtradas por empresa:', notificacionesFiltradas.length);
       }
 
       this.notificaciones = notificacionesFiltradas;
       this.notificacionesNoLeidas = notificacionesFiltradas.length;
-      
-      console.log('✅ Total notificaciones no leídas:', this.notificacionesNoLeidas);
     } catch (error) {
-      console.error('❌ Error al cargar notificaciones:', error);
     }
   }
 
@@ -120,10 +107,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   } else if (this.idcNivel === 'COTIZACIONES_EMPRESA') {
     // Encriptar el ID antes de navegar
     const idEncriptado = this.tokenService.encriptarId(notificacion.id_recurso);
-    console.log('🔒 Navegando desde notificación con ID encriptado:', {
-      idReal: notificacion.id_recurso,
-      idEncriptado: idEncriptado
-    });
     this.router.navigate([`/cotizaciones/planillas-aportes/${idEncriptado}`]);
   } else {
     this.router.navigate(['/cotizaciones/planillas-aportes']);
