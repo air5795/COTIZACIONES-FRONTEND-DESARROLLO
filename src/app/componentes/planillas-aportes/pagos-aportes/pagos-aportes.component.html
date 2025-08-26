@@ -44,38 +44,64 @@
       currentPageReportTemplate="Mostrando registros del {first} al {last} de un total de {totalRecords} registros"
     >
 
-      <ng-template pTemplate="header">
-        <tr style="background-color: #f8f9fa;">
-          
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha Pago</th>
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Monto Pagado</th>
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Método Pago</th>
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Comprobante</th>
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Observaciones</th>
-          <th style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">Foto Comprobante</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-pago let-i="rowIndex">
-        <tr style="background-color: #d5ffe9;">
-         
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ pago.fecha_pago | formatFecha }}</td>
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ pago.monto_pagado }}</td>
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ pago.metodo_pago }}</td>
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ pago.comprobante_pago }}</td>
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ pago.observaciones }}</td>
-          <td style="text-align: center; padding: 5px; border: 1px solid #dee2e6;">
-            <button 
-              pButton 
-              label="Ver comprobante"
-              icon="pi pi-eye" 
-              class="p-button p-button-primary" 
-              [disabled]="!pago.foto_comprobante" 
-              style="width: 100%;"
-              (click)="openImageDialog(pago)"
-            ></button>
-          </td>
-        </tr>
-      </ng-template>
+<ng-template pTemplate="header">
+  <tr>
+    <th>Fecha de Pago</th>
+    <th>Monto Pagado</th>
+    <th>Demasía Generada</th> <!-- ✅ NUEVA COLUMNA -->
+    <th>Método de Pago</th>
+    <th>Comprobante</th>
+    <th>Estado</th>
+    <th>Acciones</th>
+  </tr>
+</ng-template>
+
+<ng-template pTemplate="body" let-pago>
+  <tr>
+    <td>{{ pago.fecha_pago | date:'dd/MM/yyyy HH:mm' }}</td>
+    <td>
+      <span [style.color]="pago.monto_pagado > 0 ? '#28a745' : '#6c757d'">
+        {{ pago.monto_pagado | currency:'BOB':'symbol':'1.2-2' }}
+      </span>
+    </td>
+    <!-- ✅ NUEVA COLUMNA: Mostrar demasía -->
+    <td>
+      <span *ngIf="pago.monto_demasia > 0" 
+            style="color: #ffc107; font-weight: bold;">
+        {{ pago.monto_demasia | currency:'BOB':'symbol':'1.2-2' }}
+        <i class="pi pi-info-circle" 
+           pTooltip="Este monto se descontará del siguiente mes" 
+           tooltipPosition="top"
+           style="margin-left: 5px; cursor: help;"></i>
+      </span>
+      <span *ngIf="pago.monto_demasia <= 0" style="color: #6c757d;">
+        Sin demasía
+      </span>
+    </td>
+    <td>{{ pago.metodo_pago || 'No especificado' }}</td>
+    <td>{{ pago.comprobante_pago || 'No especificado' }}</td>
+    <td>
+      <p-tag 
+        [value]="pago.estado === 1 ? 'Activo' : 'Inactivo'" 
+        [severity]="pago.estado === 1 ? 'success' : 'danger'">
+      </p-tag>
+    </td>
+    <td>
+      <button 
+        pButton 
+        pRipple 
+        type="button" 
+        icon="pi pi-eye" 
+        class="p-button-rounded p-button-info p-button-text" 
+        pTooltip="Ver comprobante" 
+        tooltipPosition="top"
+        [value]="pago.foto_comprobante" 
+        style="width: 100%;"
+        (click)="openImageDialog(pago)">
+      </button>
+    </td>
+  </tr>
+</ng-template>
       <!-- Template para cuando no hay datos -->
       <ng-template pTemplate="emptymessage">
         <tr>
@@ -317,121 +343,303 @@
 </div>
   
       <!-- Paso 3: Ingresar Detalles del Pago -->
-      <div *ngIf="activeStep === 2 && calculoDetalles" class="p-fluid" style="max-width: 800px; margin: 0 auto;">
-        <h3 style="color: #2c3e50; margin-bottom: 1.5rem; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.5rem;">Detalles del Pago</h3>
+
+<div *ngIf="activeStep === 2 && calculoDetalles" class="p-fluid">
+  <h3>Detalles del Pago</h3>
+  
+  <!-- Información de Demasía Anterior (compacta) -->
+  <p-message *ngIf="calculoDetalles.demasia_mes_anterior > 0" 
+             severity="info" 
+             [style]="{'margin-bottom': '1rem' , 'padding': '0.5rem'}"
+             text="Demasía del mes anterior: {{ calculoDetalles.demasia_mes_anterior | currency:'BOB':'symbol':'1.2-2' }} (ya descontada del total)">
+  </p-message>
+
+  <!-- Grid Principal Compacto -->
+  <div class="grid">
+    <!-- Columna Izquierda: Formulario -->
+    <div class="col-12 md:col-8">
+      <div class="grid">
         
-        <div class="p-grid p-fluid" style="gap: 2rem; margin-bottom: 1.5rem;">
-          <!-- Columna Izquierda -->
-          <div class="p-col-12 p-md-6" style="display: flex; gap: 1rem;flex-wrap: wrap;">
-            <div class="p-form">
-              <label for="monto_pagado" style="font-weight: 500; color: #555; font-size: 0.9rem;">Monto Pagado (BOB)</label>
-              <input pInputText type="number" id="monto_pagado" formControlName="monto_pagado" step="0.01" required [readonly]="true"
-                     style="width: 100%; padding: 0.5rem;" >
-              <small *ngIf="pagoForm.get('monto_pagado')?.hasError('montoInsuficiente') && pagoForm.get('monto_pagado')?.touched" 
-                     class="p-error" style="color: #f44336;">
-                El monto pagado no puede ser menor que el total a cancelar | ({{ calculoDetalles.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}).
-              </small>
-              <small *ngIf="pagoForm.get('monto_pagado')?.hasError('required') && pagoForm.get('monto_pagado')?.touched" 
-                     class="p-error" style="color: #f44336;">
-                El monto pagado es obligatorio.
-              </small>
-            </div>
-      
-            <div class="p-form">
-              <label for="comprobante_pago" style="font-weight: 500; color: #555; font-size: 0.9rem;">Número de Comprobante</label>
-              <input pInputText id="comprobante_pago" formControlName="comprobante_pago" style="width: 100%; padding: 0.5rem;">
-            </div>
-      
-            <div class="p-form">
-              <label for="foto_comprobante" style="font-weight: 500; color: #555; font-size: 0.9rem;">Subir Comprobante</label>
-              <input pInputText type="file" id="foto_comprobante" (change)="onFileSelected($event)" accept="image/jpeg,image/png,application/pdf">
-              <small style="color: #666; font-size: 0.8rem; margin-top: 0.25rem;">Formatos aceptados: JPG, PNG, PDF (Máx. 1MB)</small>
-              <small *ngIf="!selectedFile && pagoForm.touched" class="p-error" style="color: #f44336;">Debes subir un comprobante.</small>
-            </div>
-          </div>
-      
-          <!-- Columna Derecha -->
-          <div class="p-col-12 p-md-6" style="display: flex; flex-direction: column; gap: 1rem; ">
-            <div class="p-form">
-              <label for="metodo_pago" style="font-weight: 500; color: #555; font-size: 0.9rem;">Método de Pago</label>
-              <p-dropdown id="metodo_pago" [options]="metodoPagoOptions" formControlName="metodo_pago" 
-                         placeholder="Seleccione método" [style]="{'width': '100%', 'padding': '0.5rem'}"></p-dropdown>
-            </div>
-      
-            <div class="p-form">
-              <label for="observaciones" style="font-weight: 500; color: #555; font-size: 0.9rem;">Observaciones</label>
-              <textarea pInputTextarea id="observaciones" formControlName="observaciones" rows="3"
-                       style="width: 100%; min-height: 100px; resize: vertical; padding: 0.5rem;"></textarea>
-            </div>
-          </div>
+        <!-- Total a Pagar -->
+        <div class="col-12 md:col-6">
+          <label class="block text-900 font-medium mb-2">
+            Total a Pagar 
+            <span *ngIf="calculoDetalles.demasia_mes_anterior > 0">(con descuento)</span>
+          </label>
+          <input pInputText 
+                 type="text" 
+                 [value]="calculoDetalles.total_con_descuento | currency:'BOB':'symbol':'1.2-2'" 
+                 readonly 
+                 class="w-full p-inputtext-sm bg-gray-100 font-bold">
         </div>
-      
-        <!-- Botones -->
-        <div class="contenedor-centrar">
-          <div class="p-field">
-            <button pButton type="button" label="Atrás" (click)="activeStep = 1" class="p-button-secondary"></button>
-            <button pButton type="button" label="Siguiente" (click)="activeStep = 3" class="p-button-primary"></button>
-          </div>
+
+        <!-- Monto Pagado -->
+        <div class="col-12 md:col-6">
+          <label for="monto_pagado" class="block text-900 font-medium mb-2">Monto Pagado (BOB) *</label>
+          <input pInputText 
+                 type="number" 
+                 id="monto_pagado" 
+                 formControlName="monto_pagado" 
+                 step="0.01" 
+                 required 
+                 (input)="onMontoChange()"
+                 (blur)="calcularDemasia()"
+                 (keyup)="calcularDemasia()"
+                 class="w-full p-inputtext-sm">
+          <small *ngIf="pagoForm.get('monto_pagado')?.hasError('montoInsuficiente') && pagoForm.get('monto_pagado')?.touched" 
+                 class="p-error block">
+            El monto pagado no puede ser menor que el total a cancelar.
+          </small>
+          <small *ngIf="pagoForm.get('monto_pagado')?.hasError('required') && pagoForm.get('monto_pagado')?.touched" 
+                 class="p-error block">
+            El monto pagado es obligatorio.
+          </small>
         </div>
+
+        <!-- Monto Demasía -->
+        <div class="col-12 md:col-6">
+          <label for="monto_demasia" class="block text-900 font-medium mb-2">
+            Monto Demasía (BOB)
+            <i class="pi pi-info-circle text-blue-500 ml-1" 
+               pTooltip="Este monto se descontará automáticamente del siguiente mes" 
+               tooltipPosition="top"></i>
+          </label>
+          <input pInputText 
+                 type="number" 
+                 id="monto_demasia" 
+                 formControlName="monto_demasia" 
+                 step="0.01" 
+                 readonly
+                 class="w-full p-inputtext-sm bg-green-50 text-green-700 font-bold">
+          <small class="text-600 block">Se calcula automáticamente</small>
+        </div>
+
+        <!-- Método de Pago -->
+        <div class="col-12 md:col-6">
+          <label for="metodo_pago" class="block text-900 font-medium mb-2">Método de Pago</label>
+          <p-dropdown id="metodo_pago" 
+                      formControlName="metodo_pago" 
+                      [options]="metodoPagoOptions" 
+                      placeholder="Seleccionar método"
+                      optionLabel="label" 
+                      optionValue="value"
+                      styleClass="w-full p-inputtext-sm">
+          </p-dropdown>
+        </div>
+
+        <!-- Número de Comprobante -->
+        <div class="col-12 md:col-6">
+          <label for="comprobante_pago" class="block text-900 font-medium mb-2">Número de Comprobante</label>
+          <input pInputText 
+                 id="comprobante_pago" 
+                 formControlName="comprobante_pago" 
+                 class="w-full p-inputtext-sm">
+        </div>
+
+        <!-- Subir Archivo -->
+        <div class="col-12 md:col-6">
+          <label for="foto_comprobante" class="block text-900 font-medium mb-2">Subir Comprobante</label>
+          <input pInputText 
+                 type="file" 
+                 id="foto_comprobante" 
+                 (change)="onFileSelected($event)" 
+                 accept="image/jpeg,image/png,application/pdf"
+                 class="w-full p-inputtext-sm">
+          <small class="text-600 block">JPG, PNG, PDF (Máx. 10MB)</small>
+        </div>
+
+        <!-- Observaciones -->
+        <div class="col-12">
+          <label for="observaciones" class="block text-900 font-medium mb-2">Observaciones</label>
+          <textarea pInputTextarea 
+                    id="observaciones" 
+                    formControlName="observaciones" 
+                    rows="3" 
+                    class="w-full p-inputtext-sm">
+          </textarea>
+        </div>
+
       </div>
+    </div>
+
+    <!-- Columna Derecha: Resumen -->
+    <div class="col-12 md:col-4">
+      <p-panel header="Resumen del Pago" styleClass="h-full">
+        <div class="flex flex-column gap-2">
+          
+          <div class="flex justify-content-between align-items-center border-bottom-1 border-200 pb-2">
+            <span class="text-700">Total calculado:</span>
+            <span class="font-bold text-900">{{ calculoDetalles.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}</span>
+          </div>
+          
+          <div *ngIf="calculoDetalles.demasia_mes_anterior > 0" 
+               class="flex justify-content-between align-items-center border-bottom-1 border-200 pb-2">
+            <span class="text-green-600">Descuento (demasía anterior):</span>
+            <span class="font-bold text-green-600">-{{ calculoDetalles.demasia_mes_anterior | currency:'BOB':'symbol':'1.2-2' }}</span>
+          </div>
+          
+          <div class="flex justify-content-between align-items-center border-bottom-2 border-300 pb-2">
+            <span class="text-900 font-medium">Total a pagar:</span>
+            <span class="font-bold text-xl text-primary">{{ calculoDetalles.total_con_descuento | currency:'BOB':'symbol':'1.2-2' }}</span>
+          </div>
+          
+          <div *ngIf="pagoForm.get('monto_demasia')?.value > 0" 
+               class="flex justify-content-between align-items-center bg-yellow-50 p-2 border-round">
+            <span class="text-yellow-800">Demasía generada:</span>
+            <span class="font-bold text-yellow-800">{{ pagoForm.get('monto_demasia')?.value | currency:'BOB':'symbol':'1.2-2' }}</span>
+          </div>
+          
+          <p-message *ngIf="pagoForm.get('monto_demasia')?.value > 0" 
+                     severity="warn" 
+                     text="La demasía se aplicará al siguiente mes">
+          </p-message>
+          
+        </div>
+      </p-panel>
+    </div>
+
+  </div>
+
+  <!-- Botones de navegación -->
+  <div class="flex justify-content-between mt-4">
+    <p-button label="Atrás" 
+              icon="pi pi-arrow-left" 
+              (click)="activeStep = 1" 
+              styleClass="p-button-secondary">
+    </p-button>
+    <p-button label="Siguiente" 
+              icon="pi pi-arrow-right" 
+              iconPos="right"
+              (click)="activeStep = 3" 
+              styleClass="p-button-primary">
+    </p-button>
+  </div>
+
+</div>
   
       <!-- Paso 4: Confirmación -->
-      <div *ngIf="activeStep === 3 && calculoDetalles" class="p-fluid">
-        <h3>Confirmación</h3>
-        <p>Revisa los detalles antes de crear el pago:</p>
-        <div class="grid">
-          <!-- Resumen del Pago (Izquierda) -->
-          <div class="col-6" >
-            <p-panel header="Resumen del Pago" >
-              <div class="p-fluid">
-                <div class="p-field">
-                  <label><strong>Fecha de Pago:</strong></label>
-                  <p>{{ pagoForm.get('fecha_pago')?.value | date:'dd/MM/yyyy HH:mm' }}</p>
-                </div>
-                <div class="p-field">
-                  <label><strong>Monto Pagado:</strong></label>
-                  <p>{{ pagoForm.get('monto_pagado')?.value | currency:'BOB':'symbol':'1.2-2' }}</p>
-                </div>
-                <div class="p-field">
-                  <label><strong>Método de Pago:</strong></label>
-                  <p>{{ pagoForm.get('metodo_pago')?.value || 'No especificado' }}</p>
-                </div>
-                <div class="p-field">
-                  <label><strong>Comprobante:</strong></label>
-                  <p>{{ pagoForm.get('comprobante_pago')?.value || 'No especificado' }}</p>
-                </div>
-                <div class="p-field">
-                  <label><strong>Observaciones:</strong></label>
-                  <p>{{ pagoForm.get('observaciones')?.value || 'Ninguna' }}</p>
-                </div>
-                <div class="p-field">
-                  <label><strong>Archivo Name:</strong></label>
-                  <p>{{ selectedFile?.name }}</p>
-                </div>
-              </div>
-            </p-panel>
+<div *ngIf="activeStep === 3 && calculoDetalles" class="step-content">
+  <h3>Confirmar Pago</h3>
+  <p>Por favor, revisa los detalles antes de crear el pago:</p>
+  
+  <div class="grid">
+    <!-- Resumen del Pago (Izquierda) -->
+    <div class="col-6">
+      <p-panel header="Resumen del Pago">
+        <div class="p-fluid">
+          <div class="p-field">
+            <label><strong>Fecha de Pago:</strong></label>
+            <p>{{ pagoForm.get('fecha_pago')?.value | date:'dd/MM/yyyy HH:mm' }}</p>
           </div>
-      
-          <!-- Vista Previa del Comprobante (Derecha) -->
-          <div class="col-6" *ngIf="selectedFile" >
-            <p-panel header="Vista Previa del Comprobante">
-              <div class="p-text-center">
-                <ng-container *ngIf="previewUrl">
-                  <img *ngIf="!isPdf" [src]="previewUrl" alt="Vista previa del comprobante" class="preview-image">
-                  <iframe *ngIf="isPdf" [src]="previewUrl" class="preview-pdf" (error)="onIframeError($event)"></iframe>
-                </ng-container>
-                <p *ngIf="!previewUrl">Cargando vista previa...</p>
-                
-              </div>
-            </p-panel>
+          
+          <!-- ✅ AGREGAR: Mostrar demasía anterior si existe -->
+          <div class="p-field" *ngIf="calculoDetalles.demasia_mes_anterior > 0">
+            <label><strong>Demasía Mes Anterior:</strong></label>
+            <p style="color: #28a745;">-{{ calculoDetalles.demasia_mes_anterior | currency:'BOB':'symbol':'1.2-2' }}</p>
+          </div>
+          
+          <div class="p-field">
+            <label><strong>Total Calculado:</strong></label>
+            <p>{{ calculoDetalles.total_a_cancelar | currency:'BOB':'symbol':'1.2-2' }}</p>
+          </div>
+          
+          <div class="p-field">
+            <label><strong>Total a Pagar:</strong></label>
+            <p style="font-weight: bold;">{{ calculoDetalles.total_con_descuento | currency:'BOB':'symbol':'1.2-2' }}</p>
+          </div>
+          
+          <div class="p-field">
+            <label><strong>Monto Pagado:</strong></label>
+            <p style="font-weight: bold; color: #2196F3;">{{ pagoForm.get('monto_pagado')?.value | currency:'BOB':'symbol':'1.2-2' }}</p>
+          </div>
+          
+          <!-- ✅ AGREGAR: Mostrar demasía generada -->
+          <div class="p-field" *ngIf="pagoForm.get('monto_demasia')?.value > 0">
+            <label><strong>Demasía Generada:</strong></label>
+            <p style="color: #ffc107; font-weight: bold;">
+              {{ pagoForm.get('monto_demasia')?.value | currency:'BOB':'symbol':'1.2-2' }}
+              <br>
+              <small style="color: #666; font-weight: normal;">
+                (Se descontará automáticamente del siguiente mes)
+              </small>
+            </p>
+          </div>
+          
+          <div class="p-field">
+            <label><strong>Método de Pago:</strong></label>
+            <p>{{ pagoForm.get('metodo_pago')?.value || 'No especificado' }}</p>
+          </div>
+          
+          <div class="p-field">
+            <label><strong>Comprobante:</strong></label>
+            <p>{{ pagoForm.get('comprobante_pago')?.value || 'No especificado' }}</p>
+          </div>
+          
+          <div class="p-field">
+            <label><strong>Observaciones:</strong></label>
+            <p>{{ pagoForm.get('observaciones')?.value || 'Ninguna' }}</p>
+          </div>
+          
+          <div class="p-field">
+            <label><strong>Archivo:</strong></label>
+            <p>{{ selectedFile?.name }}</p>
           </div>
         </div>
-      
-        <div class="p-field p-mt-3">
-          <button pButton type="button" label="Atrás" (click)="activeStep = 2" class="p-button-secondary p-mr-2"></button>
-          <button pButton type="submit" label="Registrar Pago" class="p-button-primary" [disabled]="pagoForm.invalid || !selectedFile"></button>
+      </p-panel>
+    </div>
+
+    <!-- Vista Previa del Comprobante (Derecha) - MANTENER IGUAL -->
+    <div class="col-6" *ngIf="selectedFile">
+      <p-panel header="Vista Previa del Comprobante">
+        <div class="preview-container" style="text-align: center;">
+          <img 
+            *ngIf="previewUrl && !isPdf" 
+            [src]="previewUrl" 
+            style="max-width: 100%; max-height: 300px; border: 1px solid #ddd; border-radius: 4px;"
+            alt="Vista previa del comprobante">
+          
+          <div *ngIf="isPdf" style="display: flex; flex-direction: column; align-items: center;">
+            <i class="pi pi-file-pdf" style="font-size: 3rem; color: #dc3545; margin-bottom: 0.5rem;"></i>
+            <p>{{ selectedFile.name }}</p>
+            <small style="color: #666;">Vista previa disponible tras subir el archivo</small>
+          </div>
         </div>
+      </p-panel>
+    </div>
+  </div>
+
+  <!-- ✅ AGREGAR: Alerta de demasía si aplica -->
+  <div *ngIf="pagoForm.get('monto_demasia')?.value > 0" 
+       class="p-message p-message-warn" 
+       style="margin: 1rem 0;">
+    <div class="p-message-wrapper">
+      <div class="p-message-icon pi pi-exclamation-triangle"></div>
+      <div class="p-message-text">
+        <strong>Atención:</strong> Se generará una demasía de 
+        <strong>{{ pagoForm.get('monto_demasia')?.value | currency:'BOB':'symbol':'1.2-2' }}</strong>
+        que se descontará automáticamente de la planilla del siguiente mes.
       </div>
+    </div>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="contenedor-centrar" style="margin-top: 2rem;">
+    <button 
+      pButton 
+      type="button" 
+      label="Atrás" 
+      (click)="activeStep = 2" 
+      class="p-button-secondary">
+    </button>
+    <button 
+      pButton 
+      type="submit" 
+      label="Confirmar y Crear Pago" 
+      [disabled]="pagoForm.invalid || !selectedFile" 
+      class="p-button-success">
+    </button>
+  </div>
+</div>
     </form>
   <!--   <p-messages></p-messages> -->
   </p-dialog>

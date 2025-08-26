@@ -181,6 +181,14 @@
     </div>
   </div>
 </div>
+
+<div style="width: 100%; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px 16px; border-radius: 4px; margin: 10px 0; box-sizing: border-box; text-align: left;">
+  <strong>Recordatorio:</strong> antes de validar la planilla es importante Verificar con Afiliaciones y en caso de las empresas publicas actualizar la fecha pago y valor correcto del desembolso del TGN y si es empresa privada revise la liquidacion y pago
+</div>
+
+
+
+
 <!-- OPCIONES DE PLANILLA ---------------------------------------------------------------------------------- -->
 <p-tabView [style]="{ padding: '5px' , 'border': '1px solid #ccc', borderRadius: '5px' }" >
   <p-tabPanel header="Planilla Declarada" leftIcon="pi pi-file" >
@@ -238,22 +246,104 @@
           icon="pi pi-sync" 
           (click)="recargar()">
         </button>
+
         <button 
           pButton 
-          style="border: 1px; margin-right: 8px;" 
+          *ngIf="planillaInfo?.planilla?.estado === 1"
+          style="border: 1px;" 
           label="Verificar Afiliaciones" 
-          class="p-button-outlined p-button-plain" 
+          class="p-button-outlined p-button-success mr-2" 
           (click)="verificarAfiliaciones()">
         </button>
         <button 
-        pButton 
-        style="border: 1px;" 
-        label="Reporte Afiliaciones" 
-        class="p-button-outlined p-button-plain" 
-        (click)="descargarReporteAfiliaciones()">
-      </button>
-        
+          pButton 
+          *ngIf="resumenCompleto"
+          style="border: 2px;" 
+          [label]="'Ver Detalles (' + (resumenCompleto.vigentes + resumenCompleto.no_vigentes + resumenCompleto.no_encontrados + resumenCompleto.faltantes) + ')'" 
+          class="p-button-outlined p-button-info mr-2" 
+          (click)="verTrabajadoresFaltantes()">
+        </button> 
 
+
+
+
+  <div style="background-color: #8d8d8d; padding: 2px; border-radius: 5px;" *ngIf="planillaInfo.planilla.fecha_verificacion_afiliacion !== null" >
+
+    <!-- Chips de totales por estado de afiliación -->
+    <ng-container *ngIf="obtenerTotalesEstadosAfiliacion() as totales">
+      <button 
+      pButton 
+      *ngIf="planillaInfo.planilla.fecha_verificacion_afiliacion !== null"
+      style=" pointer-events: none; opacity: 1; background-color: #8d8d8d; color: #ebebeb;"
+      class="p-button p-button-success mr-2"
+      type="button">
+      Fecha de Verificación: {{planillaInfo.planilla.fecha_verificacion_afiliacion | date:'dd/MM/yyyy'}}
+    </button>
+      <button 
+        pButton 
+        *ngIf="totales.vigentes > 0"
+        style=" pointer-events: none; opacity: 1; background-color: #d4edda; color: #345c47;"
+        class="p-button p-button-success mr-2"
+        type="button">
+        Vigentes: {{totales.vigentes}}
+      </button>
+    
+      <button 
+        pButton 
+        *ngIf="totales.bajas > 0"
+        style="pointer-events: none; opacity: 1; background-color: #f8d7da; color: #853139;"
+        class="p-button p-button-danger mr-2"
+        type="button">
+        Bajas: {{totales.bajas}}
+      </button>
+    
+      <button 
+        pButton 
+        *ngIf="totales.fallecidos > 0"
+        style="pointer-events: none; opacity: 1;"
+        class="p-button p-button-secondary mr-2"
+        type="button">
+        <i class="pi pi-ban mr-1"></i>
+        Fallecidos: {{totales.fallecidos}}
+      </button>
+    
+      <button 
+        pButton 
+        *ngIf="totales.cesantias > 0"
+        
+        style="pointer-events: none; opacity: 1; background-color: #fff3cd; color: #72430b;"
+        class="p-button p-button-warning mr-2"
+        type="button">
+        <i class="pi pi-pause-circle mr-1"></i>
+        Cesantías: {{totales.cesantias}}
+      </button>
+    
+      <button 
+        pButton 
+        *ngIf="totales.derHabientes > 0"
+     
+        style="pointer-events: none; opacity: 1; background-color: #cce5ff; color: #004085;"
+        class="p-button p-button-info mr-2"
+        type="button">
+        <i class="pi pi-users mr-1"></i>
+        Der. Habientes: {{totales.derHabientes}}
+      </button>
+    
+      <button 
+        pButton 
+        *ngIf="totales.sinEstado > 0"
+
+        style="pointer-events: none; opacity: 1;"
+        class="p-button p-button-help mr-2"
+        type="button">
+        <i class="pi pi-question-circle mr-1"></i>
+        Sin Estado: {{totales.sinEstado}}
+      </button>
+    </ng-container> 
+    
+  </div>
+
+        
         </div>
     </div>
 </ng-template>
@@ -278,7 +368,7 @@
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-trabajador let-i="rowIndex">
-    <tr>
+    <tr [ngClass]="getClaseEstadoAfiliacion(trabajador.asegurado_estado)">
       <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
         <td style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
@@ -657,7 +747,7 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
   <p-tabPanel header="Liquidación" leftIcon="pi pi-calculator">
     <app-liquidaciones-aportes [idPlanilla]="idPlanilla"></app-liquidaciones-aportes>
   </p-tabPanel>
-  <p-tabPanel header="Verificación Afiliaciones" leftIcon="pi pi-verified" >
+  <p-tabPanel header="Verificación Afiliaciones" leftIcon="pi pi-verified" *ngIf="planillaInfo?.planilla?.estado === 2" >
   <app-verificacion-afiliaciones [idPlanilla]="idPlanilla"></app-verificacion-afiliaciones>
   </p-tabPanel>
 <!--   <p-tabPanel header="Planillas Adicionales" leftIcon="pi pi-plus" class="right-align-tab">
@@ -739,6 +829,7 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
         (click)="guardarEstado()" 
         [disabled]="!estadoSeleccionado || (estadoSeleccionado === 3 && !observaciones)"
         [class]="getConfirmButtonClass()">
+
       </p-button>
     </div>
   </ng-template>
@@ -746,3 +837,244 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
 
 
  
+
+
+
+
+
+<!-- dialog de cruce con afiliaciones -->
+
+
+<p-dialog 
+  header="CRUCE CON AFILIACIONES SIGAH " 
+  [(visible)]="mostrarAnalisisCompletoDialog" 
+  [modal]="true" 
+  [resizable]="true" 
+  [draggable]="true"
+  [maximizable]="true"
+  [style]="{width: '95vw', height: '85vh'}">
+  
+  <div class="analisis-container" *ngIf="casosAnalisis && resumenCompleto">
+    <!-- HEADER CON RESUMEN -->
+    <div class="mb-3" style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
+      <h5>Resumen General de {{ resumenCompleto.total_planilla }} Trabajadores</h5>
+
+      <div *ngIf="fechaUltimaVerificacion" style="margin-top: 10px; padding: 8px; background-color: #e8f5e8; border-radius: 4px;">
+  <small><strong>Última verificación:</strong> {{ fechaUltimaVerificacion | date:'dd/MM/yyyy HH:mm' }}</small>
+</div>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <tr style="background-color: #d4edda;">
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Vigentes</td>
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.vigentes }}</td>
+        </tr>
+        <tr style="background-color: #fff3cd;">
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Vigentes</td>
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.no_vigentes }}</td>
+        </tr>
+        <tr style="background-color: #f8d7da;">
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Encontrados</td>
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.no_encontrados }}</td>
+        </tr>
+        <tr style="background-color: #cce5ff;">
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Faltantes</td>
+          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.faltantes }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- PESTAÑAS CON LOS 4 CASOS -->
+    <p-tabView>
+      <!-- PESTAÑA 1: VIGENTES -->
+      <p-tabPanel header="Vigentes ({{ casosAnalisis.vigentes?.length || 0 }})">
+        <p style="color: #155724; margin-bottom: 15px;">
+          Trabajadores que están correctamente afiliados y vigentes en el sistema.
+        </p>
+        
+        <p-table 
+          [value]="casosAnalisis.vigentes" 
+          [paginator]="true" 
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores vigentes"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          styleClass="p-datatable-sm"
+          [style]="{'font-size': '12px'}">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>CI</th>
+              <th>Nombre Completo</th>
+              <th>Cargo</th>
+              <th>Matrícula</th>
+              <th>Estado</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-trabajador>
+            <tr style="background-color: #f8fff8;">
+              <td><strong>{{ trabajador.ci }}</strong></td>
+              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+              <td>{{ trabajador.cargo }}</td>
+              <td>{{ trabajador.matricula }}</td>
+              <td>
+                <span style="background-color: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
+                  {{ trabajador.estado }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+
+      <!-- PESTAÑA 2: NO VIGENTES -->
+      <p-tabPanel header="No Vigentes ({{ casosAnalisis.no_vigentes?.length || 0 }})">
+        <p style="color: #856404; margin-bottom: 15px;">
+          Trabajadores que están en el sistema pero con estado diferente a VIGENTE (BAJA, CESANTÍA, etc.).
+        </p>
+        
+        <p-table 
+          [value]="casosAnalisis.no_vigentes" 
+          [paginator]="true" 
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores no vigentes"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          styleClass="p-datatable-sm"
+          [style]="{'font-size': '12px'}">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>CI</th>
+              <th>Nombre Completo</th>
+              <th>Cargo</th>
+              <th>Estado en API</th>
+              <th>Motivo</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-trabajador>
+            <tr style="background-color: #fffbf0;">
+              <td><strong>{{ trabajador.ci }}</strong></td>
+              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+              <td>{{ trabajador.cargo }}</td>
+              <td>
+                <span style="background-color: #ffc107; color: #212529; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
+                  {{ trabajador.estado }}
+                </span>
+              </td>
+              <td>{{ trabajador.motivo }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+
+      <!-- PESTAÑA 3: NO ENCONTRADOS -->
+      <p-tabPanel header="No Encontrados ({{ casosAnalisis.no_encontrados?.length || 0 }})">
+        <p style="color: #721c24; margin-bottom: 15px;">
+          Trabajadores que no aparecen en el sistema de afiliaciones (pueden ser altas recientes o casos especiales).
+        </p>
+        
+        <p-table 
+          [value]="casosAnalisis.no_encontrados" 
+          [paginator]="true" 
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores no encontrados"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          styleClass="p-datatable-sm"
+          [style]="{'font-size': '12px'}">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>CI</th>
+              <th>Nombre Completo</th>
+              <th>Cargo</th>
+              <th>Fecha Ingreso</th>
+              <th>Motivo</th>
+              
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-trabajador>
+            <tr style="background-color: #fdf2f2;">
+              <td><strong>{{ trabajador.ci }}</strong></td>
+              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+              <td>{{ trabajador.cargo }}</td>
+              <td>{{ trabajador.fecha_ingreso }}</td>
+              <td>{{ trabajador.motivo }}</td>
+            
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+
+      <!-- PESTAÑA 4: FALTANTES -->
+      <p-tabPanel header="Faltantes ({{ casosAnalisis.faltantes?.length || 0 }})">
+        <p style="color: #004085; margin-bottom: 15px;">
+          Trabajadores que están vigentes en el sistema de afiliaciones pero NO están en esta planilla.
+        </p>
+        
+        <p-table 
+          [value]="casosAnalisis.faltantes" 
+          [paginator]="true" 
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores faltantes"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          styleClass="p-datatable-sm"
+          [style]="{'font-size': '12px'}">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>CI</th>
+              <th>Nombre Completo</th>
+              <th>Cargo</th>
+              <th>Matrícula</th>
+              <th>Estado</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-trabajador>
+            <tr style="background-color: #f0f8ff;">
+              <td><strong>{{ trabajador.ci }}</strong></td>
+              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+              <td>{{ trabajador.cargo }}</td>
+              <td>{{ trabajador.matricula }}</td>
+              <td>
+                <span style="background-color: #007bff; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
+                  {{ trabajador.estado }}
+                </span>
+              </td>
+
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      type="button" 
+      class="btn btn-outline-primary me-2"
+      (click)="exportarTrabajadoresFaltantes()"
+      [disabled]="!casosAnalisis">
+      Exportar Análisis
+    </button>
+    <button 
+      type="button" 
+      class="btn btn-secondary"
+      (click)="mostrarAnalisisCompletoDialog = false">
+      Cerrar
+    </button>
+  </ng-template>
+</p-dialog>
+
+
+
+
+
+
+
+

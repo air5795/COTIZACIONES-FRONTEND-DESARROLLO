@@ -592,6 +592,27 @@
     color: #6c757d;
     margin-top: 5px;
   }
+
+  /* Estilos para colorear filas según el estado */
+  :host ::ng-deep .p-datatable .p-datatable-tbody .fila-borrador {
+    background-color: #ebe6ff !important;
+    color: #333 !important;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-tbody .fila-presentado {
+    background-color: #d7f1ff !important;
+    color: #547485 !important;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-tbody .fila-aprobado {
+    background-color: rgb(78, 214, 146) !important;
+    color: white !important;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-tbody .fila-observado {
+    background-color: #f59999 !important;
+    color: white !important;
+  }
   
 
 

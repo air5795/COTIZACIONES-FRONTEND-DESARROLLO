@@ -59,6 +59,24 @@ export class PlanillasAportesDetalleAprobarComponent {
     total: number = 0;
     busqueda: string = '';
 
+    // Variable para almacenar el conteo de estados del backend
+    conteoEstadosAsegurados: any = {
+      VIGENTE: 0,
+      BAJA: 0,
+      'DER HABIENTE': 0,
+      FALLECIDO: 0,
+      CESANTIA: 0
+    };
+
+      // cruce afiliaciones
+  casosAnalisis: any = null;
+  resumenCompleto: any = null;
+  estadisticasCompletas: any = null;
+  mostrarAnalisisCompletoDialog: boolean = false;
+  fechaUltimaVerificacion: Date | null = null;
+
+  trabajadoresFaltantes: any[] = [];
+
     
     
   
@@ -121,8 +139,15 @@ export class PlanillasAportesDetalleAprobarComponent {
         next: (data) => {
           this.trabajadores = data.trabajadores || [];
           this.total = data.total || 0;
+          
+          // Capturar el conteo de estados del backend
+          if (data.conteo_estados_asegurados) {
+            this.conteoEstadosAsegurados = data.conteo_estados_asegurados;
+          }
+          
           this.loading = false;
           console.log('Datos recibidos:', data);
+          console.log('Conteo estados asegurados:', this.conteoEstadosAsegurados);
           console.log('Página actual:', this.pagina);
           console.log('Límite actual:', this.limite);
           console.log('Total de registros:', this.total);
@@ -589,7 +614,7 @@ obtenerTipoEmpresa(): void {
 }
 
 
-verificarAfiliaciones() {
+/* verificarAfiliaciones() {
   Swal.fire({
     title: '¿Estás seguro?',
     text: 'Se verificará el estado de afiliación de todos los trabajadores en la planilla.',
@@ -645,9 +670,9 @@ verificarAfiliaciones() {
       });
     }
   });
-}
+} */
 
-descargarReporteAfiliaciones() {
+/* descargarReporteAfiliaciones() {
   if (!this.idPlanilla) {
     Swal.fire({
       icon: 'warning',
@@ -713,7 +738,7 @@ descargarReporteAfiliaciones() {
       });
     }
   });
-}
+} */
 
 parseNumber(value: string): number {
     return parseFloat(value.replace(/,/g, ''));
@@ -727,5 +752,309 @@ parseNumber(value: string): number {
     trabajador.observaciones_afiliacion.trim() !== ''
   );
 }
+
+
+
+
+
+
+
+verificarAfiliaciones() {
+  Swal.fire({
+    title: '¿Verificación con Afiliaciones?',
+    html: `
+      <ul style="text-align: left; margin: 10px 0;">
+        <li>Verificará todos los trabajadores de la planilla</li>
+        <li>Detectará trabajadores faltantes en la planilla</li>
+      </ul>
+      <p><small>Este proceso puede tomar varios minutos.</small></p>
+    `,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, verificar',
+    cancelButtonText: 'Cancelar',
+    width: '500px'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.loading = true;
+      const inicioTiempo = Date.now();
+      
+      this.planillasService.verificarAfiliacionDetalles(this.idPlanilla).subscribe({
+        next: (response) => {
+          this.loading = false;
+          const tiempoTranscurrido = Math.round((Date.now() - inicioTiempo) / 1000);
+          
+          // Guardar datos del análisis completo
+          this.casosAnalisis = response.casos;
+          this.resumenCompleto = response.resumen;
+          this.estadisticasCompletas = response.estadisticas;
+          this.trabajadoresFaltantes = response.casos.faltantes || [];
+          this.fechaUltimaVerificacion = response.fecha_verificacion;
+          // Mostrar resultado
+          this.mostrarResultadoVerificacionCompleta(response, tiempoTranscurrido);
+          
+          // Recargar detalles
+          this.obtenerDetalles();
+        },
+        error: (err) => {
+          this.loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: `No se pudo verificar las afiliaciones: ${err.error.message || 'Error desconocido'}`,
+            confirmButtonText: 'Ok'
+          });
+        }
+      });
+    }
+  });
+}
+
+// AGREGAR estas nuevas funciones después de verificarAfiliaciones():
+
+mostrarResultadoVerificacionCompleta(response: any, tiempoSegundos: number) {
+  const resumen = response.resumen;
+  const tiempoFormateado = this.formatearTiempo(tiempoSegundos);
+  
+  Swal.fire({
+    icon: 'success',
+    title: 'Análisis Completo Finalizado',
+    html: `
+      <div style="text-align: left;">
+        <p><strong>${response.mensaje}</strong></p>
+        <hr>
+        
+        <h6>Resumen de ${resumen.total_planilla} trabajadores:</h6>
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+          <tr style="background-color: #d4edda;">
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Vigentes</td>
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.vigentes}</td>
+          </tr>
+          <tr style="background-color: #fff3cd;">
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Vigentes</td>
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.no_vigentes}</td>
+          </tr>
+          <tr style="background-color: #f8d7da;">
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Encontrados</td>
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.no_encontrados}</td>
+          </tr>
+          <tr style="background-color: #cce5ff;">
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Faltantes</td>
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.faltantes}</td>
+          </tr>
+        </table>
+        
+        
+        <hr>
+        <p><small><strong>Tiempo transcurrido:</strong> ${tiempoFormateado}</small></p>
+      </div>
+    `,
+    width: '600px',
+    confirmButtonText: 'Ver Detalles',
+    showDenyButton: true,
+    denyButtonText: 'Cerrar',
+    denyButtonColor: '#6c757d'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.mostrarAnalisisCompletoDialog = true;
+    }
+  });
+}
+
+formatearTiempo(segundos: number): string {
+  if (segundos < 60) {
+    return `${segundos} segundos`;
+  } else if (segundos < 3600) {
+    const minutos = Math.floor(segundos / 60);
+    const segs = segundos % 60;
+    return `${minutos}m ${segs}s`;
+  } else {
+    const horas = Math.floor(segundos / 3600);
+    const minutos = Math.floor((segundos % 3600) / 60);
+    return `${horas}h ${minutos}m`;
+  }
+}
+
+verTrabajadoresFaltantes() {
+  if (!this.casosAnalisis || !this.resumenCompleto) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Sin análisis',
+      text: 'Primero debe ejecutar la verificación de afiliaciones.',
+      confirmButtonText: 'Ok'
+    });
+    return;
+  }
+  
+  this.mostrarAnalisisCompletoDialog = true;
+}
+
+exportarTrabajadoresFaltantes() {
+  if (!this.casosAnalisis || !this.resumenCompleto) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Sin datos',
+      text: 'No hay datos de análisis para exportar.',
+      confirmButtonText: 'Ok'
+    });
+    return;
+  }
+
+  // Crear datos para exportar
+  const datosExportacion = [];
+  
+  // Resumen
+  datosExportacion.push(['RESUMEN GENERAL']);
+  datosExportacion.push(['Total Trabajadores', this.resumenCompleto.total_planilla]);
+  datosExportacion.push(['Vigentes', this.resumenCompleto.vigentes]);
+  datosExportacion.push(['No Vigentes', this.resumenCompleto.no_vigentes]);
+  datosExportacion.push(['No Encontrados', this.resumenCompleto.no_encontrados]);
+  datosExportacion.push(['Faltantes', this.resumenCompleto.faltantes]);
+  datosExportacion.push(['']);
+
+  // Caso 1: Vigentes
+  if (this.casosAnalisis.vigentes?.length > 0) {
+    datosExportacion.push(['TRABAJADORES VIGENTES']);
+    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Matrícula', 'Estado', 'Salario']);
+    this.casosAnalisis.vigentes.forEach((t: any) => {
+      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.matricula, t.estado, t.salario]);
+    });
+    datosExportacion.push(['']);
+  }
+
+  // Caso 2: No Vigentes
+  if (this.casosAnalisis.no_vigentes?.length > 0) {
+    datosExportacion.push(['TRABAJADORES NO VIGENTES']);
+    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Estado', 'Motivo', 'Salario']);
+    this.casosAnalisis.no_vigentes.forEach((t: any) => {
+      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.estado, t.motivo, t.salario]);
+    });
+    datosExportacion.push(['']);
+  }
+
+  // Caso 3: No Encontrados
+  if (this.casosAnalisis.no_encontrados?.length > 0) {
+    datosExportacion.push(['TRABAJADORES NO ENCONTRADOS']);
+    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Fecha Ingreso', 'Motivo', 'Salario']);
+    this.casosAnalisis.no_encontrados.forEach((t: any) => {
+      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.fecha_ingreso, t.motivo, t.salario]);
+    });
+    datosExportacion.push(['']);
+  }
+
+  // Caso 4: Faltantes
+  if (this.casosAnalisis.faltantes?.length > 0) {
+    datosExportacion.push(['TRABAJADORES FALTANTES EN PLANILLA']);
+    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Matrícula', 'Estado', 'Haber']);
+    this.casosAnalisis.faltantes.forEach((t: any) => {
+      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.matricula, t.estado, t.haber]);
+    });
+  }
+
+  // Crear CSV
+  const csvContent = datosExportacion.map(row => 
+    row.map(cell => `"${cell || ''}"`).join(',')
+  ).join('\n');
+
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `analisis_completo_planilla_${this.idPlanilla}_${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Archivo descargado',
+    text: `Se descargó un archivo CSV con el análisis completo de ${this.resumenCompleto.total_planilla} trabajadores.`,
+    confirmButtonText: 'Ok'
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Función para obtener la clase CSS según el estado de afiliación
+getClaseEstadoAfiliacion(estadoAfiliacion: string): string {
+  if (!estadoAfiliacion) {
+    return 'fila-estado-sin-estado';
+  }
+
+  const estado = estadoAfiliacion.trim().toUpperCase();
+  
+  switch (estado) {
+    case 'VIGENTE':
+      return 'fila-estado-vigente';
+    case 'BAJA':
+      return 'fila-estado-baja';
+    case 'FALLECIDO':
+      return 'fila-estado-fallecido';
+    case 'CESANTIA':
+    case 'CESANTÍA':
+      return 'fila-estado-cesantia';
+    case 'DER HABIENTE':
+    case 'DERHABIENTE':
+    case 'DER_HABIENTE':
+      return 'fila-estado-der-habiente';
+    default:
+      return 'fila-estado-sin-estado';
+  }
+}
+
+// Función para obtener totales por estado de afiliación desde el backend
+obtenerTotalesEstadosAfiliacion() {
+  return {
+    vigentes: this.conteoEstadosAsegurados?.VIGENTE || 0,
+    bajas: this.conteoEstadosAsegurados?.BAJA || 0,
+    fallecidos: this.conteoEstadosAsegurados?.FALLECIDO || 0,
+    cesantias: this.conteoEstadosAsegurados?.CESANTIA || 0,
+    derHabientes: this.conteoEstadosAsegurados?.['DER HABIENTE'] || 0,
+    sinEstado: 0 // Esto se puede calcular si el backend no lo incluye
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

@@ -203,6 +203,7 @@ createPago(pagoData: any, file: File): Observable<PagoAporte> {
   formData.append('id_planilla_aportes', pagoData.id_planilla_aportes);
   formData.append('fecha_pago', pagoData.fecha_pago);
   formData.append('monto_pagado', pagoData.monto_pagado);
+  formData.append('monto_demasia', pagoData.monto_demasia || '0'); // ✅ AGREGAR ESTA LÍNEA
   formData.append('metodo_pago', pagoData.metodo_pago || '');
   formData.append('comprobante_pago', pagoData.comprobante_pago || '');
   formData.append('observaciones', pagoData.observaciones || '');
@@ -211,6 +212,11 @@ createPago(pagoData: any, file: File): Observable<PagoAporte> {
   }
 
   return this.http.post<PagoAporte>(`${environment.url}pagos-aportes/create`, formData);
+}
+
+// ✅ NUEVO MÉTODO: Obtener demasía del mes anterior
+obtenerDemasiaMesAnterior(idPlanilla: number): Observable<number> {
+  return this.http.get<number>(`${environment.url}pagos-aportes/demasia-mes-anterior/${idPlanilla}`);
 }
 
 // 2. Listar todos los pagos
@@ -297,6 +303,8 @@ calcularAportes(id: number): Observable<any> {
     return this.http.get(`${environment.url}planillas_aportes/${idPlanilla}/liquidacion`);
   }
 
+
+
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 /* LIQUIDACIÓN ESPECÍFICA POR TIPO DE EMPRESA ///////////////////////////////////////////////////////////////////////////////////////// */
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -367,6 +375,19 @@ descargarReporteVerificacionAfiliaciones(idPlanilla: number): Observable<Blob> {
     responseType: 'blob'
   });
 }
+
+  obtenerAnalisisAfiliacion(idPlanilla: number): Observable<any> {
+    return this.http.get(`${environment.url}planillas_aportes/analisis-afiliacion/${idPlanilla}`);
+  }
+
+
+
+  /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+/* PÁGOS APORTES ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+/* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+
+
+
 
 }
 

@@ -786,3 +786,143 @@
       flex: 1 1 100%;
     }
   }
+
+/* Estilos para diferentes estados de afiliación en filas de tabla */
+.fila-estado-vigente {
+  background-color: #d4edda !important; /* Verde claro */
+  color: #155724 !important; /* Verde oscuro para buen contraste */
+}
+
+.fila-estado-baja {
+  background-color: #f8d7da !important; /* Rojo claro */
+  color: #721c24 !important; /* Rojo oscuro para buen contraste */
+}
+
+.fila-estado-fallecido {
+  background-color: #343a40 !important; /* Gris oscuro */
+  color: #ffffff !important; /* Blanco para contraste */
+}
+
+.fila-estado-cesantia {
+  background-color: #fff3cd !important; /* Amarillo claro */
+  color: #856404 !important; /* Amarillo oscuro para buen contraste */
+}
+
+.fila-estado-der-habiente {
+  background-color: #cce5ff !important; /* Azul claro */
+  color: #004085 !important; /* Azul oscuro para buen contraste */
+}
+
+.fila-estado-sin-estado {
+  background-color: #f8f9fa !important; /* Gris muy claro */
+  color: #6c757d !important; /* Gris para contraste */
+}
+
+/* Asegurar que el texto en las celdas mantenga el color correcto */
+.fila-estado-vigente td,
+.fila-estado-baja td,
+.fila-estado-fallecido td,
+.fila-estado-cesantia td,
+.fila-estado-der-habiente td,
+.fila-estado-sin-estado td {
+  color: inherit !important;
+}
+
+/* Mantener el estilo específico para la celda de salario */
+.fila-estado-vigente td[style*="background-color: #eeffeb"],
+.fila-estado-baja td[style*="background-color: #eeffeb"],
+.fila-estado-fallecido td[style*="background-color: #eeffeb"],
+.fila-estado-cesantia td[style*="background-color: #eeffeb"],
+.fila-estado-der-habiente td[style*="background-color: #eeffeb"],
+.fila-estado-sin-estado td[style*="background-color: #eeffeb"] {
+  background-color: rgba(238, 255, 235, 0.8) !important;
+}
+
+/* Estilos para chips de totales de estados de afiliación con estilo de botón */
+.chip-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid;
+  margin-right: 8px;
+  cursor: default;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 32px;
+  box-sizing: border-box;
+}
+
+.chip-estado i {
+  margin-right: 6px;
+  font-size: 0.875rem;
+}
+
+.chip-vigente {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.chip-vigente:hover {
+  background-color: #c3e6cb;
+  border-color: #b8dacc;
+}
+
+.chip-baja {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+.chip-baja:hover {
+  background-color: #f5c6cb;
+  border-color: #f1b0b7;
+}
+
+.chip-fallecido {
+  background-color: #6c757d;
+  color: #ffffff;
+  border-color: #5a6268;
+}
+
+.chip-fallecido:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.chip-cesantia {
+  background-color: #fff3cd;
+  color: #856404;
+  border-color: #ffeeba;
+}
+
+.chip-cesantia:hover {
+  background-color: #ffeeba;
+  border-color: #ffe8a1;
+}
+
+.chip-der-habiente {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-color: #bee5eb;
+}
+
+.chip-der-habiente:hover {
+  background-color: #bee5eb;
+  border-color: #abdde5;
+}
+
+.chip-sin-estado {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+.chip-sin-estado:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}

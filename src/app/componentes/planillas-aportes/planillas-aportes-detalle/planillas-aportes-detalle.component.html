@@ -32,7 +32,7 @@
                 planillaInfo?.planilla?.empresa.tipo // Por si acaso, muestra el valor original
               }}
             </span>
-            ?
+            
           </h2>
           
           
@@ -314,14 +314,90 @@
             icon="pi pi-sync" 
             (click)="recargar()">
           </button>
-        <button 
+<!--         <button 
           pButton 
           *ngIf="planillaInfo?.planilla?.estado === 0"
           style="border: 1px;" 
           label="Verificar Afiliaciones" 
-          class="p-button-outlined p-button-success" 
+          class="p-button-outlined p-button-success mr-2" 
           (click)="verificarAfiliaciones()">
         </button>
+        <button 
+          pButton 
+          *ngIf="resumenCompleto"
+          style="border: 2px;" 
+          [label]="'Ver Detalles (' + (resumenCompleto.vigentes + resumenCompleto.no_vigentes + resumenCompleto.no_encontrados + resumenCompleto.faltantes) + ')'" 
+          class="p-button-outlined p-button-info mr-2" 
+          (click)="verTrabajadoresFaltantes()">
+        </button> -->
+
+
+
+        <!-- Chips de totales por estado de afiliación -->
+        <!-- <ng-container *ngIf="obtenerTotalesEstadosAfiliacion() as totales">
+          <button 
+            pButton 
+            *ngIf="totales.vigentes > 0"
+            style=" pointer-events: none; opacity: 1;"
+            class="p-button p-button-success mr-2"
+            type="button">
+            <i class="pi pi-check-circle mr-1"></i>
+            Vigentes: {{totales.vigentes}}
+          </button>
+        
+          <button 
+            pButton 
+            *ngIf="totales.bajas > 0"
+            style="pointer-events: none; opacity: 1;"
+            class="p-button p-button-danger mr-2"
+            type="button">
+            <i class="pi pi-times-circle mr-1"></i>
+            Bajas: {{totales.bajas}}
+          </button>
+        
+          <button 
+            pButton 
+            *ngIf="totales.fallecidos > 0"
+            style="pointer-events: none; opacity: 1;"
+            class="p-button p-button-secondary mr-2"
+            type="button">
+            <i class="pi pi-ban mr-1"></i>
+            Fallecidos: {{totales.fallecidos}}
+          </button>
+        
+          <button 
+            pButton 
+            *ngIf="totales.cesantias > 0"
+            
+            style="pointer-events: none; opacity: 1;"
+            class="p-button p-button-warning mr-2"
+            type="button">
+            <i class="pi pi-pause-circle mr-1"></i>
+            Cesantías: {{totales.cesantias}}
+          </button>
+        
+          <button 
+            pButton 
+            *ngIf="totales.derHabientes > 0"
+         
+            style="pointer-events: none; opacity: 1;"
+            class="p-button p-button-info mr-2"
+            type="button">
+            <i class="pi pi-users mr-1"></i>
+            Der. Habientes: {{totales.derHabientes}}
+          </button>
+        
+          <button 
+            pButton 
+            *ngIf="totales.sinEstado > 0"
+  
+            style="pointer-events: none; opacity: 1;"
+            class="p-button p-button-help mr-2"
+            type="button">
+            <i class="pi pi-question-circle mr-1"></i>
+            Sin Estado: {{totales.sinEstado}}
+          </button>
+        </ng-container> -->
         </div>
     </div>
 </ng-template>
@@ -336,13 +412,14 @@
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario Total</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Ingreso</th>
         <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha de Retiro</th>
-        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Asegurado Estado</th>
-        <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Observaciones Afiliación</th>
+        <!-- <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Estado Afiliación</th>
+        <th style="width: 200px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Observaciones</th> -->
         <th *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Acciones</th>
     </tr>
 </ng-template>
 <ng-template pTemplate="body" let-trabajador let-i="rowIndex">
-    <tr [ngStyle]="{'background-color': trabajador.tipo === 'planilla_adicional' ? '#f3f1c7' : 'transparent'}">
+    <tr [ngClass]="trabajador.tipo === 'planilla_adicional' ? 'planilla-adicional' : getClaseEstadoAfiliacion(trabajador.asegurado_estado)"
+        [ngStyle]="trabajador.tipo === 'planilla_adicional' ? {'background-color': '#f3f1c7'} : null">
         <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
         <td style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
@@ -352,8 +429,46 @@
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6; background-color: #eeffeb;">{{ trabajador.salario | number:'1.2-2' }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_ingreso }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.fecha_retiro }}</td>
-        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.asegurado_estado }}</td>
-        <td style="width: 150px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.observaciones_afiliacion }}</td>
+        
+<!--         
+        <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+          <span *ngIf="trabajador.asegurado_estado; else sinEstado">
+            <span [ngClass]="{
+              'badge': true,
+              'badge-success': trabajador.asegurado_estado === 'VIGENTE',
+              'badge-danger': trabajador.asegurado_estado === 'BAJA' || trabajador.asegurado_estado === 'FALLECIDO',
+              'badge-warning': trabajador.asegurado_estado === 'CESANTIA',
+              'badge-info': trabajador.asegurado_estado === 'DER HABIENTE'
+            }">
+              {{ trabajador.asegurado_estado }}
+            </span>
+          </span>
+          <ng-template #sinEstado>
+            <span style="color: #6c757d;">&mdash;</span>
+          </ng-template>
+        </td>
+
+        <td style="width: 200px; padding: 5px; border: 1px solid #dee2e6;">
+          <span *ngIf="trabajador.observaciones_afiliacion; else sinObservaciones">
+            <div 
+              [ngClass]="{
+                'observacion-texto': true,
+                'observacion-error': trabajador.observaciones_afiliacion.includes('Error') || 
+                                  trabajador.observaciones_afiliacion.includes('BAJA'),
+                'observacion-warning': trabajador.observaciones_afiliacion.includes('no coincide') ||
+                                    trabajador.observaciones_afiliacion.includes('No se encontró'),
+                'observacion-success': trabajador.observaciones_afiliacion.includes('Verificado exitosamente')
+              }"
+              [title]="trabajador.observaciones_afiliacion">
+              {{ trabajador.observaciones_afiliacion | slice:0:50 }}
+              <span *ngIf="trabajador.observaciones_afiliacion.length > 50">...</span>
+            </div>
+          </span>
+          <ng-template #sinObservaciones>
+            <span style="color: #6c757d;">&mdash;</span>
+          </ng-template>
+        </td> -->
+        
         <td *ngIf="planillaInfo?.planilla?.estado === 3 || planillaInfo?.planilla?.estado === 0" style="width: 80px; text-align: center; padding: 1px; border: 1px solid #dee2e6;">
             <button
                 pButton
@@ -854,4 +969,21 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
     ></button>
   </div>
 </p-dialog>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
