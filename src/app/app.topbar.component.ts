@@ -33,17 +33,20 @@ import { environment } from '../environments/environment';
               <img src="assets/layout/images/user.png" alt="User Image" style="margin-left: 10px; margin-right: 10px;">
             </div>
 
-            <div *ngIf="persona; else noPersona" class="profile-info" style="margin-right: 10px; width: max-content;text-align:left" (click)="appMain.onTopbarItemClick($event, profile)">
-              <span class="topbar-item-name profile-name" style="margin-left: 10px; display: inline-flex; flex-wrap: nowrap; width: auto; white-space: nowrap">
+            <div *ngIf="persona; else noPersona" class="profile-info" style="margin-right: 10px; width: auto; min-width: 180px; max-width: 280px; text-align:left; overflow: hidden;" (click)="appMain.onTopbarItemClick($event, profile)">
+              <span class="topbar-item-name profile-name" style="margin-left: 10px; display: block; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <strong style="padding: 2px;">
                   {{persona.nombres}} {{persona.primerApellido}} {{persona.segundoApellido}}
                 </strong>
               </span>
 
-              <div *ngIf="persona.empresa">
+              <div *ngIf="persona.empresa || esAdminRole" style="width: 100%; overflow: hidden;">
                 <hr style="margin: 3px;">
-                <span class="topbar-item-name profile-role" style="color:#686868; width:max-content;">
-                  <span style="font-size:11px; margin:8px;">{{persona.empresa.nombre}} </span>
+                <span class="topbar-item-name profile-role" [style.color]="getRoleColor()" style="width: 100%; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <span style="font-size:11px; margin:8px;">
+                    <span *ngIf="persona.empresa">{{persona.empresa.nombre}}</span>
+                    <span *ngIf="!persona.empresa && esAdminRole">{{userRole}}</span>
+                  </span>
                 </span>
               </div>
             </div>
@@ -54,7 +57,7 @@ import { environment } from '../environments/environment';
 
           <ul class="fadeInDown">
             <li role="menuitem">
-              <a href="#" (click)="appMain.onTopbarSubItemClick($event)">
+              <a href="#" (click)="navegarAPerfil($event)">
                 <i class="pi pi-user"></i>
                 <span>Perfil</span>
               </a>
@@ -74,6 +77,15 @@ import { environment } from '../environments/environment';
 export class AppTopbarComponent implements OnInit {
   persona: any;
   usuario: any;
+  userRole: string = '';
+  esAdminRole: boolean = false;
+
+  private readonly adminRoles = [
+    'ADMIN_COTIZACIONES_DESARROLLO',
+    'ADMIN_COTIZACIONES',
+    'ADMIN_TESORERIA_DESARROLLO',
+    'ADMIN_TESORERIA'
+  ];
 
   constructor(
     public appMain: AppMainComponent,
@@ -85,12 +97,34 @@ export class AppTopbarComponent implements OnInit {
     this.sessionService.getSessionData().subscribe(data => {
       this.persona = data?.persona || null;
       this.usuario = data?.usuario || null;
-    
+      
+      // Obtener el rol del usuario
+      this.userRole = this.sessionService.getRolActual();
+      
+      // Verificar si el usuario tiene uno de los roles de administrador
+      this.esAdminRole = this.adminRoles.includes(this.userRole);
     });
+  }
+
+  getRoleColor(): string {
+    if (this.userRole === 'ADMIN_COTIZACIONES_DESARROLLO' || this.userRole === 'ADMIN_COTIZACIONES') {
+      return '#8B0000'; // Rojo oscuro
+    } else if (this.userRole === 'ADMIN_TESORERIA_DESARROLLO' || this.userRole === 'ADMIN_TESORERIA') {
+      return '#B8860B'; // Amarillo oscuro (DarkGoldenrod)
+    } else if (this.persona?.empresa) {
+      return '#686868'; // Gris para empresas (color original)
+    }
+    return '#686868'; // Gris por defecto
   }
 
   cerrarSession() {
     this.sessionService.clearSession();
     /* window.location.href = environment.login; */
   }
+
+  navegarAPerfil(event: Event) {
+    event.preventDefault();
+    this.router.navigate(['/cotizaciones/perfil-usuario']);
+  }
+
 }

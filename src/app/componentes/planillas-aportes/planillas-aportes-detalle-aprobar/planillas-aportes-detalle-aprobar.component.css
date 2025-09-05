@@ -789,7 +789,7 @@
 
 /* Estilos para diferentes estados de afiliación en filas de tabla */
 .fila-estado-vigente {
-  background-color: #d4edda !important; /* Verde claro */
+  background-color: #e9f1eb !important; /* Verde claro */
   color: #155724 !important; /* Verde oscuro para buen contraste */
 }
 

@@ -147,6 +147,9 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { LoadingComponent } from './componentes/loading/loading.component';
 import { LoadingComponenteComponent } from './componentes/layout/loading-componente/loading-componente.component';
 import { VerificacionAfiliacionesComponent } from './componentes/planillas-aportes/verificacion-afiliaciones/verificacion-afiliaciones.component';
+import { SolicitudReembolsoComponent } from './componentes/reembolsos-incapacidades/solicitud-reembolso/solicitud-reembolso.component';
+import { EmpresasComponent } from './componentes/empresas/empresas.component';
+import { PerfilUsuarioComponent } from './componentes/perfil-usuario/perfil-usuario.component';
 registerLocaleData(localeEs);
 
 @NgModule({
@@ -286,6 +289,9 @@ registerLocaleData(localeEs);
     LoadingComponent,
     LoadingComponenteComponent,
     VerificacionAfiliacionesComponent,
+    SolicitudReembolsoComponent,
+    EmpresasComponent,
+    PerfilUsuarioComponent,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy }, CountryService, CustomerService, EventService, IconService, NodeService,

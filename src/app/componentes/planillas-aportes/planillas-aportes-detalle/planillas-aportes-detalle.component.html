@@ -418,8 +418,10 @@
     </tr>
 </ng-template>
 <ng-template pTemplate="body" let-trabajador let-i="rowIndex">
-    <tr [ngClass]="trabajador.tipo === 'planilla_adicional' ? 'planilla-adicional' : getClaseEstadoAfiliacion(trabajador.asegurado_estado)"
-        [ngStyle]="trabajador.tipo === 'planilla_adicional' ? {'background-color': '#f3f1c7'} : null">
+  <tr [ngStyle]="trabajador.tipo === 'planilla_adicional' ? {'background-color': '#f3f1c7'} : null">
+  
+    <!-- <tr [ngClass]="trabajador.tipo === 'planilla_adicional' ? 'planilla-adicional' : getClaseEstadoAfiliacion(trabajador.asegurado_estado)"
+        [ngStyle]="trabajador.tipo === 'planilla_adicional' ? {'background-color': '#f3f1c7'} : null"> -->
         <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.nro }}</td>
         <td style="width: 50px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.ci }}</td>
         <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ trabajador.regional }}</td>
@@ -578,10 +580,10 @@
                   <i class="pi pi-money-bill"></i>
                   Total Ganado
                 </th>
-                <th class="text-right">
+<!--                 <th class="text-right">
                   <i class="pi pi-percentage"></i>
                   TASA (10% o 3%)
-                </th>
+                </th> -->
               </tr>
             </thead>
             <tbody>
@@ -590,7 +592,7 @@
                 <td>{{ region.regional }}</td>
                 <td class="text-right">{{ parseNumber(region.cantidad) | number:'1.0-0' }}</td>
                 <td class="text-right">{{ region.total_ganado }}</td>
-                <td class="text-right">{{ region.cotizacion }}</td>
+                <!-- <td class="text-right">{{ region.cotizacion }}</td> -->
               </tr>
             </tbody>
             <tfoot>
@@ -601,7 +603,7 @@
                 </td>
                 <td style="text-align: right;">{{ parseNumber(resumenData.totales.cantidad_total) | number:'1.0-0' }}</td>
                 <td style="text-align: right;">{{ resumenData.totales.total_ganado }}</td>
-                <td style="text-align: right;">{{ resumenData.totales.cotizacion }}</td>
+                <!-- <td style="text-align: right;">{{ resumenData.totales.cotizacion }}</td> -->
               </tr>
             </tfoot>
           </table>
@@ -893,6 +895,15 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
 
 
 
+
+
+
+
+
+
+
+
+<app-loading-componente *ngIf="isLoading" [progress]="loadingProgress" [message]="loadingMessage"></app-loading-componente>
 
 
 <!-- MODAL DE IMPORTAR PLANILLA --------------------------------------------------------------------------------------------> 

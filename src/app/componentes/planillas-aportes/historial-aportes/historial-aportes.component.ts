@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { PlanillasAportesService } from '../../../servicios/planillas-aportes/planillas-aportes.service';
 import { Router } from '@angular/router';
 import { LazyLoadEvent } from 'primeng/api';
+import { TokenService } from '../../../servicios/token/token.service'; // 1. IMPORTAR TokenService
 
 @Component({
   selector: 'app-historial-aportes',
@@ -41,7 +42,11 @@ export class HistorialAportesComponent {
   ];
 
 
-  constructor(private planillasService: PlanillasAportesService , private router: Router,) {}
+  constructor(
+    private planillasService: PlanillasAportesService, 
+    private router: Router,
+    private tokenService: TokenService // 2. INYECTAR TokenService
+  ) {}
 
   ngOnInit(): void {
     this.obtenerPlanillas();
@@ -178,7 +183,13 @@ export class HistorialAportesComponent {
   
 
   verPlanilla(id_planilla: number) {
-    this.router.navigate(['/cotizaciones/aprobar-planillas-aportes', id_planilla]);
+    // 3. LÓGICA CORREGIDA
+    if (id_planilla) {
+      const idEncriptado = this.tokenService.encriptarId(id_planilla);
+      this.router.navigate(['/cotizaciones/aprobar-planillas-aportes', idEncriptado]);
+    } else {
+      console.error('No se proporcionó un ID de planilla para navegar.');
+    }
   }
 
 }

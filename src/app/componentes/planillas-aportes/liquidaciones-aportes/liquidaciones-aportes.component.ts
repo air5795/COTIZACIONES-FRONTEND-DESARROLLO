@@ -5,6 +5,7 @@ import { SessionService } from '../../../servicios/auth/session.service';
 import { MessageService, Message } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-liquidaciones-aportes',
@@ -39,6 +40,10 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
   // Para manejar la suscripción
   private destroy$ = new Subject<void>();
 
+  // Agregar estas nuevas propiedades:
+  mostrarModalValidacion: boolean = false;
+  nombreCompleto: string = '';
+
   constructor(
     private planillasService: PlanillasAportesService,
     private sessionService: SessionService,
@@ -48,6 +53,8 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.verificarRolUsuario();
     this.loadAportes();
+    // Obtener nombre completo del usuario
+    this.nombreCompleto = this.sessionService.getNombreCompleto();
   }
   ngOnDestroy() {
     this.destroy$.next();
@@ -71,21 +78,27 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
     });
   }
 
+  // load aportes
   loadAportes() {
     if (!this.idPlanilla) {
       this.errorMessage = 'Por favor, asegúrate de que el ID de la planilla esté definido.';
       this.messages = [{ severity: 'error', summary: 'Error', detail: this.errorMessage }];
       return;
     }
-
+  
     this.loading = true;
     this.errorMessage = undefined;
     this.messages = [];
-
-    
+  
     // El dispatcher del backend maneja automáticamente el tipo de empresa
     this.planillasService.obtenerLiquidacion(this.idPlanilla).subscribe({
       next: (response: any) => {
+        console.log('📊 Respuesta de obtenerLiquidacion:', {
+          valido_cotizacion: response.valido_cotizacion,
+          validado_por: response.validado_por,
+          fecha_liquidacion: response.fecha_liquidacion
+        });
+        
         this.planilla = response;
         this.datosDesdeDB = response.fecha_liquidacion ? true : false;
         
@@ -94,6 +107,17 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
           response.tipo_empresa === 'AP' && 
           (response.es_liquidacion_preliminar || 
           response.observaciones?.includes('LIQUIDACIÓN PRELIMINAR'));
+        
+        // Verificar el estado de validación
+        if (response.valido_cotizacion || response.validado_por) {
+          this.liquidacionValidada = true;
+          this.validadoPor = response.valido_cotizacion || response.validado_por;
+          console.log('✅ Liquidación está validada por:', this.validadoPor);
+        } else {
+          this.liquidacionValidada = false;
+          this.validadoPor = '';
+          console.log('⚠️ Liquidación NO está validada');
+        }
         
         this.mostrarMensajesSegunContexto(response);
         this.loading = false;
@@ -133,7 +157,7 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       this.validarLiquidacionActual();
     }
   }
-  private ejecutarRecalculoSegunTipoEmpresa() {
+  public ejecutarRecalculoSegunTipoEmpresa() {
     const tipoEmpresa = this.planilla?.tipo_empresa?.toUpperCase();
     
     if (tipoEmpresa === 'AP') {
@@ -191,7 +215,7 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.ejecutarRecalculo();
   }
-  private resetearVariablesModal() {
+  public resetearVariablesModal() {
     this.nuevoMontoTGN = null;
     this.mostrarInputMontoTGN = false;
     this.fechaPago = null;
@@ -269,19 +293,44 @@ export class LiquidacionesAportesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    
-    // Ocultar el input del monto
-    this.mostrarInputMontoTGN = false;
-    
-    // Continuar con el proceso de recálculo usando el nuevo monto
-    this.confirmarLiquidacionConNuevoMonto();
+    // Mostrar SweetAlert de confirmación
+    Swal.fire({
+      title: '¿Confirmar actualización?',
+      html: `
+        <div style="text-align: left; margin: 20px 0;">
+          <p><strong>Fecha de pago real:</strong> ${this.fechaPago?.toLocaleDateString('es-BO')}</p>
+          <p><strong>Nuevo monto TGN:</strong> ${this.nuevoMontoTGN?.toLocaleString('es-BO', { style: 'currency', currency: 'BOB' })}</p>
+          <p><strong>Monto TGN anterior (teórico):</strong> ${this.planilla?.aporte_porcentaje?.toLocaleString('es-BO', { style: 'currency', currency: 'BOB' })}</p>
+        </div>
+        <p style="color: #f39c12; font-weight: bold;">Esta acción calculará toda la liquidación con los nuevos valores.</p>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#dc3545',
+      confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      customClass: { container: 'swal2-container' },
+      willOpen: () => {
+        document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Ocultar el input del monto
+        this.mostrarInputMontoTGN = false;
+        
+        // Continuar con el proceso de recálculo usando el nuevo monto
+        this.confirmarLiquidacionConNuevoMonto();
+      }
+    });
   }
   /* =========================================================================== */
 /* MÉTODOS ESPECÍFICOS POR TIPO DE EMPRESA                                    */
 /* =========================================================================== */
 
 // 🏢 EMPRESAS PRIVADAS: Ejecutar recálculo
-private ejecutarRecalculoEmpresaPrivada() {
+public ejecutarRecalculoEmpresaPrivada() {
   
   this.messages = [{ 
     severity: 'info', 
@@ -300,7 +349,7 @@ private ejecutarRecalculoEmpresaPrivada() {
 }
 
 // 🏛️ EMPRESAS PÚBLICAS: Ejecutar recálculo
-private ejecutarRecalculoEmpresaPublica() {
+public ejecutarRecalculoEmpresaPublica() {
   
   if (this.esEmpresaPublicaConLiquidacionPreliminar && this.nuevoMontoTGN) {
     // Actualizar con nuevo monto TGN real
@@ -312,7 +361,7 @@ private ejecutarRecalculoEmpresaPublica() {
 }
 
 // 🏛️ EMPRESAS PÚBLICAS: Actualizar con nuevo TGN
-private actualizarConNuevoTGN() {
+public actualizarConNuevoTGN() {
   
   this.messages = [{ 
     severity: 'info', 
@@ -332,7 +381,7 @@ private actualizarConNuevoTGN() {
 }
 
 // 🏛️ EMPRESAS PÚBLICAS: Recalcular sin nuevo TGN
-private recalcularSinNuevoTGN() {
+public recalcularSinNuevoTGN() {
   
   this.messages = [{ 
     severity: 'info', 
@@ -351,7 +400,7 @@ private recalcularSinNuevoTGN() {
 }
 
 // 📝 Validar liquidación actual (sin cambios)
-private validarLiquidacionActual() {
+public validarLiquidacionActual() {
   this.planillasService.validarLiquidacion(this.idPlanilla, {}).subscribe({
     next: (response: any) => {
       
@@ -376,7 +425,7 @@ private validarLiquidacionActual() {
 /* =========================================================================== */
 
 // 📊 Mostrar mensajes según el contexto
-private mostrarMensajesSegunContexto(response: any) {
+public mostrarMensajesSegunContexto(response: any) {
   if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
     this.messages = [{ 
       severity: 'warn', 
@@ -406,28 +455,37 @@ private mostrarMensajesSegunContexto(response: any) {
 }
 
 // ✅ Manejar respuesta exitosa
-private manejarRespuestaExitosa(response: any, mensajeBase: string) {
-
+public manejarRespuestaExitosa(response: any, mensajeBase: string) {
   
   this.planilla = response;
   this.datosDesdeDB = true;
   this.esEmpresaPublicaConLiquidacionPreliminar = false;
   
-  this.messageService.add({
-    severity: 'success',
-    summary: 'Éxito',
-    detail: mensajeBase,
+  // Mostrar SweetAlert de éxito y recargar solo los datos de liquidación
+  Swal.fire({
+    title: '¡Éxito!',
+    text: mensajeBase,
+    icon: 'success',
+    timer: 2000,
+    showConfirmButton: false,
+    customClass: { container: 'swal2-container' },
+    willOpen: () => {
+      document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+    },
+  }).then(() => {
+    // Recargar solo los datos de liquidación sin refrescar la página
+    this.loadAportes();
   });
   
   this.displayDialog = false;
   this.loading = false;
   this.resetearVariablesModal();
   
-  console.log('✅ Proceso completado exitosamente');
+  console.log('✅ Proceso completado exitosamente - Recargando datos de liquidación');
 }
 
 // ❌ Manejar errores
-private manejarError(error: any) {
+public manejarError(error: any) {
   console.error('❌ Error en proceso:', error);
   this.loading = false;
   this.messageService.add({
@@ -438,7 +496,7 @@ private manejarError(error: any) {
 }
 
 // ❌ Manejar errores de carga
-private manejarErrorCarga(error: any) {
+public manejarErrorCarga(error: any) {
   this.errorMessage = error.error?.message || 'Error al obtener la liquidación';
   this.planilla = null;
   this.datosDesdeDB = false;
@@ -461,35 +519,178 @@ private manejarErrorCarga(error: any) {
   this.loading = false;
 }
 
-// botones
+// Método modificado para verificar si debe mostrar botón de validar o recalcular
+public debeValidarLiquidacion(): boolean {
+  // Verificar múltiples campos posibles para el estado de validación
+  const estaValidada = this.planilla && (
+    (this.planilla.valido_cotizacion && this.planilla.valido_cotizacion.trim() !== '') ||
+    (this.planilla.validado_por && this.planilla.validado_por.trim() !== '') ||
+    this.liquidacionValidada
+  );
+  
+  
+  return estaValidada;
+}
 
-obtenerTextoBoton() {
+// Nuevo método para abrir modal de validación
+public abrirModalValidacion() {
+  if (!this.esAdministrador) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Sin permisos',
+      detail: 'Solo el administrador puede validar liquidaciones.',
+    });
+    return;
+  }
+
+  if (this.debeValidarLiquidacion()) {
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Liquidación ya validada',
+      detail: `Esta liquidación ya fue validada por ${this.planilla.valido_cotizacion} y no puede validarse nuevamente.`,
+    });
+    return;
+  }
+
+  this.mostrarModalValidacion = true;
+}
+
+// Nuevo método para confirmar validación
+public confirmarValidacionLiquidacion() {
+  if (!this.nombreCompleto || this.nombreCompleto.trim() === '') {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'No se pudo obtener el nombre del usuario.',
+    });
+    return;
+  }
+
+  this.loading = true;
+  this.mostrarModalValidacion = false;
+
+  this.planillasService.validarPlanilla(this.idPlanilla, this.nombreCompleto).subscribe({
+    next: (response: any) => {
+      console.log('✅ Respuesta de validarPlanilla:', response);
+      
+      // Actualizar inmediatamente el estado local de la planilla
+      if (this.planilla) {
+        this.planilla.valido_cotizacion = this.nombreCompleto;
+        this.liquidacionValidada = true;
+        this.validadoPor = this.nombreCompleto;
+        
+        // Si la respuesta incluye fecha_liquidacion, actualizarla también
+        if (response.planilla && response.planilla.fecha_liquidacion) {
+          this.planilla.fecha_liquidacion = response.planilla.fecha_liquidacion;
+        }
+        
+        console.log('📝 Estado local actualizado:', {
+          valido_cotizacion: this.planilla.valido_cotizacion,
+          liquidacionValidada: this.liquidacionValidada,
+          validadoPor: this.validadoPor
+        });
+      }
+      
+      this.loading = false;
+      
+      // Mostrar SweetAlert de confirmación
+      Swal.fire({
+        title: '¡Liquidación Validada!',
+        html: `
+          <div style="text-align: center; margin: 20px 0;">
+            <i class="pi pi-check-circle" style="font-size: 3rem; color: #28a745; margin-bottom: 1rem;"></i>
+            <p style="font-size: 1.1rem; margin: 1rem 0;">La liquidación ha sido validada exitosamente</p>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+              <strong style="color: #495057;">Validado por:</strong><br>
+              <span style="color: #28a745; font-weight: bold;">${this.nombreCompleto}</span>
+            </div>
+            <p style="color: #6c757d; font-size: 0.9rem; font-style: italic;">
+              Esta validación es permanente e irreversible
+            </p>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonColor: '#28a745',
+        confirmButtonText: 'Entendido',
+        allowOutsideClick: false,
+        customClass: { 
+          container: 'swal2-container',
+          popup: 'swal2-popup-large'
+        },
+        willOpen: () => {
+          document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+        },
+      }).then(() => {
+        // NO recargar datos inmediatamente - mantener estado local
+        console.log('✨ Validación completada - Estado local mantenido');
+        // Si necesitas actualizar algo más en la UI, hazlo aquí sin recargar todo
+      });
+    },
+    error: (error) => {
+      console.error('❌ Error al validar liquidación:', error);
+      this.loading = false;
+      
+      // SweetAlert de error
+      Swal.fire({
+        title: 'Error al Validar',
+        text: error.error?.message || 'Error al validar la liquidación.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'Cerrar',
+        customClass: { container: 'swal2-container' },
+        willOpen: () => {
+          document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+        },
+      });
+    }
+  });
+}
+
+// Método para cerrar modal de validación
+public cerrarModalValidacion() {
+  this.mostrarModalValidacion = false;
+}
+
+// Método modificado para obtener texto del botón
+public obtenerTextoBoton() {
+  if (this.debeValidarLiquidacion()) {
+    return 'Liquidación Validada';
+  }
+  
   if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
     return 'Actualizar Fecha de Pago';
   } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
     return 'Esperando Actualización del Administrador';
   } else if (this.datosDesdeDB) {
-    return 'Recalcular Liquidación';
+    return 'Validar Liquidación';
   } else {
     return 'Calcular Liquidación';
   }
-  
-  
 }
 
-obtenerIconoBoton() {
+// Método modificado para obtener ícono del botón
+public obtenerIconoBoton() {
+  if (this.debeValidarLiquidacion()) {
+    return 'pi pi-check-circle';
+  }
+  
   if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
     return 'pi pi-refresh';
   } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
     return 'pi pi-info-circle';
   } else if (this.datosDesdeDB) {
-    return 'pi pi-check';
+    return 'pi pi-shield';
   } else {
     return 'pi pi-plus';
-  } 
+  }
 }
 
-obtenerClaseBoton() {
+// Método modificado para obtener clase del botón
+public obtenerClaseBoton() {
+  if (this.debeValidarLiquidacion()) {
+    return 'p-button-secondary';
+  }
+  
   if (this.esEmpresaPublicaConLiquidacionPreliminar && this.esAdministrador) {
     return 'p-button-warning';
   } else if (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador) {
@@ -498,13 +699,51 @@ obtenerClaseBoton() {
     return 'p-button-success';
   } else {
     return 'p-button-primary';
-  } 
+  }
+}
+
+// Método modificado para obtener si el botón está deshabilitado
+public estaDeshabilitadoBoton(): boolean {
+  return this.debeValidarLiquidacion() || 
+         (this.esEmpresaPublicaConLiquidacionPreliminar && !this.esAdministrador);
+}
+
+// Método modificado para manejar el click del botón
+public manejarClickBoton() {
+  if (this.debeValidarLiquidacion()) {
+    // No hacer nada si ya está validada
+    return;
+  }
+  
+  if (this.datosDesdeDB && !this.esEmpresaPublicaConLiquidacionPreliminar) {
+    // Mostrar modal de validación en lugar de recalcular
+    this.abrirModalValidacion();
+  } else {
+    // Comportamiento normal para otros casos
+    this.showDialog();
+  }
 }
 
 //-------------------------------
 
-private ejecutarRecalculo() {
+public ejecutarRecalculo() {
   console.log('🔄 Método legacy ejecutarRecalculo() llamado - redirigiendo a método específico');
   this.ejecutarRecalculoSegunTipoEmpresa();
+}
+
+// Método para obtener fecha de liquidación formateada
+public obtenerFechaLiquidacion(): string {
+  if (!this.planilla || !this.planilla.fecha_liquidacion) {
+    return '';
+  }
+  
+  const fecha = new Date(this.planilla.fecha_liquidacion);
+  return fecha.toLocaleDateString('es-BO', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 }

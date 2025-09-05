@@ -100,14 +100,19 @@
                     .profile-info {
                         display: inline-block;
                         vertical-align: middle;
-                        max-width: 250px;
+                        max-width: 280px;
+                        min-width: 180px;
                         margin-top: -5px;
+                        overflow: hidden;
 
                         .topbar-item-name {
                             @include transition(color .3s);
                             display: block;
                             margin-left: 4px;
                             margin-right: 6px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
 
                             &.profile-name {
                                 font-size: $fontSize;

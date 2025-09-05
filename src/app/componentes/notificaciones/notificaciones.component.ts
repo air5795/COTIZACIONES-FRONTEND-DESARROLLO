@@ -86,32 +86,40 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   }
 
   onNotificacionClick(notificacion: Notificacion): void {
-  if (!notificacion.leido) {
-    this.notificacionesService.marcarNotificacionComoLeida(notificacion.id_notificacion).subscribe({
-      next: () => {
-        notificacion.leido = true;
-        this.cargarNotificaciones(); 
-        this.isDropdownVisible = false; 
-      },
-      error: (error) => {
-        // Manejo de errores vacío
-      },
-    });
-  } else {
-    this.isDropdownVisible = false; 
-  }
-
-  // ✅ NUEVA LÓGICA DE NAVEGACIÓN CON IDS ENCRIPTADOS
-  if (this.idcNivel === 'ADMINISTRADOR_COTIZACIONES') {
-    this.router.navigate(['/cotizaciones/historial-aportes']);
-  } else if (this.idcNivel === 'COTIZACIONES_EMPRESA') {
-    // Encriptar el ID antes de navegar
+    if (!notificacion.leido) {
+      this.notificacionesService.marcarNotificacionComoLeida(notificacion.id_notificacion).subscribe({
+        next: () => {
+          notificacion.leido = true;
+          this.cargarNotificaciones();
+          this.isDropdownVisible = false;
+        },
+        error: (error) => {
+          // Manejo de errores vacío
+        },
+      });
+    } else {
+      this.isDropdownVisible = false;
+    }
+  
+    // Lógica de navegación corregida
     const idEncriptado = this.tokenService.encriptarId(notificacion.id_recurso);
-    this.router.navigate([`/cotizaciones/planillas-aportes/${idEncriptado}`]);
-  } else {
-    this.router.navigate(['/cotizaciones/planillas-aportes']);
+    let rutaDestino: string;
+  
+    if (this.idcNivel === 'ADMINISTRADOR_COTIZACIONES') {
+      // ✅ CORRECCIÓN: Usar la ruta de detalle para administradores
+      rutaDestino = `/cotizaciones/aprobar-planillas-aportes/${idEncriptado}`;
+    } else if (this.idcNivel === 'COTIZACIONES_EMPRESA') {
+      // Ruta para empleadores (esta ya estaba bien)
+      rutaDestino = `/cotizaciones/planillas-aportes/${idEncriptado}`;
+    } else {
+      // Ruta por defecto si el rol no coincide
+      rutaDestino = `/cotizaciones/planillas-aportes`;
+    }
+  
+    if (rutaDestino) {
+      this.router.navigate([rutaDestino]);
+    }
   }
-}
 
   toggleDropdown(event: Event): void {
     event.stopPropagation();

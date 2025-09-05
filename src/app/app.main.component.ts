@@ -44,12 +44,6 @@ export class AppMainComponent implements AfterViewInit, OnDestroy {
           
           this.band = true;
         } else {
-          console.warn('AppMainComponent: Datos de sesión inválidos:', {
-            data: data,
-            hasUsuario: !!data?.usuario,
-            hasRol: !!data?.rol,
-            rolKeys: data?.rol ? Object.keys(data.rol) : null,
-          });
           this.band = false;
           
         }
@@ -70,15 +64,8 @@ export class AppMainComponent implements AfterViewInit, OnDestroy {
       
       this.sessionData = data;
       if (data?.usuario && data?.rol && Object.keys(data.rol).length > 0) {
-        console.log('AppMainComponent: Sesión y rol válidos (actualización), estableciendo band = true');
         this.band = true;
       } else {
-        console.warn('AppMainComponent: Datos de sesión inválidos (actualización):', {
-          data: data,
-          hasUsuario: !!data?.usuario,
-          hasRol: !!data?.rol,
-          rolKeys: data?.rol ? Object.keys(data.rol) : null,
-        });
         this.band = false;
         this.router.navigate(['/login']);
       }
@@ -147,7 +134,6 @@ export class AppMainComponent implements AfterViewInit, OnDestroy {
   }
 
   onTopbarSubItemClick(event: any) {
-    console.log(event);
     event.preventDefault();
   }
 

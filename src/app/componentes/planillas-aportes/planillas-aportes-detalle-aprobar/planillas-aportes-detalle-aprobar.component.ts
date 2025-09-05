@@ -7,13 +7,14 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { MenuItem } from 'primeng/api';
 import { SessionService } from '../../../servicios/auth/session.service';
+import { TokenService } from '../../../servicios/token/token.service'; // 1. IMPORTAR TokenService
 
 @Component({
   selector: 'app-planillas-aportes-detalle-aprobar',
   templateUrl: './planillas-aportes-detalle-aprobar.component.html',
   styleUrl: './planillas-aportes-detalle-aprobar.component.css'
 })
-export class PlanillasAportesDetalleAprobarComponent {
+export class PlanillasAportesDetalleAprobarComponent implements OnInit { // Asegúrate de que implemente OnInit
 
     idPlanilla!: number;
     trabajadores: any[] = [];
@@ -77,6 +78,7 @@ export class PlanillasAportesDetalleAprobarComponent {
 
   trabajadoresFaltantes: any[] = [];
 
+
     
     
   
@@ -85,17 +87,41 @@ export class PlanillasAportesDetalleAprobarComponent {
       private planillasService: PlanillasAportesService,
       private empresaService: EmpresaService,
       private sessionService: SessionService,
-      private router: Router
+      private router: Router,
+      private tokenService: TokenService // 2. INYECTAR TokenService
     ) {
     }
   
     ngOnInit(): void {
-      this.idPlanilla = Number(this.route.snapshot.paramMap.get('id'));
-      this.obtenerDetalles();
-      this.obtenerInformacionPlanilla().then(() => {
-        this.obtenerComparacionPlanillas();
-        this.obtenerResumenPlanilla(); 
-        this.obtenerTipoEmpresa();
+      // 3. REEMPLAZAR la lógica de ngOnInit
+      this.route.paramMap.subscribe(params => {
+        const idEncriptado = params.get('id');
+        if (idEncriptado) {
+          try {
+            const idDesencriptado = this.tokenService.desencriptarId(idEncriptado);
+            if (idDesencriptado) {
+              this.idPlanilla = idDesencriptado;
+              // Ahora que tenemos el ID correcto, cargamos todo lo demás
+              this.obtenerDetalles();
+              this.obtenerInformacionPlanilla().then(() => {
+                this.obtenerComparacionPlanillas();
+                this.obtenerResumenPlanilla(); 
+                this.obtenerTipoEmpresa();
+                this.cargarDatosVerificacionSiExisten();
+              });
+            } else {
+              throw new Error('ID desencriptado es nulo');
+            }
+          } catch (error) {
+            console.error('Error al procesar el ID de la planilla:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'ID Inválido',
+              text: 'El identificador de la planilla no es válido.',
+            });
+            this.router.navigate(['/denegado']);
+          }
+        }
       });
     }
 
@@ -282,7 +308,56 @@ obtenerComparacionPlanillas() {
 
 guardarEstado() {
   if (this.planillaInfo.planilla.estado === 1 && !this.displayModal) {
-    // Si el estado es 1 y el modal no está visible, mostramos el modal
+    // Verificar ambas validaciones al mismo tiempo
+    const faltaVerificacionAfiliacion = !this.planillaInfo.planilla.fecha_verificacion_afiliacion;
+    const faltaValidacionLiquidacion = !this.planillaInfo.planilla.valido_cotizacion;
+    console.log('faltaValidacionLiquidacion', faltaValidacionLiquidacion);
+    console.log('planillaInfo.planilla.valido_cotizacion', this.planillaInfo.planilla.valido_cotizacion);
+    console.log('faltaVerificacionAfiliacion', faltaVerificacionAfiliacion);
+    console.log('planillaInfo.planilla.fecha_verificacion_afiliacion', this.planillaInfo.planilla.fecha_verificacion_afiliacion);
+    if (faltaVerificacionAfiliacion || faltaValidacionLiquidacion) {
+      let htmlContent = '<p style="margin-bottom: 15px;">Para validar la planilla, debe completar las siguientes verificaciones:</p>';
+      htmlContent += '<div style="text-align: left; margin: 0 20px;">';
+      
+      // Verificación de Afiliaciones
+      if (faltaVerificacionAfiliacion) {
+        htmlContent += '<div style="margin: 8px 0; display: flex; align-items: center;">';
+        htmlContent += '<span style="color: #e74c3c; font-size: 16px; margin-right: 8px;">✗</span>';
+        htmlContent += '<span>Verificación de Afiliaciones</span>';
+        htmlContent += '</div>';
+      } else {
+        htmlContent += '<div style="margin: 8px 0; display: flex; align-items: center;">';
+        htmlContent += '<span style="color: #27ae60; font-size: 16px; margin-right: 8px;">✓</span>';
+        htmlContent += '<span style="color: #27ae60;">Verificación de Afiliaciones</span>';
+        htmlContent += '</div>';
+      }
+      
+      // Validación de Liquidación
+      if (faltaValidacionLiquidacion) {
+        htmlContent += '<div style="margin: 8px 0; display: flex; align-items: center;">';
+        htmlContent += '<span style="color: #e74c3c; font-size: 16px; margin-right: 8px;">✗</span>';
+        htmlContent += '<span>Validación de Liquidación de Aportes</span>';
+        htmlContent += '</div>';
+      } else {
+        htmlContent += '<div style="margin: 8px 0; display: flex; align-items: center;">';
+        htmlContent += '<span style="color: #27ae60; font-size: 16px; margin-right: 8px;">✓</span>';
+        htmlContent += '<span style="color: #27ae60;">Validación de Liquidación de Aportes</span>';
+        htmlContent += '</div>';
+      }
+      
+      htmlContent += '</div>';
+      
+      Swal.fire({
+        icon: 'warning',
+        title: 'Verificaciones Pendientes',
+        html: htmlContent,
+        confirmButtonText: 'Entendido',
+        width: '450px'
+      });
+      return; // Detener la ejecución si faltan validaciones
+    }
+
+    // Si ya están ambas verificaciones completadas, mostramos el modal para aprobar/observar
     this.displayModal = true;
     return;
   }
@@ -756,26 +831,102 @@ parseNumber(value: string): number {
 
 
 
+// 4. ✅ AGREGAR nuevo método
+cargarDatosVerificacionSiExisten(): void {
+  // Solo intentar cargar si hay fecha de verificación
+  if (this.planillaInfo?.planilla?.fecha_verificacion_afiliacion) {
+    this.planillasService.obtenerDatosVerificacionGuardados(this.idPlanilla).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          // Restaurar los datos de verificación
+          this.casosAnalisis = response.data.casos;
+          this.resumenCompleto = response.data.resumen;
+          this.estadisticasCompletas = response.data.estadisticas;
+          this.trabajadoresFaltantes = response.data.casos?.faltantes || [];
+          this.fechaUltimaVerificacion = response.data.fecha_verificacion;
+          
+          console.log('✅ Datos de verificación cargados desde base de datos');
+        }
+      },
+      error: (err) => {
+        console.warn('⚠️ No se pudieron cargar datos de verificación guardados:', err);
+        // No es crítico, puede que no haya datos guardados aún
+      }
+    });
+  }
+}
+
+
 
 
 
 verificarAfiliaciones() {
+  // 🔧 NUEVA VALIDACIÓN: Si ya hay fecha de verificación, mostrar confirmación
+  if (this.planillaInfo?.planilla?.fecha_verificacion_afiliacion) {
+    Swal.fire({
+      title: 'Verificación ya realizada',
+      html: `
+        <p>Esta planilla ya fue verificada el <strong>${new Date(this.planillaInfo.planilla.fecha_verificacion_afiliacion).toLocaleDateString()}</strong></p>
+        <p>¿Desea realizar una nueva verificación o ver los resultados anteriores?</p>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Nueva Verificación',
+      denyButtonText: 'Ver Resultados Anteriores',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#f39c12',
+      denyButtonColor: '#3085d6',
+      didOpen: () => {
+        const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+        if (swalContainer) {
+          swalContainer.style.zIndex = '2000';
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceder con nueva verificación
+        this.ejecutarVerificacionAfiliaciones();
+      } else if (result.isDenied) {
+        // Mostrar resultados anteriores
+        if (this.casosAnalisis && this.resumenCompleto) {
+          // Si ya están cargados en memoria, mostrarlos
+          this.mostrarAnalisisCompletoDialog = true;
+        } else {
+          // Si no están en memoria, cargarlos desde el backend
+          this.cargarDatosVerificacionSiExisten();
+          // Esperar un poco y luego mostrar el diálogo
+          setTimeout(() => {
+            if (this.casosAnalisis && this.resumenCompleto) {
+              this.mostrarAnalisisCompletoDialog = true;
+            }
+          }, 1000);
+        }
+      }
+    });
+    return;
+  }
+
+  // Si no hay fecha de verificación, proceder normalmente
+  this.ejecutarVerificacionAfiliaciones();
+}
+
+ejecutarVerificacionAfiliaciones() {
   Swal.fire({
-    title: '¿Verificación con Afiliaciones?',
-    html: `
-      <ul style="text-align: left; margin: 10px 0;">
-        <li>Verificará todos los trabajadores de la planilla</li>
-        <li>Detectará trabajadores faltantes en la planilla</li>
-      </ul>
-      <p><small>Este proceso puede tomar varios minutos.</small></p>
-    `,
+    title: '¿Estás seguro?',
+    text: 'Se verificará el estado de afiliación de todos los trabajadores en la planilla.',
     icon: 'question',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
     confirmButtonText: 'Sí, verificar',
     cancelButtonText: 'Cancelar',
-    width: '500px'
+    didOpen: () => {
+      const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+      if (swalContainer) {
+        swalContainer.style.zIndex = '2000';
+      }
+    }
   }).then((result) => {
     if (result.isConfirmed) {
       this.loading = true;
@@ -786,17 +937,20 @@ verificarAfiliaciones() {
           this.loading = false;
           const tiempoTranscurrido = Math.round((Date.now() - inicioTiempo) / 1000);
           
-          // Guardar datos del análisis completo
-          this.casosAnalisis = response.casos;
-          this.resumenCompleto = response.resumen;
+          // 🔧 ACTUALIZAR: Guardar datos del análisis completo con nueva estructura
+          this.casosAnalisis = this.procesarCasosConNuevaEstructura(response);
+          this.resumenCompleto = this.calcularResumenConNuevaEstructura(this.casosAnalisis);
           this.estadisticasCompletas = response.estadisticas;
-          this.trabajadoresFaltantes = response.casos.faltantes || [];
+          this.trabajadoresFaltantes = this.casosAnalisis?.faltantes || [];
           this.fechaUltimaVerificacion = response.fecha_verificacion;
+          
           // Mostrar resultado
           this.mostrarResultadoVerificacionCompleta(response, tiempoTranscurrido);
           
-          // Recargar detalles
+          // Recargar detalles para actualizar la fecha de verificación
           this.obtenerDetalles();
+          // También recargar info de planilla para tener la fecha actualizada
+          this.obtenerInformacionPlanilla();
         },
         error: (err) => {
           this.loading = false;
@@ -804,7 +958,13 @@ verificarAfiliaciones() {
             icon: 'error',
             title: 'Error',
             text: `No se pudo verificar las afiliaciones: ${err.error.message || 'Error desconocido'}`,
-            confirmButtonText: 'Ok'
+            confirmButtonText: 'Ok',
+            didOpen: () => {
+              const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+              if (swalContainer) {
+                swalContainer.style.zIndex = '2000';
+              }
+            }
           });
         }
       });
@@ -812,57 +972,79 @@ verificarAfiliaciones() {
   });
 }
 
+// 7. ✅ AGREGAR nuevos métodos auxiliares para manejar la nueva estructura
+procesarCasosConNuevaEstructura(response: any): any {
+  // Como el backend devuelve la estructura ya procesada, solo necesitamos mapearla
+  // En el futuro, si el backend devuelve datos diferentes, aquí los procesarías
+  return response.casos || {
+    vigentes: [],
+    no_vigentes: [],
+    no_encontrados: [],
+    faltantes: []
+  };
+}
+
+calcularResumenConNuevaEstructura(casos: any): any {
+  return {
+    vigentes: casos?.vigentes?.length || 0,
+    no_vigentes: casos?.no_vigentes?.length || 0,
+    no_encontrados: casos?.no_encontrados?.length || 0,
+    faltantes: casos?.faltantes?.length || 0,
+    total_planilla: (casos?.vigentes?.length || 0) + (casos?.no_vigentes?.length || 0) + (casos?.no_encontrados?.length || 0),
+    total_verificados: (casos?.vigentes?.length || 0) + (casos?.no_vigentes?.length || 0)
+  };
+}
+
 // AGREGAR estas nuevas funciones después de verificarAfiliaciones():
 
-mostrarResultadoVerificacionCompleta(response: any, tiempoSegundos: number) {
-  const resumen = response.resumen;
-  const tiempoFormateado = this.formatearTiempo(tiempoSegundos);
-  
+mostrarResultadoVerificacionCompleta(response: any, tiempoTranscurrido: number) {
+  const vigentes = this.resumenCompleto?.vigentes || 0;
+  const noVigentes = this.resumenCompleto?.no_vigentes || 0;
+  const noEncontrados = this.resumenCompleto?.no_encontrados || 0;
+  const total = vigentes + noVigentes + noEncontrados;
+
   Swal.fire({
-    icon: 'success',
-    title: 'Análisis Completo Finalizado',
+    title: 'Verificación Completada',
     html: `
-      <div style="text-align: left;">
-        <p><strong>${response.mensaje}</strong></p>
-        <hr>
-        
-        <h6>Resumen de ${resumen.total_planilla} trabajadores:</h6>
-        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
-          <tr style="background-color: #d4edda;">
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Vigentes</td>
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.vigentes}</td>
-          </tr>
-          <tr style="background-color: #fff3cd;">
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Vigentes</td>
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.no_vigentes}</td>
-          </tr>
-          <tr style="background-color: #f8d7da;">
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Encontrados</td>
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.no_encontrados}</td>
-          </tr>
-          <tr style="background-color: #cce5ff;">
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Faltantes</td>
-            <td style="padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 18px;">${resumen.faltantes}</td>
-          </tr>
-        </table>
-        
-        
-        <hr>
-        <p><small><strong>Tiempo transcurrido:</strong> ${tiempoFormateado}</small></p>
+      <div style="text-align: left; margin: 15px 0;">
+        <p><strong>📊 Resumen de Verificación:</strong></p>
+        <ul style="list-style: none; padding-left: 0;">
+          <li style="margin: 8px 0; color: #28a745;">
+            <strong>Vigentes:</strong> ${vigentes} trabajadores
+          </li>
+          <li style="margin: 8px 0; color: #ffc107;">
+            <strong>No Vigentes:</strong> ${noVigentes} trabajadores
+          </li>
+          <li style="margin: 8px 0; color: #17a2b8;">
+            <strong>No Encontrados:</strong> ${noEncontrados} trabajadores
+          </li>
+          <li style="margin: 8px 0; border-top: 1px solid #dee2e6; padding-top: 8px;">
+            <strong>Total Verificado:</strong> ${total} trabajadores
+          </li>
+        </ul>
+        <p style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
+          <strong>Tiempo:</strong> ${tiempoTranscurrido} segundos
+        </p>
       </div>
     `,
-    width: '600px',
+    icon: 'success',
     confirmButtonText: 'Ver Detalles',
-    showDenyButton: true,
-    denyButtonText: 'Cerrar',
-    denyButtonColor: '#6c757d'
+    showCancelButton: true,
+    cancelButtonText: 'Cerrar',
+    confirmButtonColor: '#3085d6',
+    width: '500px',
+    didOpen: () => {
+      const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+      if (swalContainer) {
+        swalContainer.style.zIndex = '2000';
+      }
+    }
   }).then((result) => {
     if (result.isConfirmed) {
       this.mostrarAnalisisCompletoDialog = true;
     }
   });
 }
-
 formatearTiempo(segundos: number): string {
   if (segundos < 60) {
     return `${segundos} segundos`;
@@ -1005,7 +1187,7 @@ exportarTrabajadoresFaltantes() {
 
 
 
-// Función para obtener la clase CSS según el estado de afiliación
+// Función para obtener la clase CSS según el estado de afiliación para que se pinten las filas de los trabajadores
 getClaseEstadoAfiliacion(estadoAfiliacion: string): string {
   if (!estadoAfiliacion) {
     return 'fila-estado-sin-estado';
@@ -1040,8 +1222,65 @@ obtenerTotalesEstadosAfiliacion() {
     fallecidos: this.conteoEstadosAsegurados?.FALLECIDO || 0,
     cesantias: this.conteoEstadosAsegurados?.CESANTIA || 0,
     derHabientes: this.conteoEstadosAsegurados?.['DER HABIENTE'] || 0,
+    noEncontrados: this.conteoEstadosAsegurados?.NO_ENCONTRADO || 0,
     sinEstado: 0 // Esto se puede calcular si el backend no lo incluye
   };
+}
+
+ReporteDS08() {
+  if (!this.idPlanilla) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'No hay datos',
+      text: 'No se ha cargado el ID de la planilla.',
+      confirmButtonText: 'Ok',
+    });
+    return;
+  }
+
+  this.planillasService.generarReporteDS08(this.idPlanilla).subscribe({
+    next: (data: Blob) => {
+      const fileURL = URL.createObjectURL(data);
+      const ventanaEmergente = window.open(
+        '',
+        'VistaPreviaPDF',
+        'width=900,height=600,scrollbars=no,resizable=no'
+      );
+
+      if (ventanaEmergente) {
+        ventanaEmergente.document.write(`
+            <html>
+              <head>
+                <title>Vista Previa del PDF</title>
+                <style>
+                  body { margin: 0; text-align: center; }
+                  iframe { width: 100%; height: 100vh; border: none; }
+                </style>
+              </head>
+              <body>
+                <iframe src="${fileURL}"></iframe>
+              </body>
+            </html>
+          `);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo abrir la vista previa del PDF. Es posible que el navegador haya bloqueado la ventana emergente.',
+          confirmButtonText: 'Ok',
+        });
+      }
+    },
+    error: (err) => {
+      console.error('Error al generar el reporte resumen:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo generar el reporte resumen.',
+        confirmButtonText: 'Ok',
+      });
+    },
+  });
 }
 
 

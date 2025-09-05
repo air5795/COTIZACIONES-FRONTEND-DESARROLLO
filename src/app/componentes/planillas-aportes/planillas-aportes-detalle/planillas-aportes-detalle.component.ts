@@ -50,6 +50,10 @@ export class PlanillasAportesDetalleComponent implements OnInit {
 
   progreso: number = 100;
 
+  isLoading: boolean = false;
+  loadingProgress: number = 0;
+  loadingMessage: string = 'Cargando...';
+
   regionales = [
     { label: 'LA PAZ', value: 'LA PAZ' },
     { label: 'COCHABAMBA', value: 'COCHABAMBA' },
@@ -222,13 +226,24 @@ private cargarDatosPlanilla() {
       return;
     }
 
+    this.isLoading = true;
+    this.loadingProgress = 0;
+    this.loadingMessage = 'Iniciando importación...';
+    this.mostrarModalImportar = false;
+
     const reader = new FileReader();
     reader.onload = (e: any) => {
+      this.loadingProgress = 20;
+      this.loadingMessage = 'Leyendo archivo...';
+
       const binaryString = e.target.result;
       const workbook = XLSX.read(binaryString, { type: 'binary' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      this.loadingProgress = 40;
+      this.loadingMessage = 'Procesando datos...';
 
       const headers = data[0] as string[];
       let trabajadores = data.slice(1).map((row: any) => {
@@ -246,24 +261,32 @@ private cargarDatosPlanilla() {
         )
       );
 
+      this.loadingProgress = 60;
+      this.loadingMessage = 'Enviando datos al servidor...';
+
       // Enviar los datos al backend
       this.planillasService
         .actualizarDetallesPlanilla(this.idPlanilla, trabajadores)
         .subscribe({
           next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Planilla actualizada',
-              text: 'Los detalles han sido actualizados correctamente.',
-            });
-            this.cerrarModalImportar();
-            this.obtenerDetalles();
-            this.obtenerResumenPlanilla();
-            this.obtenerComparacionPlanillas();
-            /* window.location.reload(); */
-            this.obtenerInformacionPlanilla();
+            this.loadingProgress = 100;
+            this.loadingMessage = '¡Completado!';
+            setTimeout(() => {
+              this.isLoading = false;
+              Swal.fire({
+                icon: 'success',
+                title: 'Planilla actualizada',
+                text: 'Los detalles han sido actualizados correctamente.',
+              });
+              this.cerrarModalImportar();
+              this.obtenerDetalles();
+              this.obtenerResumenPlanilla();
+              this.obtenerComparacionPlanillas();
+              this.obtenerInformacionPlanilla();
+            }, 500);
           },
           error: (err) => {
+            this.isLoading = false;
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -271,6 +294,15 @@ private cargarDatosPlanilla() {
             });
           },
         });
+    };
+
+    reader.onerror = () => {
+      this.isLoading = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo leer el archivo seleccionado.',
+      });
     };
 
     reader.readAsBinaryString(this.archivoSeleccionado);
@@ -1215,7 +1247,7 @@ exportarTrabajadoresFaltantes() {
 }
 
 // Función para obtener la clase CSS según el estado de afiliación
-getClaseEstadoAfiliacion(estadoAfiliacion: string): string {
+/* getClaseEstadoAfiliacion(estadoAfiliacion: string): string {
   if (!estadoAfiliacion) {
     return 'fila-estado-sin-estado';
   }
@@ -1239,7 +1271,7 @@ getClaseEstadoAfiliacion(estadoAfiliacion: string): string {
     default:
       return 'fila-estado-sin-estado';
   }
-}
+} */
 
 // Función para obtener totales por estado de afiliación desde el backend
 obtenerTotalesEstadosAfiliacion() {

@@ -1,23 +1,22 @@
+
 <div class="header">
-    <div class="header-left">
-        <h2>GESTOR PAGOS DE APORTES </h2>
-        <hr style="margin: 2px; border: 1px solid rgb(225 225 225 / 43%)">
-        <span class="numero-patronal">Montos Recibidos en Caja </span> 
+  <div class="header-left">
+    <h2 style="font-size: 30px;">  GESTOR PAGOS APORTES</h2>
+    <hr style="margin: 2px; border: 1px solid rgba(83, 83, 83, 0.43)">
+    <span class="numero-patronal">Control Historico de Pagos </span>
+  </div>
+  <div class="header-right">
+    <div class="button-container">
+<!--       <button 
+      pButton 
+      type="button" 
+      label="Ver Aportes Por mes y año "
+      icon="pi pi-file-pdf"
+      [style]="{backgroundColor: '#42ab7f', color: 'white', borderRadius: '5px'}"
+      (click)="showHistorialDialog()"
+    ></button> -->
     </div>
-    <div class="header-right">
-        <!-- <span class="razon-social">{{ empresa?.EMP_NOM || 'Cargando...' }}</span>
-        <hr style="margin: 2px; border: 1px solid rgb(225 225 225 / 43%)">
-        <span class="numero-patronal">Cod Patronal: {{ empresa?.EMP_NPATRONAL?.slice(3) || '---' }}</span> -->
-        <button 
-        pButton 
-        type="button" 
-        label="Ver Aportes Por mes y año "
-        icon="pi pi-file-pdf"
-        [style]="{backgroundColor: '#42ab7f', color: 'white', borderRadius: '5px'}"
-        (click)="showHistorialDialog()"
-      ></button>
-    </div>
-    
+  </div>
 </div>
   
 
@@ -47,12 +46,17 @@
     </div>
   </ng-template>
 
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Empresa</th>
+  <ng-template pTemplate="header" >
+    <tr style="font-size: 13px;">
+      <th style="width: 350px; text-align: center;">Empresa</th>
+      <th style="width: 20px; text-align: center;">N° Recibo</th>
+      <th style="width: 150px; text-align: center;">N° Comprobante de Formulario</th>
+      
       <th>Fecha Planilla</th>
       <th>Fecha Pago</th>
-      <th>Monto Pagado</th>
+      <th style="width: 150px; text-align: center;">Comprobante de Pago</th>
+      <th style="width: 150px; text-align: center;">Monto Pagado</th>
+      <th style="width: 150px; text-align: center;">Demasia</th>
       <th>Metodo de pago</th>
       <th>Observaciones</th>
       <th>Acciones</th>
@@ -60,33 +64,51 @@
   </ng-template>
 
   <ng-template pTemplate="body" let-pago>
-    <tr>
-      <td>{{ pago.empresa }}</td>
+    <tr style="font-size: 13px;">
+      <td style="text-align: left; padding-left: 5px;">{{ pago.empresa }}</td>
+      <td>{{ pago.numero_recibo }}</td>
+      <td>form - {{ pago.com_nro }}</td>
+      
       <td>{{ pago.fecha_planilla }}</td>
       <td>{{ pago.fecha_pago }}</td>
-      <td style="background-color: #f3fff7;">
-        <span>{{ pago.monto_pagado | currency:'BOB - ':'symbol':'1.2-2' }}</span>
+      <td>{{ pago.comprobante_pago }}</td>
+      <td style="background-color: #dbffe7;">
+        <span>{{ pago.monto_pagado | currency:'BOB':'symbol':'1.2-2' }}</span>
+      </td>
+      <td style="background-color: #faffdb;">
+        <span>{{ pago.monto_demasia | currency:'BOB':'symbol':'1.2-2' }}</span>
       </td>
       <td>{{ pago.metodo_pago }}</td>
       <td>{{ pago.observaciones }}</td>
       <td style="display: flex; ;">
 
         <button 
+          *ngIf="puedeEditarYDescargar"
           pButton 
           type="button" 
-          label="Descargar recibo"
-          icon="pi pi-check-circle"
+          
+          icon="pi pi-download"
           [style]="{backgroundColor: '#42ab7f', color: 'white', flex: '1', borderRadius: '0px'}"
+          [disabled]="showLoadingRecibo"
           (click)="Recibo(pago.id_planilla_aportes)"
         ></button>
         <button 
           pButton 
-          label="Ver comprobante"
+          
           icon="pi pi-eye" 
           class="p-button p-button-primary" 
           [disabled]="!pago.foto_comprobante" 
           [style]="{backgroundColor: '#5a7e6f', color: 'white', flex: '1', borderRadius: '0px'}"
           (click)="openImageDialog(pago)"
+        ></button>
+        <button 
+          *ngIf="puedeEditarYDescargar"
+          pButton 
+          
+          icon="pi pi-pencil" 
+          class="p-button p-button-warning" 
+          [style]="{backgroundColor: '#f59e0b', color: 'white', flex: '1', borderRadius: '0px'}"
+          (click)="editarObservaciones(pago)"
         ></button>
       </td>
     </tr>
@@ -185,3 +207,59 @@
     ></button>
   </ng-template>
 </p-dialog>
+
+<!-- Nuevo diálogo para editar observaciones -->
+<p-dialog 
+  header="Editar Observaciones" 
+  [(visible)]="displayObservacionesDialog" 
+  [modal]="true" 
+  [style]="{width: '500px'}"
+  [closable]="true"
+  (onHide)="cerrarDialogObservaciones()"
+>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="observaciones">Observaciones</label>
+      <textarea 
+        id="observaciones"
+        pInputTextarea 
+        [(ngModel)]="nuevaObservacion" 
+        rows="4" 
+        cols="50"
+        placeholder="Ingrese las observaciones..."
+        style="resize: vertical; min-height: 100px;"
+      ></textarea>
+    </div>
+    
+    <div *ngIf="selectedPago" class="p-field" style="margin-top: 15px;">
+      <small class="p-text-secondary">
+        <strong>Pago ID:</strong> {{ selectedPago.id }} |  
+        <strong>Monto:</strong> {{ selectedPago.monto_pagado | currency:'BOB':'symbol':'1.2-2' }}
+      </small>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Cancelar" 
+      class="p-button-secondary" 
+      (click)="cerrarDialogObservaciones()"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Guardar" 
+      class="p-button-primary"
+      (click)="guardarObservaciones()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Loading overlay para generar recibo -->
+<app-loading-componente 
+  *ngIf="showLoadingRecibo"
+  [progress]="loadingProgress"
+  [message]="loadingMessage">
+</app-loading-componente>

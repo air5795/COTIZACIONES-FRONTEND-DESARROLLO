@@ -362,3 +362,287 @@
   }
 }
 
+/* Estilos mejorados para el modal */
+::ng-deep .custom-modal .p-dialog {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+::ng-deep .custom-modal .p-dialog-header {
+  background: linear-gradient(135deg, #457f74  0%, #4b9ca2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 20px 24px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+::ng-deep .custom-modal .p-dialog-header .p-dialog-header-icon {
+  color: white;
+}
+
+::ng-deep .custom-modal .p-dialog-content {
+  padding: 0 !important;
+  border-radius: 0 0 12px 12px;
+}
+
+.modal-content-wrapper {
+  padding: 24px;
+}
+
+.info-banner {
+  background-color: aliceblue;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border-left: 4px solid #1976d2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.info-banner i {
+  color: #1976d2;
+  font-size: 1.2rem;
+}
+
+.info-banner span {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-question {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+  text-align: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.reference-info {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.reference-info i {
+  color: #17a2b8;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.button-group .p-button {
+  flex: 1;
+  padding: 12px 20px;
+  font-weight: 500;
+}
+
+.tgn-step {
+  background-color: #fffbf0;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #ffeaa7;
+}
+
+.tgn-header h4 {
+  color: #856404;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+}
+
+.tgn-header p {
+  color: #856404;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.reference-value {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.reference-value strong {
+  color: #495057;
+}
+
+/* Asegurar que el calendario se muestre por encima del modal */
+::ng-deep .p-calendar-panel {
+  z-index: 10001 !important;
+}
+
+::ng-deep .p-datepicker {
+  z-index: 10001 !important;
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  ::ng-deep .custom-modal .p-dialog {
+    margin: 10px;
+    max-width: calc(100vw - 20px) !important;
+    width: calc(100vw - 20px) !important;
+  }
+  
+  .modal-content-wrapper {
+    padding: 16px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .button-group .p-button {
+    width: 100%;
+  }
+  
+  .step-question {
+    font-size: 0.95rem;
+  }
+}
+
+/* Estilos para el modal de validación */
+::ng-deep .validation-modal .p-dialog-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px 8px 0 0;
+}
+
+::ng-deep .validation-modal .p-dialog-content {
+  padding: 2rem;
+}
+
+.validation-content {
+  text-align: center;
+}
+
+.user-info {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #2196F3;
+}
+
+.user-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #495057;
+  font-weight: 600;
+}
+
+.user-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #2196F3;
+  margin: 0;
+}
+
+.warning-message {
+  padding: 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  color: #856404;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-buttons button {
+  min-width: 120px;
+}
+
+/* Estilos para información de validación */
+.validation-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.validation-badge {
+  display: flex;
+  align-items: center;
+  background: #d4edda;
+  color: #155724;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid #c3e6cb;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.validation-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.validator-name {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.85rem;
+}
+
+.validation-date {
+  color: #6c757d;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+/* Estilos para SweetAlert personalizado */
+::ng-deep .swal2-popup-large {
+  width: 500px !important;
+  max-width: 90vw !important;
+}
+
+::ng-deep .swal2-popup-large .swal2-html-container {
+  margin: 1rem 0 !important;
+  line-height: 1.5 !important;
+}
+
+::ng-deep .swal2-container {
+  z-index: 9999 !important;
+}
+

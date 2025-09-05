@@ -276,17 +276,24 @@ verDetalle(notificacion: Notificacion): void {
     this.marcarComoLeida(notificacion.id_notificacion);
   }
 
-  // Navegar según el tipo de recurso y usuario usando los métodos helper
-  if (notificacion.tipo_recurso === 'PLANILLA_APORTES') {
+  // Navegar según el tipo de recurso y usuario
+  if (notificacion.tipo_recurso === 'PLANILLA_APORTES' && notificacion.id_recurso) {
+    const idEncriptado = this.tokenService.encriptarId(notificacion.id_recurso);
+    let rutaDestino: string;
+
     if (this.sessionService.esAdministrador()) {
-      this.router.navigate(['/cotizaciones/historial-aportes']);
+      // Ruta de detalle para el administrador
+      rutaDestino = `/cotizaciones/aprobar-planillas-aportes/${idEncriptado}`;
     } else if (this.sessionService.esEmpleador()) {
-      // ✅ NUEVA LÓGICA: Encriptar el ID antes de navegar
-      const idEncriptado = this.tokenService.encriptarId(notificacion.id_recurso);
-    
-      
-      this.router.navigate([`/cotizaciones/planillas-aportes/${idEncriptado}`]);
+      // Ruta de detalle para el empleador
+      rutaDestino = `/cotizaciones/planillas-aportes/${idEncriptado}`;
+    } else {
+      // Si no es ninguno, no hacemos nada o redirigimos a un lugar seguro.
+      console.warn('Rol de usuario no reconocido para la navegación.');
+      return;
     }
+
+    this.router.navigate([rutaDestino]);
   }
 }
 

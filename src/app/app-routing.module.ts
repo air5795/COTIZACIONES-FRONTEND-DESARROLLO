@@ -25,6 +25,9 @@ import { PagosAportesAdminComponent } from './componentes/planillas-aportes/pago
 import { HistorialNotificacionesComponent } from './componentes/notificaciones/historial-notificaciones/historial-notificaciones.component';
 import { AuthGuard } from './guards/auth.guard';
 import { PlanillaAccessGuard } from './guards/planilla-access.guard'; 
+import { SolicitudReembolsoComponent } from './componentes/reembolsos-incapacidades/solicitud-reembolso/solicitud-reembolso.component';
+import { EmpresasComponent } from './componentes/empresas/empresas.component';
+import { PerfilUsuarioComponent } from './componentes/perfil-usuario/perfil-usuario.component';
 
 @NgModule({
     imports: [
@@ -37,12 +40,16 @@ import { PlanillaAccessGuard } from './guards/planilla-access.guard';
                     { path: 'datos-empresa', component: DatosEmpresaComponent },
                     // NOTIFICACIONES ---------------------------------------------------------
                     { path: 'historial-notificaciones', component: HistorialNotificacionesComponent },
+                    // EMPRESAS ---------------------------------------------------------
+                    { path: 'empresas', component: EmpresasComponent },
+                    // PERFIL DE USUARIO ---------------------------------------------------------
+                    { path: 'perfil-usuario', component: PerfilUsuarioComponent },
                     // PLANILLAS DE APORTES -------------------------------------------------------------
                     { path: 'planillas-aportes', component: PlanillasAportesListComponent },
                     { 
                         path: 'planillas-aportes/:id', 
                         component: PlanillasAportesDetalleComponent,
-                        canActivate: [PlanillaAccessGuard] 
+                        canActivate: [PlanillaAccessGuard] ,
                     },
                     { path: 'aprobar-planillas-aportes', component: PlanillasAportesAprobarComponent },
                     { 
@@ -52,6 +59,8 @@ import { PlanillaAccessGuard } from './guards/planilla-access.guard';
                     },
                     { path: 'historial-aportes', component: HistorialAportesComponent },
                     { path: 'pagos-aportes-admin', component: PagosAportesAdminComponent },
+                    // REEMBOLSOS DE INCAPACIDADES -------------------------------------------------------------
+                    { path: 'planillas-incapacidades', component: SolicitudReembolsoComponent },
                     // OTROS -----------------------------------------------------------------------------
                     { path: 'sistemas', component: SistemaComponent },
                     { path: 'clasificadores', component: ClasificadorComponent },

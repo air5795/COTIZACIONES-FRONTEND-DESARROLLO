@@ -85,6 +85,7 @@ class="tabla-centrada"
         <!-- <th>Fecha Declarada</th> -->
         
         <th style="width: 80px;">Declarado</th>
+        <!-- <th style="width: 80px;">Pagado</th> -->
         <th style="width: 80px;">Liquidado</th>
         <th style="width: 170px;">Tipo Planilla</th>
         <th style="width: 120px;">Estado</th>
@@ -133,13 +134,25 @@ class="tabla-centrada"
         </span>
       </ng-template>
     </td>
-    <td>
+<!--     <td>
       <span *ngIf="planilla.fecha_liquidacion; else sinPago">
         <span style="color: green;">
           <i class="pi pi-check check-icon green-check"></i> 
         </span>
       </span>
       <ng-template #sinPago>
+        <span style="color: red;">
+          <i class="pi pi-times check-icon red-x"></i> 
+        </span>
+      </ng-template>
+    </td> -->
+    <td>
+      <span *ngIf="planilla.valido_cotizacion; else validacion">
+        <span style="color: green;">
+          <i class="pi pi-check check-icon green-check"></i> 
+        </span>
+      </span>
+      <ng-template #validacion>
         <span style="color: red;">
           <i class="pi pi-times check-icon red-x"></i> 
         </span>

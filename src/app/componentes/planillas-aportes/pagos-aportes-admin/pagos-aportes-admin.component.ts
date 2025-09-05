@@ -3,6 +3,7 @@ import { Table } from 'primeng/table';
 import { PlanillasAportesService } from '../../../servicios/planillas-aportes/planillas-aportes.service';
 import { PagoAporte } from '../../../models/pago-aporte.model';
 import Swal from 'sweetalert2';
+import { SessionService } from '../../../servicios/auth/session.service';
 
 @Component({
   selector: 'app-pagos-aportes-admin',
@@ -40,9 +41,28 @@ export class PagosAportesAdminComponent implements OnInit {
   ];
   gestiones: number[] = [];
 
-  constructor(private planillasAportesService: PlanillasAportesService) {}
+  // Nuevas propiedades para el diálogo de observaciones
+  displayObservacionesDialog: boolean = false;
+  selectedPago: PagoAporte | null = null;
+  nuevaObservacion: string = '';
+
+  // Propiedades para el loading del recibo
+  showLoadingRecibo: boolean = false;
+  loadingProgress: number = 0;
+  loadingMessage: string = 'Generando recibo...';
+
+  // Propiedad para controlar permisos
+  puedeEditarYDescargar: boolean = false;
+
+  constructor(private planillasAportesService: PlanillasAportesService, private sessionService: SessionService) {}
+
+  verificarPermisos(): void {
+    const rolUsuario = this.sessionService.getRolActual();
+    this.puedeEditarYDescargar = rolUsuario === 'ADMIN_TESORERIA_DESARROLLO' || rolUsuario === 'ADMIN_TESORERIA';
+  }
 
   ngOnInit(): void {
+    this.verificarPermisos();
     this.cargarPagos();
     this.cargarGestiones();
   }
@@ -104,40 +124,73 @@ export class PagosAportesAdminComponent implements OnInit {
       return;
     }
 
+    // Mostrar loading
+    this.showLoadingRecibo = true;
+    this.loadingProgress = 0;
+    this.loadingMessage = 'Preparando recibo...';
+
+    // Simular progreso
+    const progressInterval = setInterval(() => {
+      if (this.loadingProgress < 90) {
+        this.loadingProgress += 10;
+        if (this.loadingProgress <= 30) {
+          this.loadingMessage = 'Conectando con el servidor...';
+        } else if (this.loadingProgress <= 60) {
+          this.loadingMessage = 'Generando documento...';
+        } else if (this.loadingProgress <= 90) {
+          this.loadingMessage = 'Preparando vista previa...';
+        }
+      }
+    }, 200);
+
     this.planillasAportesService.generarReportePagoAporte(idPlanilla).subscribe({
       next: (data: Blob) => {
-        const fileURL = URL.createObjectURL(data);
-        const ventanaEmergente = window.open(
-          '',
-          'VistaPreviaPDF',
-          'width=900,height=600,scrollbars=no,resizable=no'
-        );
+        // Completar progreso
+        clearInterval(progressInterval);
+        this.loadingProgress = 100;
+        this.loadingMessage = 'Recibo generado exitosamente';
 
-        if (ventanaEmergente) {
-          ventanaEmergente.document.write(`
-            <html>
-              <head>
-                <title>Vista Previa del Recibo</title>
-                <style>
-                  body { margin: 0; text-align: center; }
-                  iframe { width: 100%; height: 100vh; border: none; }
-                </style>
-              </head>
-              <body>
-                <iframe src="${fileURL}"></iframe>
-              </body>
-            </html>
-          `);
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo abrir la vista previa del PDF. Es posible que el navegador haya bloqueado la ventana emergente.',
-            confirmButtonText: 'Ok',
-          });
-        }
+        // Esperar un momento para mostrar el 100% antes de cerrar
+        setTimeout(() => {
+          this.showLoadingRecibo = false;
+          
+          const fileURL = URL.createObjectURL(data);
+          const ventanaEmergente = window.open(
+            '',
+            'VistaPreviaPDF',
+            'width=900,height=600,scrollbars=no,resizable=no'
+          );
+
+          if (ventanaEmergente) {
+            ventanaEmergente.document.write(`
+              <html>
+                <head>
+                  <title>Vista Previa del Recibo</title>
+                  <style>
+                    body { margin: 0; text-align: center; }
+                    iframe { width: 100%; height: 100vh; border: none; }
+                  </style>
+                </head>
+                <body>
+                  <iframe src="${fileURL}"></iframe>
+                </body>
+              </html>
+            `);
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo abrir la vista previa del PDF. Es posible que el navegador haya bloqueado la ventana emergente.',
+              confirmButtonText: 'Ok',
+            });
+          }
+        }, 500);
       },
       error: (err) => {
+        // Ocultar loading y mostrar error
+        clearInterval(progressInterval);
+        this.showLoadingRecibo = false;
+        
         console.error('Error al generar el recibo:', err);
         Swal.fire({
           icon: 'error',
@@ -212,5 +265,68 @@ export class PagosAportesAdminComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Método para abrir el diálogo de edición de observaciones
+  editarObservaciones(pago: PagoAporte): void {
+    this.selectedPago = pago;
+    this.nuevaObservacion = pago.observaciones || '';
+    this.displayObservacionesDialog = true;
+  }
+
+  // Método para guardar las observaciones editadas
+  guardarObservaciones(): void {
+    if (!this.selectedPago) {
+      return;
+    }
+
+    if (!this.nuevaObservacion.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campo requerido',
+        text: 'Por favor, ingrese una observación.',
+        confirmButtonText: 'Ok',
+      });
+      return;
+    }
+
+    this.planillasAportesService.updateObservacionesPago(
+      this.selectedPago.id, 
+      this.nuevaObservacion.trim(),
+      'ADMIN' // Puedes obtener el usuario actual del token o servicio de auth
+    ).subscribe({
+      next: (response) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Éxito',
+          text: 'Observaciones actualizadas correctamente.',
+          confirmButtonText: 'Ok',
+        });
+
+        // Actualizar la observación en la lista local
+        const index = this.pagos.findIndex(p => p.id === this.selectedPago!.id);
+        if (index !== -1) {
+          this.pagos[index].observaciones = this.nuevaObservacion.trim();
+        }
+
+        this.cerrarDialogObservaciones();
+      },
+      error: (error) => {
+        console.error('Error al actualizar observaciones:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo actualizar las observaciones.',
+          confirmButtonText: 'Ok',
+        });
+      }
+    });
+  }
+
+  // Método para cerrar el diálogo
+  cerrarDialogObservaciones(): void {
+    this.displayObservacionesDialog = false;
+    this.selectedPago = null;
+    this.nuevaObservacion = '';
   }
 }

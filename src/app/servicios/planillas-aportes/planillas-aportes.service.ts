@@ -380,13 +380,26 @@ descargarReporteVerificacionAfiliaciones(idPlanilla: number): Observable<Blob> {
     return this.http.get(`${environment.url}planillas_aportes/analisis-afiliacion/${idPlanilla}`);
   }
 
+  // 1. ✅ AGREGAR al servicio (planilla-aportes.service.ts)
+obtenerDatosVerificacionGuardados(idPlanilla: number): Observable<any> {
+  return this.http.get(`${environment.url}planillas_aportes/datos-verificacion/${idPlanilla}`);
+}
+
 
 
   /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 /* PÁGOS APORTES ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
-
+// Método para actualizar observaciones de un pago
+updateObservacionesPago(id: number, observaciones: string, usuario_modificacion?: string): Observable<any> {
+  const body = {
+    observaciones,
+    usuario_modificacion: usuario_modificacion || 'SYSTEM'
+  };
+  
+  return this.http.patch(`${environment.url}pagos-aportes/update-observaciones/${id}`, body);
+}
 
 
 }

@@ -25,7 +25,11 @@ export class PlanillaAccessGuard implements CanActivate {
     // Si no hay ID, redirige al listado
     if (!planillaId) {
       console.warn('⚠️ No se proporcionó ID de planilla');
-      this.router.navigate(['/cotizaciones/planillas-aportes']);
+      // Redirección basada en el rol
+      const destination = this.sessionService.esAdministrador()
+        ? '/cotizaciones/aprobar-planillas-aportes'
+        : '/cotizaciones/planillas-aportes';
+      this.router.navigate([destination]);
       return of(false);
     }
 
@@ -71,7 +75,10 @@ private verificarAccesoPlanilla(planillaId: string): Observable<boolean> {
       console.error('❌ Guard: ID inválido:', planillaId);
       // En lugar de redirigir inmediatamente, hacer una pausa
       setTimeout(() => {
-        this.router.navigate(['/cotizaciones/planillas-aportes']);
+        const destination = this.sessionService.esAdministrador()
+          ? '/cotizaciones/aprobar-planillas-aportes'
+          : '/cotizaciones/planillas-aportes';
+        this.router.navigate([destination]);
       }, 100);
       return of(false);
     }
@@ -101,7 +108,10 @@ private verificarPlanillaPorId(planillaId: number): Observable<boolean> {
       if (!response || !response.planilla) {
         console.warn('⚠️ Guard: Planilla no encontrada');
         setTimeout(() => {
-          this.router.navigate(['/cotizaciones/planillas-aportes']);
+          const destination = this.sessionService.esAdministrador()
+            ? '/cotizaciones/aprobar-planillas-aportes'
+            : '/cotizaciones/planillas-aportes';
+          this.router.navigate([destination]);
         }, 100);
         return false;
       }
@@ -134,7 +144,10 @@ private verificarPlanillaPorId(planillaId: number): Observable<boolean> {
       
       // En lugar de redirigir inmediatamente, hacer una pausa
       setTimeout(() => {
-        this.router.navigate(['/cotizaciones/planillas-aportes']);
+        const destination = this.sessionService.esAdministrador()
+          ? '/cotizaciones/aprobar-planillas-aportes'
+          : '/cotizaciones/planillas-aportes';
+        this.router.navigate([destination]);
       }, 100);
       return of(false);
     })

@@ -3,27 +3,28 @@
   [header]="esEmpresaPublicaConLiquidacionPreliminar ? 'Actualizar Fecha de Pago Real' : 'Validar Liquidación'"
   [(visible)]="displayDialog"
   [modal]="true"
-  [style]="{ width: '500px', height: '600px' }"
-  [baseZIndex]="10000"
+  [style]="{ width: '600px', maxWidth: '90vw', height: 'auto', maxHeight: '90vh' }"
+  [baseZIndex]="1000"
   [draggable]="false"
   [resizable]="false"
+  styleClass="custom-modal"
 >
-  <div style="padding: 20px;">
+  <div class="modal-content-wrapper">
     <!-- Mensaje contextual para empresa pública -->
     <div *ngIf="esEmpresaPublicaConLiquidacionPreliminar && !showFechaPagoInput && !mostrarInputMontoTGN" 
-         style="background-color: #e3f2fd; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-      <i class="pi pi-info-circle" style="color: #1976d2;"></i>
-      <span style="color: #1976d2; margin-left: 8px;">
+         class="info-banner">
+      <i class="pi pi-info-circle"></i>
+      <span>
         La empresa pública ha realizado el pago. Actualice con la fecha real para recalcular la liquidación.
       </span>
     </div>
     
     <!-- Paso 1: Preguntar si es necesario actualizar la fecha de pago -->
-    <div *ngIf="!showFechaPagoInput && !mostrarInputMontoTGN">
-      <p>{{ esEmpresaPublicaConLiquidacionPreliminar 
+    <div *ngIf="!showFechaPagoInput && !mostrarInputMontoTGN" class="step-content">
+      <p class="step-question">{{ esEmpresaPublicaConLiquidacionPreliminar 
           ? '¿Desea actualizar la fecha de pago con la fecha real?' 
           : '¿Es necesario actualizar la fecha de pago?' }}</p>
-      <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+      <div class="button-group">
         <button
           pButton
           type="button"
@@ -45,12 +46,12 @@
     </div>
 
     <!-- Paso 2: Mostrar campo para seleccionar fecha de pago -->
-    <div *ngIf="showFechaPagoInput && !mostrarInputMontoTGN">
-      <p>{{ esEmpresaPublicaConLiquidacionPreliminar 
+    <div *ngIf="showFechaPagoInput && !mostrarInputMontoTGN" class="step-content">
+      <p class="step-question">{{ esEmpresaPublicaConLiquidacionPreliminar 
           ? 'Seleccione la fecha real de pago:' 
           : 'Seleccione la nueva fecha de pago:' }}</p>
-      <div style="margin-top: 20px;">
-        <label for="fechaPago" style="display: block; margin-bottom: 5px;">
+      <div class="form-group">
+        <label for="fechaPago" class="field-label">
           Fecha de Pago {{ esEmpresaPublicaConLiquidacionPreliminar ? 'Real' : '' }}
         </label>
         <p-calendar
@@ -60,18 +61,20 @@
           dateFormat="dd/mm/yy"
           [maxDate]="today"
           placeholder="Seleccione la fecha de pago"
+          [style]="{'width': '100%'}"
+          appendTo="body"
         ></p-calendar>
         
         <!-- Mostrar fecha tentativa actual para referencia -->
         <div *ngIf="esEmpresaPublicaConLiquidacionPreliminar && planilla" 
-             style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+             class="reference-info">
           <i class="pi pi-info-circle"></i>
           Fecha tentativa actual: {{ planilla.fecha_pago | date:'dd/MM/yyyy' }}
         </div>
       </div>
 
       <!-- Botones para continuar después de seleccionar fecha -->
-      <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+      <div class="button-group">
         <button
           pButton
           type="button"
@@ -93,23 +96,25 @@
     </div>
 
     <!-- Paso 3: Input para nuevo monto TGN (solo para empresas públicas) -->
-    <div *ngIf="mostrarInputMontoTGN" style="padding: 15px; background-color: #fff3cd; border-radius: 4px;">
-      <h4 style="color: #856404; margin-bottom: 10px;">
-        <i class="pi pi-exclamation-triangle"></i>
-        Nuevo Monto TGN Real
-      </h4>
-      <p style="color: #856404; margin-bottom: 15px;">
-        La empresa pública ha realizado el pago con un monto TGN diferente al teórico. 
-        Ingrese el monto real del TGN para recalcular la liquidación.
-      </p>
-      
-      <!-- Mostrar valor actual para referencia -->
-      <div *ngIf="planilla" style="margin-bottom: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
-        <strong>Valor TGN anterior (teórico):</strong> {{ planilla.aporte_porcentaje | currency:'BOB':'symbol':'1.2-6' }}
+    <div *ngIf="mostrarInputMontoTGN" class="step-content tgn-step">
+      <div class="tgn-header">
+        <h4>
+          <i class="pi pi-exclamation-triangle"></i>
+          Nuevo Monto TGN Real
+        </h4>
+        <p>
+          La empresa pública ha realizado el pago con un monto TGN diferente al teórico. 
+          Ingrese el monto real del TGN para recalcular la liquidación.
+        </p>
       </div>
       
-      <div style="margin-bottom: 15px;">
-        <label for="nuevoMontoTGN" style="display: block; margin-bottom: 5px; font-weight: bold;">
+      <!-- Mostrar valor actual para referencia -->
+      <div *ngIf="planilla" class="reference-value">
+        <strong>Valor TGN anterior (teórico):</strong> {{ planilla.aporte_porcentaje | currency:'BOB':'symbol':'1.2-2' }}
+      </div>
+      
+      <div class="form-group">
+        <label for="nuevoMontoTGN" class="field-label">
           Nuevo Monto TGN Real:
         </label>
         <p-inputNumber
@@ -125,7 +130,7 @@
         </p-inputNumber>
       </div>
       
-      <div style="display: flex; justify-content: space-between; gap: 10px;">
+      <div class="button-group">
         <button
           pButton
           type="button"
@@ -306,14 +311,35 @@
         <div class="group-header" id="aportes-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 1rem;">
           <span style="font-size: 1.2rem; font-weight: bold;">Liquidación de Aportes</span>
 
+          <!-- Mostrar información del validador si ya está validada -->
+          <div *ngIf="debeValidarLiquidacion()" class="validation-info">
+            <div class="validation-details">
+              <div class="validation-badge" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 3rem;">
+                
+                <div style="display: flex; align-items: center;">
+                  <i class="pi pi-check-circle" style="color: #28a745; margin-right: 0.5rem;"></i>
+                  <span class="validation-text">Liquidación Validada</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+                  <small class="validator-name">{{ planilla.valido_cotizacion }}</small> 
+                  <small class="validation-date" *ngIf="planilla.fecha_liquidacion">{{ obtenerFechaLiquidacion() }}</small> 
+                </div>
+                
+              </div>
+            </div>
+          </div>
+
+          <!-- Mostrar botón solo si no está validada -->
           <button
-            *ngIf="esAdministrador && !esEmpresaPublicaConLiquidacionPreliminar"
+            *ngIf="esAdministrador && !esEmpresaPublicaConLiquidacionPreliminar && !debeValidarLiquidacion()"
             pButton
             type="button"
             [label]="obtenerTextoBoton()"
             [icon]="obtenerIconoBoton()"
             [class]="obtenerClaseBoton()"
-            (click)="showDialog()"
+            [disabled]="estaDeshabilitadoBoton()"
+            (click)="manejarClickBoton()"
             style="height: 100%;"
           ></button>
         </div>
@@ -578,4 +604,52 @@
     <p>No se puede realizar el cálculo de su liquidación.</p>
     <button pButton type="button" label="Volver" icon="pi pi-arrow-left" class="p-button-sm"></button>
   </div> 
+  
+
+<!-- Modal de Validación de Liquidación -->
+<p-dialog 
+  header="Validar Liquidación" 
+  [(visible)]="mostrarModalValidacion" 
+  [modal]="true" 
+  [closable]="false"
+  [draggable]="false" 
+  [resizable]="false"
+  styleClass="validation-modal"
+  [style]="{width: '450px'}">
+  
+  <div class="validation-content">
+    <div class="user-info">
+      <i class="pi pi-user" style="font-size: 2rem; color: #2196F3; margin-bottom: 1rem;"></i>
+      <h4>Usuario que valida:</h4>
+      <p class="user-name">{{ nombreCompleto }}</p>
+    </div>
+    
+    <div class="warning-message">
+      <i class="pi pi-exclamation-triangle" style="color: #ff9800; margin-right: 0.5rem;"></i>
+      <strong>Advertencia:</strong> Este proceso es irreversible. Una vez validada la liquidación, no podrá ser modificada.
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <div class="modal-buttons">
+      <button 
+        pButton 
+        type="button" 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        class="p-button-secondary"
+        (click)="cerrarModalValidacion()">
+      </button>
+      <button 
+        pButton 
+        type="button" 
+        label="Validar Liquidación" 
+        icon="pi pi-check" 
+        class="p-button-success"
+        [loading]="loading"
+        (click)="confirmarValidacionLiquidacion()">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
   
