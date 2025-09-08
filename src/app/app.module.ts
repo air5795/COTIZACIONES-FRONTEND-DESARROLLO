@@ -150,6 +150,8 @@ import { VerificacionAfiliacionesComponent } from './componentes/planillas-aport
 import { SolicitudReembolsoComponent } from './componentes/reembolsos-incapacidades/solicitud-reembolso/solicitud-reembolso.component';
 import { EmpresasComponent } from './componentes/empresas/empresas.component';
 import { PerfilUsuarioComponent } from './componentes/perfil-usuario/perfil-usuario.component';
+import { BuscarTrabajadorComponent } from './componentes/reembolsos-incapacidades/buscar-trabajador/buscar-trabajador.component';
+import { DetallePlanillaReembolsoComponent } from './componentes/reembolsos-incapacidades/detalle-planilla-reembolso/detalle-planilla-reembolso.component';
 registerLocaleData(localeEs);
 
 @NgModule({
@@ -292,6 +294,8 @@ registerLocaleData(localeEs);
     SolicitudReembolsoComponent,
     EmpresasComponent,
     PerfilUsuarioComponent,
+    BuscarTrabajadorComponent,
+    DetallePlanillaReembolsoComponent,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy }, CountryService, CustomerService, EventService, IconService, NodeService,

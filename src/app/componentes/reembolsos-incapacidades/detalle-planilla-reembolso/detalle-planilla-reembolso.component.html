@@ -1,0 +1,352 @@
+
+<!-- ENCAMBEZADO DE PLANILLA ---------------------------------------------------------------------------------->
+<div class="grid dashboard" >
+  <div class="col-12 md:col-12 lg:6">
+    <div class="perfil-empleador">
+      <div class="cabezera-planilla">
+        <div class="header-left">
+          <h2 style="font-size: 15px; display: flex; align-items: center; font-family: 'Roboto', sans-serif; margin: 5px 0 5px;">
+            <span style="background-color: #009688; color: white; padding: 6px 10px; border-radius: 4px 0 0 4px; display: flex; align-items: center;">
+              N° {{ solicitudReembolso?.id_solicitud_reembolso }}
+            </span>
+            <span style="background-color: #018b7b; color: white; padding: 6px 10px; ">
+              INCAPACIDADES 
+            </span>
+            <span style="background-color: #00796b; color: white; padding: 6px 10px; ">
+              {{ solicitudReembolso?.mes }}
+            </span>
+            <span style="background-color: #00685a; color: white; padding: 6px 10px; ">
+              {{ solicitudReembolso?.gestion }}
+            </span>
+            <span  style="background-color: #00483a; color: white; padding: 6px 10px;  ">
+              {{ solicitudReembolso?.empresa?.emp_nom || 'N/A' }}
+            </span>
+            <span
+              style="background-color: #00382a; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
+              {{ solicitudReembolso?.tipo_empresa === 'PA' ? 'PASIVO' : 
+                solicitudReembolso?.tipo_empresa === 'AP' ? 'PÚBLICA' : 
+                solicitudReembolso?.tipo_empresa === 'AV' ? 'PRIVADA' : 
+                solicitudReembolso?.tipo_empresa === 'VA' ? 'DECRETO SUPREMO' : 
+                solicitudReembolso?.tipo_empresa || 'N/A'}}
+            </span>
+          </h2>
+
+          <hr style="border: 1px solid #cacaca; margin: 4px 0;">
+
+          <div class="list-container">
+            <!-- Estado de Planilla -->
+            <div [ngSwitch]="solicitudReembolso?.estado" class="list-item"
+              [ngStyle]="{'background-color': getFondoEstado(solicitudReembolso?.estado || 0)}">
+              <div class="estado-container" *ngSwitchCase="0">
+                <span class="label">ESTADO</span>
+                <span class="value" [ngStyle]="{'color': getColorEstado(solicitudReembolso?.estado || 0)}">
+                  BORRADOR <i class="pi pi-question-circle"></i>
+                </span>
+              </div>
+              <div class="estado-container" *ngSwitchCase="1">
+              <span class="label">ESTADO</span>
+              <span class="value" [ngStyle]="{'color': getColorEstado(solicitudReembolso?.estado || 0)}">
+                PRESENTADO <i class="pi pi-send"></i>
+              </span>
+            </div>
+            <div class="estado-container" *ngSwitchCase="2">
+              <span class="label">ESTADO</span>
+              <span class="value" [ngStyle]="{'color': getColorEstado(solicitudReembolso?.estado || 0)}">
+                APROBADO <i class="pi pi-check"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- N° de Trabajadores -->
+          <div class="list-item">
+            <span class="label">N° de Trabajadores</span>
+            <ng-container>
+              <span class="value">
+                 {{ totalTrabajadores }}
+              </span>
+            </ng-container>
+          </div>
+
+          <!-- Total Reembolso -->
+          <div class="list-item">
+            <span class="label">Total Reembolso</span>
+            <ng-container>
+              <span class="value">
+                <i class="pi pi-money-bill"></i> {{ totalReembolso | number:'1.2-2' }} Bs
+              </span>
+            </ng-container>
+          </div>
+        </div>
+        </div>
+
+        <div class="header-right">
+          <div class="button-container">
+            <button
+              pButton
+              label="Trabajador"
+              class="boton2"
+              style="display: flex; flex-direction: column; align-items: center; font-size: 1rem; width: 120px; "
+              (click)="abrirBuscarTrabajador()">
+                <span class="pi pi-search" style="font-size: 2rem; padding-bottom: 10px;"></span>
+                <span style="font-size: 10px;color: #ffffff;border-bottom: 1px solid white;margin-bottom: 2px;" >Agregar</span>
+            </button>
+
+
+            <button
+              pButton
+              label="Solicitud"
+              class="boton5"
+              style="display: flex; flex-direction: column; align-items: center; font-size: 1rem; width: 120px; "
+              [disabled]="detallesReembolso.length === 0 || solicitudReembolso?.estado !== 0"
+              (click)="presentarSolicitud()">
+                <span class="pi pi-send" style="font-size: 2rem; padding-bottom: 10px;"></span>
+                <span style="font-size: 10px;color: #ffffff;border-bottom: 1px solid white;margin-bottom: 2px;" >Presentar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <!-- OPCIONES DE PLANILLA ---------------------------------------------------------------------------------->
+  <p-tabView [style]="{ padding: '5px' , 'border': '1px solid #ccc', borderRadius: '5px' }" >
+    <p-tabPanel header="Planilla de Reembolsos" leftIcon="pi pi-table" >
+
+
+  
+        <!-- Tabla de detalles -->
+        
+        <p-table
+          [value]="detallesReembolso"
+          [paginator]="true"
+          [rows]="limite"
+          [totalRecords]="total"
+          [loading]="cargandoDetalles"
+          [rowsPerPageOptions]="[5, 10, 15, 20 , -1]"
+          [pageLinks]="5"
+          [lazy]="true"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm p-datatable-striped"
+          [style]="{'font-size': '12px', 'border': '1px solid #dee2e6'}"
+          [showCurrentPageReport]="false"
+          currentPageReportTemplate="Mostrando registros del {first} al {last} de un total de {totalRecords} registros"
+        >
+          <ng-template pTemplate="caption">
+            <div class="flex justify-content-between align-items-center flex-column sm:flex-row">
+                <!-- Contenedor del buscador (izquierda) -->
+                <div class="flex align-items-center mb-2 sm:mb-0">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" #filter placeholder="Buscar ..." class="w-full">
+                    </span>
+                </div>
+  
+                <!-- Contenedor de los botones (derecha) -->
+                <div class="flex align-items-center">
+                    <button
+                      *ngIf="solicitudReembolso?.estado === 0"
+                      pButton style="border: 1px;"
+                      label="Eliminar Datos "
+                      class="p-button-outlined p-button-plain mr-2"
+                      icon="pi pi-trash"
+                      (click)="confirmarEliminacionDetalles()">
+                    </button>
+                </div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr style="background-color: #f8f9fa;">
+                <th style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">N°</th>
+                <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">CI</th>
+                <th style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">Nombre Completo</th>
+                <th style="width: 100px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Matrícula</th>
+                <th style="width: 100px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Tipo</th>
+                <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha Inicio</th>
+                <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Fecha Fin</th>
+                <th style="width: 60px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Días Inc.</th>
+                <th style="width: 60px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Días Reem.</th>
+                <th style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Salario</th>
+                <th style="width: 60px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">% Reem.</th>
+                <th style="width: 100px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Monto Reembolso</th>
+                <th *ngIf="solicitudReembolso?.estado === 0" style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">Acciones</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-detalle let-i="rowIndex">
+            <tr>
+              <td style="width: 20px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.nro }}</td>
+              <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.ci }}</td>
+              <td style="width: 200px; text-align: left; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.apellido_paterno }} {{ detalle.apellido_materno }} {{ detalle.nombres }}</td>
+              <td style="width: 100px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.matricula }}</td>
+              <td style="width: 100px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">
+                <span [ngClass]="getTipoIncapacidadClass(detalle.tipo_incapacidad)"
+                      style="padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: white;">
+                  {{ detalle.tipo_incapacidad }}
+                </span>
+              </td>
+              <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.fecha_inicio_baja | date:'dd/MM/yyyy' }}</td>
+              <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.fecha_fin_baja | date:'dd/MM/yyyy' }}</td>
+              <td style="width: 60px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.dias_incapacidad }}</td>
+              <td style="width: 60px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.dias_reembolso }}</td>
+              <td style="width: 80px; text-align: center; padding: 5px; border: 1px solid #dee2e6; background-color: #eeffeb;">{{ detalle.salario | currency:'BOB':'symbol':'1.2-2' }}</td>
+              <td style="width: 60px; text-align: center; padding: 5px; border: 1px solid #dee2e6;">{{ detalle.porcentaje_reembolso }}%</td>
+              <td style="width: 100px; text-align: center; padding: 5px; border: 1px solid #dee2e6; background-color: #eeffeb;">{{ detalle.monto_reembolso | currency:'BOB':'symbol':'1.2-2' }}</td>
+              <td *ngIf="solicitudReembolso?.estado === 0" style="width: 80px; text-align: center; padding: 1px; border: 1px solid #dee2e6;">
+                  <button
+                      pButton
+                      icon="pi pi-pencil"
+                      (click)="editarTrabajador(detalle)"
+                      class="p-button-warning p-button-sm"
+                      style="width: 25px; height: 25px; padding: 0; width: 100%;"
+                  ></button>
+                  <button
+                      pButton
+                      icon="pi pi-trash"
+                      (click)="eliminarDetalle(i)"
+                      class="p-button-danger p-button-sm"
+                      style="width: 25px; height: 25px; padding: 0; width: 100%; margin-top: 2px;"
+                  ></button>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td [attr.colspan]="getColspanTabla()" style="text-align: center; padding: 3rem 1rem;">
+                <div class="empty-state" style="text-align: center; color: #6c757d;">
+                  <i class="pi pi-info-circle" style="font-size: 3rem; margin-bottom: 1rem; color: #dee2e6;"></i>
+                  <h4 style="margin: 0 0 0.5rem 0; color: #495057;">No hay trabajadores agregados</h4>
+                  <p style="margin: 0; font-size: 0.9rem;">Utilice el botón "Buscar Trabajador" para agregar trabajadores con bajas médicas a la planilla.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="summary">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-top: 1px solid #dee2e6;">
+              <div>
+                <strong>Total Trabajadores: {{ totalTrabajadores }}</strong>
+              </div>
+              <div style="font-size: 1.1rem; color: #28a745;">
+                <strong>Total Reembolso: {{ totalReembolso | currency:'BOB':'symbol':'1.2-2' }}</strong>
+              </div>
+            </div>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+    <p-tabPanel header="Resumen" leftIcon="pi pi-eye" >
+      <div class="dashboard-container" >
+        <!-- Contenedor principal de dos secciones -->
+        <div class="content-grid" style="display: grid; grid-template-columns: 4fr 4fr; background-color: #f5f5f5;">
+          <!-- Panel izquierdo: Tarjetas de información -->
+          <div class="summary-panel">
+            <!-- Diseño de tarjetas -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; padding: 15px; background-color: #f5f5f5;">
+              <!-- Tarjeta: Total Trabajadores -->
+              <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+                <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Trabajadores</span>
+                    <i class="pi pi-users" style="color: #00796b; font-size: 1.5rem;"></i>
+                  </div>
+                </div>
+                <div style="padding: 20px; text-align: center;">
+                  <div style="font-size: 2.2rem; font-weight: 700; color: #00695c;">
+                    {{ totalTrabajadores }}
+                  </div>
+                  <div style="color: #616161; font-size: 0.9rem; margin-top: 5px;">Trabajadores en planilla</div>
+                </div>
+              </div>
+
+              <!-- Tarjeta: Total Reembolso -->
+              <div style="background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+                <div style="padding: 15px;  border-bottom: 2px solid #80cbc4;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-weight: 600; color: #00796b; font-size: 1rem;">Total Reembolso</span>
+                    <i class="pi pi-money-bill" style="color: #00796b; font-size: 1.5rem;"></i>
+                  </div>
+                </div>
+                <div style="padding: 20px; text-align: center;">
+                  <div style="font-size: 2.2rem; font-weight: 700; color: #4caf50; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    {{ totalReembolso | currency:'BOB':'symbol':'1.2-2' }}
+                  </div>
+                  <div style="color: #616161; font-size: 0.9rem; margin-top: 5px;">Monto total a reembolsar</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel derecho: Tabla de resumen por tipo de incapacidad -->
+          <div class="summary-panel">
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>
+                    <i class="pi pi-tag"></i>
+                    Tipo de Incapacidad
+                  </th>
+                  <th class="text-right">
+                    <i class="pi pi-users"></i>
+                    Cantidad
+                  </th>
+                  <th class="text-right">
+                    <i class="pi pi-money-bill"></i>
+                    Total Reembolso
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Filas de resumen por tipo de incapacidad -->
+                <tr>
+                  <td>Enfermedad Común</td>
+                  <td class="text-right">{{ resumenTipos.ENFERMEDAD.count }}</td>
+                  <td class="text-right">{{ resumenTipos.ENFERMEDAD.monto | currency:'BOB':'symbol':'1.2-2' }}</td>
+                </tr>
+                <tr>
+                  <td>Maternidad</td>
+                  <td class="text-right">{{ resumenTipos.MATERNIDAD.count }}</td>
+                  <td class="text-right">{{ resumenTipos.MATERNIDAD.monto | currency:'BOB':'symbol':'1.2-2' }}</td>
+                </tr>
+                <tr>
+                  <td>Riesgo Profesional</td>
+                  <td class="text-right">{{ resumenTipos.PROFESIONAL.count }}</td>
+                  <td class="text-right">{{ resumenTipos.PROFESIONAL.monto | currency:'BOB':'symbol':'1.2-2' }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>
+                    <i class="pi pi-chart-bar"></i>
+                    Totales
+                  </td>
+                  <td style="text-align: right;">{{ totalTrabajadores }}</td>
+                  <td style="text-align: right;">{{ totalReembolso | currency:'BOB':'symbol':'1.2-2' }}</td>
+                </tr>
+              </tfoot>
+            </table>
+            <div *ngIf="totalTrabajadores === 0" class="empty-message">
+              <i class="pi pi-info-circle"></i>
+              No hay trabajadores agregados aún.
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+    
+  </p-tabView>
+  
+  <!-- Dialog para buscar trabajador -->
+  <p-dialog 
+    header="Buscar Trabajador y Bajas Médicas" 
+    [(visible)]="mostrarBuscarTrabajador" 
+    [modal]="true" 
+    [style]="{width: '90vw', maxWidth: '1400px'}"
+    [closable]="true"
+    [maximizable]="true">
+    
+    <app-buscar-trabajador 
+      (detalleSeleccionado)="onDetalleSeleccionado($event)">
+    </app-buscar-trabajador>
+  </p-dialog>

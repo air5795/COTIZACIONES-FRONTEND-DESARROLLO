@@ -30,8 +30,8 @@ export class SolicitudReembolsoComponent implements OnInit {
   nomEmpresa: string | null = null;
   tipoEmpresa: string | null = null;
   totalRegistros: number = 0;
-  pagina: number = 1; // Cambiar a 1 para coincidir con el backend
-  limite: number = 10; // Cambiar a 10 que es el valor por defecto del backend
+  pagina: number = 1;
+  limite: number = 10;
   busqueda: string = '';
   mesFiltro: string = '';
   anioFiltro: string = '';
@@ -249,8 +249,8 @@ export class SolicitudReembolsoComponent implements OnInit {
       return;
     }
     
-    // Obtener detalles de la solicitud
-    this.obtenerSolicitudPorId(idSolicitud);
+    // Navegar al componente de detalle
+    this.router.navigate(['/cotizaciones/planillas-incapacidades/detalle', idSolicitud]);
   }
 
   // Navegación del modal paso a paso

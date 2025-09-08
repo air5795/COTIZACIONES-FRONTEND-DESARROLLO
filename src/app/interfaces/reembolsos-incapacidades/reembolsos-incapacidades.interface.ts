@@ -25,8 +25,8 @@ export interface SolicitudReembolso {
   total_trabajadores: number;
   empresa?: {
     id_empresa: number;
-    nombre_empresa: string;
-    // Agregar otros campos de empresa según sea necesario
+    emp_nom: string;
+
   };
 }
 
@@ -52,4 +52,50 @@ export interface ParametrosBusquedaSolicitudes {
   busqueda?: string;
   mes?: string;
   anio?: string;
+}
+
+
+// ===== INTERFACES PARA BAJAS MÉDICAS =====
+
+export interface BajaMedica {
+  ASE_MAT: string;
+  ESP_NOM: string;
+  MEDI_NOM: string;
+  COMPROBANTE: number;
+  DIAS_IMPEDIMENTO: number;
+  DIA_DESDE: string;
+  DIA_HASTA: string;
+  FECHA_INCORPORACION: string;
+  HORA_INCORPORACION: string;
+  TIPO_BAJA: string;
+  FECHA_REGISTRO: string;
+}
+
+export interface ResponseBajasMedicas {
+  ok: boolean;
+  bajasDB: BajaMedica[];
+}
+
+export interface DetalleReembolsoCalculado {
+  nro?: number;
+  ci: string;
+  apellido_paterno: string;
+  apellido_materno: string;
+  nombres: string;
+  matricula: string;
+  tipo_incapacidad: string;
+  fecha_inicio_baja: string;
+  fecha_fin_baja: string;
+  dias_incapacidad: number;
+  dias_reembolso: number;
+  salario: number;
+  monto_dia: number;
+  porcentaje_reembolso: number;
+  monto_reembolso: number;
+  observaciones?: string;
+  // Campos adicionales para mostrar
+  especialidad?: string;
+  medico?: string;
+  comprobante?: number;
+  fecha_incorporacion?: string;
 }

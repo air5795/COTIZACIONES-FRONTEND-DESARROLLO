@@ -28,6 +28,7 @@ import { PlanillaAccessGuard } from './guards/planilla-access.guard';
 import { SolicitudReembolsoComponent } from './componentes/reembolsos-incapacidades/solicitud-reembolso/solicitud-reembolso.component';
 import { EmpresasComponent } from './componentes/empresas/empresas.component';
 import { PerfilUsuarioComponent } from './componentes/perfil-usuario/perfil-usuario.component';
+import { DetallePlanillaReembolsoComponent } from './componentes/reembolsos-incapacidades/detalle-planilla-reembolso/detalle-planilla-reembolso.component';
 
 @NgModule({
     imports: [
@@ -46,21 +47,14 @@ import { PerfilUsuarioComponent } from './componentes/perfil-usuario/perfil-usua
                     { path: 'perfil-usuario', component: PerfilUsuarioComponent },
                     // PLANILLAS DE APORTES -------------------------------------------------------------
                     { path: 'planillas-aportes', component: PlanillasAportesListComponent },
-                    { 
-                        path: 'planillas-aportes/:id', 
-                        component: PlanillasAportesDetalleComponent,
-                        canActivate: [PlanillaAccessGuard] ,
-                    },
+                    { path: 'planillas-aportes/:id', component: PlanillasAportesDetalleComponent,canActivate: [PlanillaAccessGuard] ,},
                     { path: 'aprobar-planillas-aportes', component: PlanillasAportesAprobarComponent },
-                    { 
-                        path: 'aprobar-planillas-aportes/:id', 
-                        component: PlanillasAportesDetalleAprobarComponent,
-                        canActivate: [PlanillaAccessGuard] 
-                    },
+                    { path: 'aprobar-planillas-aportes/:id',component: PlanillasAportesDetalleAprobarComponent,canActivate: [PlanillaAccessGuard] },
                     { path: 'historial-aportes', component: HistorialAportesComponent },
                     { path: 'pagos-aportes-admin', component: PagosAportesAdminComponent },
                     // REEMBOLSOS DE INCAPACIDADES -------------------------------------------------------------
                     { path: 'planillas-incapacidades', component: SolicitudReembolsoComponent },
+                    { path: 'planillas-incapacidades/detalle/:id', component: DetallePlanillaReembolsoComponent },
                     // OTROS -----------------------------------------------------------------------------
                     { path: 'sistemas', component: SistemaComponent },
                     { path: 'clasificadores', component: ClasificadorComponent },
