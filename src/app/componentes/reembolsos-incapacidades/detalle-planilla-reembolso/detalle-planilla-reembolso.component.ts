@@ -62,6 +62,23 @@ export class DetallePlanillaReembolsoComponent implements OnInit {
     PROFESIONAL: { count: 0, monto: 0 }
   };
 
+  // Agregar después de las propiedades existentes
+  activeTabIndex = 0;
+
+  // Organizar detalles por tipo
+  detallesPorTipo = {
+    ENFERMEDAD: [] as DetalleReembolso[],
+    MATERNIDAD: [] as DetalleReembolso[],
+    PROFESIONAL: [] as DetalleReembolso[]
+  };
+
+  // Totales por tipo
+  totalesPorTipo = {
+    ENFERMEDAD: { trabajadores: 0, monto: 0 },
+    MATERNIDAD: { trabajadores: 0, monto: 0 },
+    PROFESIONAL: { trabajadores: 0, monto: 0 }
+  };
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -238,23 +255,30 @@ export class DetallePlanillaReembolsoComponent implements OnInit {
   }
 
   calcularTotales() {
+    // Limpiar arrays por tipo
+    this.detallesPorTipo.ENFERMEDAD = [];
+    this.detallesPorTipo.MATERNIDAD = [];
+    this.detallesPorTipo.PROFESIONAL = [];
+  
+    // Separar detalles por tipo
+    this.detallesReembolso.forEach(detalle => {
+      const tipo = detalle.tipo_incapacidad as keyof typeof this.detallesPorTipo;
+      if (this.detallesPorTipo[tipo]) {
+        this.detallesPorTipo[tipo].push(detalle);
+      }
+    });
+  
+    // Calcular totales generales
     this.totalReembolso = this.detallesReembolso.reduce((sum, detalle) => sum + detalle.monto_reembolso, 0);
     this.totalTrabajadores = this.detallesReembolso.length;
-    
-    // Resetear resumen
-    this.resumenTipos = {
-      ENFERMEDAD: { count: 0, monto: 0 },
-      MATERNIDAD: { count: 0, monto: 0 },
-      PROFESIONAL: { count: 0, monto: 0 }
-    };
-    
-    // Calcular resumen por tipo
-    this.detallesReembolso.forEach(detalle => {
-      const tipo = detalle.tipo_incapacidad as keyof typeof this.resumenTipos;
-      if (this.resumenTipos[tipo]) {
-        this.resumenTipos[tipo].count++;
-        this.resumenTipos[tipo].monto += detalle.monto_reembolso;
-      }
+  
+    // Calcular totales por tipo
+    Object.keys(this.detallesPorTipo).forEach(tipo => {
+      const detallesTipo = this.detallesPorTipo[tipo as keyof typeof this.detallesPorTipo];
+      this.totalesPorTipo[tipo as keyof typeof this.totalesPorTipo] = {
+        trabajadores: detallesTipo.length,
+        monto: detallesTipo.reduce((sum, detalle) => sum + detalle.monto_reembolso, 0)
+      };
     });
   }
 
@@ -434,5 +458,9 @@ export class DetallePlanillaReembolsoComponent implements OnInit {
   editarTrabajador(detalle: any) {
     // Implementar lógica de edición si es necesario
     console.log('Editar trabajador:', detalle);
+  }
+
+  getIndexInFullArray(detalle: DetalleReembolso): number {
+    return this.detallesReembolso.findIndex(d => d.id_detalle_reembolso === detalle.id_detalle_reembolso);
   }
 }

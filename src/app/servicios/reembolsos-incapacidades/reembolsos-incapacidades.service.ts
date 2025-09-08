@@ -113,62 +113,17 @@ export class ReembolsosIncapacidadesService {
   }
 
   // Método para calcular el reembolso basado en una baja médica seleccionada
-  calcularReembolso(bajaMedica: BajaMedica, datosWorker: any, salario: number): DetalleReembolsoCalculado {
-    const fechaInicio = new Date(bajaMedica.DIA_DESDE);
-    const fechaFin = new Date(bajaMedica.DIA_HASTA);
-    const diasIncapacidad = bajaMedica.DIAS_IMPEDIMENTO;
-    
-    // Determinar tipo de incapacidad y porcentaje
-    let tipoIncapacidad = bajaMedica.TIPO_BAJA.trim();
-    let porcentajeReembolso = 0;
-    let diasReembolso = 0;
-    
-    switch (tipoIncapacidad) {
-      case 'ENFERMEDAD':
-        porcentajeReembolso = 75;
-        // Para enfermedad común, se descuentan los primeros 3 días
-        diasReembolso = Math.max(0, diasIncapacidad - 3);
-        break;
-      case 'MATERNIDAD':
-        porcentajeReembolso = 90;
-        // Para maternidad se cuentan todos los días (máximo 90)
-        diasReembolso = Math.min(diasIncapacidad, 90);
-        break;
-      case 'PROFESIONAL':
-        porcentajeReembolso = 90;
-        // Para riesgo profesional se cuentan todos los días desde el primer día
-        diasReembolso = diasIncapacidad;
-        break;
-      default:
-        porcentajeReembolso = 75;
-        diasReembolso = Math.max(0, diasIncapacidad - 3);
-    }
-    
-    // Calcular montos
-    const montoDia = salario / 30; // Mes comercial de 30 días
-    const montoReembolso = (montoDia * diasReembolso * porcentajeReembolso) / 100;
-    
-    return {
-      ci: datosWorker?.ci || bajaMedica.ASE_MAT.split(' ')[0], // Extraer CI de la matrícula
-      apellido_paterno: datosWorker?.apellido_paterno || '',
-      apellido_materno: datosWorker?.apellido_materno || '',
-      nombres: datosWorker?.nombres || '',
+  calcularReembolso(bajaMedica: BajaMedica, datosWorker: any, codPatronal: string, mes: string, gestion: string): Observable<any> {
+    const calcularDto = {
       matricula: bajaMedica.ASE_MAT,
-      tipo_incapacidad: tipoIncapacidad,
-      fecha_inicio_baja: this.formatDate(fechaInicio),
-      fecha_fin_baja: this.formatDate(fechaFin),
-      dias_incapacidad: diasIncapacidad,
-      dias_reembolso: diasReembolso,
-      salario: salario,
-      monto_dia: parseFloat(montoDia.toFixed(6)),
-      porcentaje_reembolso: porcentajeReembolso,
-      monto_reembolso: parseFloat(montoReembolso.toFixed(6)),
-      // Campos adicionales para mostrar
-      especialidad: bajaMedica.ESP_NOM,
-      medico: bajaMedica.MEDI_NOM,
-      comprobante: bajaMedica.COMPROBANTE,
-      fecha_incorporacion: this.formatDate(new Date(bajaMedica.FECHA_INCORPORACION))
+      cod_patronal: codPatronal,
+      mes: mes,
+      gestion: gestion,
+      baja_medica: bajaMedica,
+      usuario_calculo: 'SYSTEM'
     };
+
+    return this.http.post<any>(`${environment.url}reembolsos-incapacidades/calcular-reembolso`, calcularDto);
   }
 
   // Método auxiliar para formatear fechas

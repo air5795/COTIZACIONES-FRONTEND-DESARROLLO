@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReembolsosIncapacidadesService } from '../../../servicios/reembolsos-incapacidades/reembolsos-incapacidades.service';
 import { 
@@ -14,6 +14,9 @@ import Swal from 'sweetalert2';
 })
 export class BuscarTrabajadorComponent {
   @Output() detalleSeleccionado = new EventEmitter<DetalleReembolsoCalculado>();
+  @Input() codPatronal: string = '';  
+  @Input() mes: string = '';          
+  @Input() gestion: string = '';      
 
   buscarForm: FormGroup;
   bajasEncontradas: BajaMedica[] = [];
@@ -110,29 +113,62 @@ export class BuscarTrabajadorComponent {
   }
 
   calcularYMostrarReembolso() {
-    if (!this.bajaSeleccionada) return;
-
-    this.detalleCalculado = this.reembolsosService.calcularReembolso(
-      this.bajaSeleccionada,
+    if (!this.bajaSeleccionada) return; // Esta línea ya está
+    
+    // Agregar verificación adicional para TypeScript
+    const bajaSeleccionada = this.bajaSeleccionada; // Crear variable local
+  
+    // Llamar al backend para el cálculo
+    this.reembolsosService.calcularReembolso(
+      bajaSeleccionada, // Usar la variable local
       this.datosWorker,
-      this.datosWorker.salario
-    );
-
-    // Validar cotizaciones previas (esto debería venir de un servicio real)
-    const cotizacionesPrevias = 3; // Mock - obtener del servicio real
-    const cumpleCotizaciones = this.reembolsosService.validarCotizacionesPrevias(
-      this.detalleCalculado.tipo_incapacidad,
-      cotizacionesPrevias
-    );
-
-    if (!cumpleCotizaciones) {
-      const mesesRequeridos = this.detalleCalculado.tipo_incapacidad === 'MATERNIDAD' ? 4 : 2;
-      Swal.fire({
-        icon: 'warning',
-        title: 'Atención',
-        text: `El trabajador no cumple con las ${mesesRequeridos} cotizaciones previas requeridas para ${this.detalleCalculado.tipo_incapacidad}`
-      });
-    }
+      this.codPatronal,
+      this.mes,
+      this.gestion
+    ).subscribe({
+      next: (response) => {
+        console.log('Respuesta del cálculo:', response);
+        
+        // Usar los datos del backend
+        this.detalleCalculado = {
+          ci: response.datos_trabajador.ci,
+          apellido_paterno: response.datos_trabajador.apellido_paterno,
+          apellido_materno: response.datos_trabajador.apellido_materno,
+          nombres: response.datos_trabajador.nombres,
+          matricula: response.datos_trabajador.matricula,
+          tipo_incapacidad: response.calculo.tipo_incapacidad,
+          fecha_inicio_baja: response.calculo.fecha_inicio_baja,
+          fecha_fin_baja: response.calculo.fecha_fin_baja,
+          dias_incapacidad: response.calculo.dias_incapacidad,
+          dias_reembolso: response.calculo.dias_reembolso,
+          salario: response.calculo.salario,
+          monto_dia: response.calculo.monto_dia,
+          porcentaje_reembolso: response.calculo.porcentaje_reembolso,
+          monto_reembolso: response.calculo.monto_reembolso,
+          especialidad: bajaSeleccionada.ESP_NOM, 
+          medico: bajaSeleccionada.MEDI_NOM,     
+          comprobante: bajaSeleccionada.COMPROBANTE, 
+          fecha_incorporacion: this.formatDate(bajaSeleccionada.FECHA_INCORPORACION) 
+        };
+  
+        // Actualizar los datos del trabajador con la información real del backend
+        this.datosWorker = {
+          ci: response.datos_trabajador.ci,
+          apellido_paterno: response.datos_trabajador.apellido_paterno,
+          apellido_materno: response.datos_trabajador.apellido_materno,
+          nombres: response.datos_trabajador.nombres,
+          salario: response.datos_trabajador.salario_total
+        };
+      },
+      error: (error) => {
+        console.error('Error al calcular reembolso:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo calcular el reembolso. Verifique que el trabajador esté en la planilla del período correspondiente.'
+        });
+      }
+    });
   }
 
   confirmarYAgregar() {
