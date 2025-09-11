@@ -1,9 +1,13 @@
 
 
-<!-- Formulario de búsqueda -->
+<div class="buscar-trabajador-container">
+  <div class="info-section">
+    <h5 class="section-title"><i class="pi pi-search"></i> Buscar Trabajador por Matrícula</h5>
+    <div class="p-4">
+      <!-- Formulario de búsqueda -->
       <form [formGroup]="buscarForm" (ngSubmit)="buscarBajasMedicas()">
         <div class="p-field">
-          <label for="matricula">Matrícula del Trabajador</label>
+          <label for="matricula">Ingrese la Matrícula del Trabajador</label>
           <div class="p-inputgroup">
             <input 
               id="matricula"
@@ -17,9 +21,9 @@
               type="submit" 
               pButton 
               pRipple 
-              label="Buscar Bajas" 
+              label="" 
               icon="pi pi-search"
-              class="p-button-primary"
+              class="p-button-primary p-button-lg"
               [loading]="cargandoBusqueda"
               [disabled]="buscarForm.invalid">
             </button>
@@ -29,288 +33,254 @@
           </small>
         </div>
       </form>
-  
-  <!-- Dialog para mostrar bajas encontradas -->
-  <p-dialog
-    [(visible)]="mostrarDialogBajas"
-    [modal]="true"
-    [style]="{width: '80vw', maxWidth: '1200px'}"
-    [closable]="true"
-    (onHide)="cerrarDialogBajas()">
-
-    <ng-template pTemplate="header">
-      <div class="grid dashboard">
-        <div class="col-12 md:col-12 lg:6">
-          <div class="perfil-empleador">
-            <div class="cabezera-planilla">
-              <div class="header-left">
-                <h2 style="font-size: 15px; display: flex; align-items: center; font-family: 'Roboto', sans-serif; margin: 5px 0 5px;">
-                  <span style="background-color: #009688; color: white; padding: 6px 10px; border-radius: 4px 0 0 4px; display: flex; align-items: center;">
-                    <i class="pi pi-list" style="margin-right: 0.5rem;"></i>
-                    BAJAS
-                  </span>
-                  <span style="background-color: #018b7b; color: white; padding: 6px 10px; ">
-                    MÉDICAS
-                  </span>
-                  <span style="background-color: #00796b; color: white; padding: 6px 10px; ">
-                    ENCONTRADAS
-                  </span>
-                  <span
-                    style="background-color: #00382a; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
-                    RESULTADO
-                  </span>
-                </h2>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ng-template>
-    
-    <div class="bajas-list">
-      <div class="p-grid" *ngFor="let baja of bajasEncontradas; let i = index">
-        <div class="p-col-12">
-          <div class="p-card baja-card" [ngClass]="getTipoIncapacidadClass(baja.TIPO_BAJA)" style="margin-bottom: 1rem; border-left: 4px solid #ddd;">
-            <div class="p-card-body" style="padding: 1.5rem;">
-              <div class="p-grid">
-                <div class="p-col-12 p-md-8">
-                  <h4 style="margin: 0 0 1rem 0; color: #2c3e50; display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="tipo-badge" [ngClass]="getTipoIncapacidadClass(baja.TIPO_BAJA)" 
-                          style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: white;">
-                      {{ baja.TIPO_BAJA.trim() }}
-                    </span>
-                    Matrícula: {{ baja.ASE_MAT }}
-                  </h4>
-                  <p><strong>Especialidad:</strong> {{ baja.ESP_NOM }}</p>
-                  <p><strong>Médico:</strong> {{ baja.MEDI_NOM }}</p>
-                  <p><strong>Comprobante:</strong> {{ baja.COMPROBANTE }}</p>
-                  
-                  <div class="fechas-info" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-top: 1rem;">
-                    <div class="fecha-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px;">
-                      <i class="pi pi-calendar" style="color: #6c757d;"></i>
-                      <span style="font-size: 0.9rem;"><strong>Desde:</strong> {{ formatDate(baja.DIA_DESDE) }}</span>
-                    </div>
-                    <div class="fecha-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px;">
-                      <i class="pi pi-calendar" style="color: #6c757d;"></i>
-                      <span style="font-size: 0.9rem;"><strong>Hasta:</strong> {{ formatDate(baja.DIA_HASTA) }}</span>
-                    </div>
-                    <div class="fecha-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px;">
-                      <i class="pi pi-clock" style="color: #6c757d;"></i>
-                      <span style="font-size: 0.9rem;"><strong>Días:</strong> {{ baja.DIAS_IMPEDIMENTO }}</span>
-                    </div>
-                    <div class="fecha-item" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 4px;">
-                      <i class="pi pi-user-plus" style="color: #6c757d;"></i>
-                      <span style="font-size: 0.9rem;"><strong>Incorporación:</strong> {{ formatDate(baja.FECHA_INCORPORACION) }}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="p-col-12 p-md-4" style="text-align: center;">
-                  <div class="dias-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 10px; text-align: center; margin-bottom: 1rem;">
-                    <span style="display: block; font-size: 2rem; font-weight: bold; line-height: 1;">{{ baja.DIAS_IMPEDIMENTO }}</span>
-                    <span style="font-size: 0.9rem; opacity: 0.9;">días</span>
-                  </div>
-                  <button 
-                    pButton 
-                    pRipple 
-                    label="Seleccionar" 
-                    icon="pi pi-check"
-                    class="p-button-success p-button-lg"
-                    (click)="seleccionarBaja(baja)">
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </p-dialog>
+  </div>
+</div>
+
+<!-- Resultados de la Búsqueda -->
+<div class="resultados-container" *ngIf="mostrarDialogBajas && !cargandoBusqueda">
+    <div class="resultados-header-section">
+      <div class="header-content">
+        <i class="pi pi-list header-icon"></i>
+        <h4 class="resultados-title">Bajas Médicas Encontradas</h4>
+        <span class="resultados-count">({{ bajasEncontradas.length }})</span>
+      </div>
+      <button 
+        pButton 
+        pRipple 
+        type="button" 
+        icon="pi pi-times" 
+        class="p-button-rounded p-button-sm p-button-outlined" 
+        pTooltip="Limpiar resultados"
+        tooltipPosition="left"
+        (click)="limpiarResultados()">
+      </button>
+    </div>
+  
+    <!-- Tabla de Bajas Médicas -->
+    <div class="bajas-table-container">
+      <p-table 
+        [value]="bajasEncontradas" 
+        [paginator]="bajasEncontradas.length > 5" 
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        styleClass="p-datatable-sm p-datatable-striped"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} bajas"
+        [globalFilterFields]="['TIPO_BAJA', 'MEDI_NOM', 'ESP_NOM', 'ASE_MAT']">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Tipo</th>
+            <th>Matrícula</th>
+            <th>Médico</th>
+            <th>Especialidad</th>
+            <th>Período</th>
+            <th>Días</th>
+            <th>Acción</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-baja>
+          <tr class="baja-row" [ngClass]="getTipoIncapacidadClass(baja.TIPO_BAJA)">
+            <td>
+              <span class="tipo-badge" [ngClass]="getTipoIncapacidadClass(baja.TIPO_BAJA)">
+                {{ baja.TIPO_BAJA.trim() }}
+              </span>
+            </td>
+            <td>
+              <div class="matricula-cell">
+                <i class="pi pi-user"></i>
+                <span>{{ baja.ASE_MAT }}</span>
+              </div>
+            </td>
+            <td class="medico-cell">{{ baja.MEDI_NOM }}</td>
+            <td class="especialidad-cell">{{ baja.ESP_NOM }}</td>
+            <td>
+              <div class="periodo-cell">
+                <small>{{ formatDate(baja.DIA_DESDE) }}</small>
+                <i class="pi pi-arrow-right periodo-arrow"></i>
+                <small>{{ formatDate(baja.DIA_HASTA) }}</small>
+              </div>
+            </td>
+            <td>
+              <div class="dias-cell">
+                <span class="dias-numero">{{ baja.DIAS_IMPEDIMENTO }}</span>
+                <small>días</small>
+              </div>
+            </td>
+            <td>
+              <button 
+                pButton 
+                pRipple 
+                type="button" 
+                icon="pi pi-calculator" 
+                label="Seleccionar"
+                class="p-button-sm p-button-success" 
+                pTooltip="Calcular reembolso"
+                (click)="seleccionarBaja(baja)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center p-3">
+              <i class="pi pi-search" style="font-size: 2rem; color: #ccc;"></i>
+              <p class="mt-2 mb-0">No se encontraron bajas médicas</p>
+            </td>
+          </tr>
+        </ng-template>
+        
+      </p-table>
+    </div>
+  </div>
   
   <!-- Dialog para calcular reembolso -->
-  <p-dialog
-    [(visible)]="mostrarDialogCalculo"
-    [modal]="true"
-    [style]="{width: '70vw', maxWidth: '900px'}"
-    [closable]="true"
-    (onHide)="cerrarDialogCalculo()">
-
-    <ng-template pTemplate="header">
-      <div class="grid dashboard">
-        <div class="col-12 md:col-12 lg:6">
-          <div class="perfil-empleador">
-            <div class="cabezera-planilla">
-              <div class="header-left">
-                <h2 style="font-size: 15px; display: flex; align-items: center; font-family: 'Roboto', sans-serif; margin: 5px 0 5px;">
-                  <span style="background-color: #009688; color: white; padding: 6px 10px; border-radius: 4px 0 0 4px; display: flex; align-items: center;">
-                    <i class="pi pi-calculator" style="margin-right: 0.5rem;"></i>
-                    CALCULAR
-                  </span>
-                  <span style="background-color: #018b7b; color: white; padding: 6px 10px; ">
-                    REEMBOLSO
-                  </span>
-                  <span style="background-color: #00796b; color: white; padding: 6px 10px; ">
-                    PARA
-                  </span>
-                  <span
-                    style="background-color: #00382a; color: white; padding: 6px 10px; border-radius: 0 4px 4px 0;">
-                    TRABAJADOR
-                  </span>
-                </h2>
-              </div>
-            </div>
+  <p-dialog 
+    header="Calcular Reembolso" 
+    [(visible)]="mostrarDialogCalculo" 
+    [modal]="true" 
+    [style]="{width: '90vw', maxWidth: '1200px'}" 
+    [contentStyle]="{'padding': '1rem'}"
+    (onHide)="cerrarDialogCalculo()" 
+    appendTo="body">
+    <div class="calculo-container-dialog" *ngIf="bajaSeleccionada">
+  
+      <!-- Columna 1: Información de la Baja -->
+      <div class="info-section">
+        <h5 class="section-title"><i class="pi pi-info-circle"></i> Información de la Baja</h5>
+        <div class="contable-style">
+          <div class="detalle-linea">
+            <span>Tipo:</span>
+            <span>
+              <span class="tipo-badge" [ngClass]="getTipoIncapacidadClass(bajaSeleccionada.TIPO_BAJA)">
+                {{ bajaSeleccionada.TIPO_BAJA.trim() }}
+              </span>
+            </span>
           </div>
-        </div>
-      </div>
-    </ng-template>
-    
-    <div class="calculo-container" *ngIf="bajaSeleccionada">
-      
-      <!-- Información de la baja seleccionada -->
-      <div class="p-card p-mb-3">
-        <div class="p-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem;">
-          <h4 style="margin: 0; font-weight: 500;">
-            <i class="pi pi-info-circle" style="margin-right: 0.5rem;"></i>
-            Información de la Baja Médica
-          </h4>
-        </div>
-        <div class="p-card-body" style="padding: 1.5rem;">
-          <div class="p-grid">
-            <div class="p-col-6">
-              <p><strong>Tipo:</strong> 
-                <span class="tipo-badge" [ngClass]="getTipoIncapacidadClass(bajaSeleccionada.TIPO_BAJA)" 
-                      style="padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: white; margin-left: 0.5rem;">
-                  {{ bajaSeleccionada.TIPO_BAJA.trim() }}
-                </span>
-              </p>
-              <p><strong>Matrícula:</strong> {{ bajaSeleccionada.ASE_MAT }}</p>
-              <p><strong>Especialidad:</strong> {{ bajaSeleccionada.ESP_NOM }}</p>
-              <p><strong>Médico:</strong> {{ bajaSeleccionada.MEDI_NOM }}</p>
-            </div>
-            <div class="p-col-6">
-              <p><strong>Desde:</strong> {{ formatDate(bajaSeleccionada.DIA_DESDE) }}</p>
-              <p><strong>Hasta:</strong> {{ formatDate(bajaSeleccionada.DIA_HASTA) }}</p>
-              <p><strong>Días totales:</strong> {{ bajaSeleccionada.DIAS_IMPEDIMENTO }}</p>
-              <p><strong>Comprobante:</strong> {{ bajaSeleccionada.COMPROBANTE }}</p>
-            </div>
+          <div class="detalle-linea">
+            <span>Matrícula:</span>
+            <span>{{ bajaSeleccionada.ASE_MAT }}</span>
+          </div>
+          <div class="detalle-linea">
+            <span>Especialidad:</span>
+            <span>{{ bajaSeleccionada.ESP_NOM }}</span>
+          </div>
+          <div class="detalle-linea">
+            <span>Médico:</span>
+            <span>{{ bajaSeleccionada.MEDI_NOM }}</span>
+          </div>
+          
+          <p-divider styleClass="my-2"></p-divider>
+          
+          <div class="detalle-linea">
+            <span>Desde:</span>
+            <span>{{ formatDate(bajaSeleccionada.DIA_DESDE) }}</span>
+          </div>
+          <div class="detalle-linea">
+            <span>Hasta:</span>
+            <span>{{ formatDate(bajaSeleccionada.DIA_HASTA) }}</span>
+          </div>
+          <div class="detalle-linea">
+            <span>Días totales:</span>
+            <span class="dias-totales-val">{{ bajaSeleccionada.DIAS_IMPEDIMENTO }}</span>
+          </div>
+          
+          <p-divider styleClass="my-2"></p-divider>
+          
+          <div class="detalle-linea">
+            <span>Comprobante:</span>
+            <span>{{ bajaSeleccionada.COMPROBANTE }}</span>
           </div>
         </div>
       </div>
   
-      <!-- Datos del trabajador (editables) -->
-      <div class="p-card p-mb-3">
-        <div class="p-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem;">
-          <h4 style="margin: 0; font-weight: 500;">
-            <i class="pi pi-user" style="margin-right: 0.5rem;"></i>
-            Datos del Trabajador
-          </h4>
+      <!-- Columna 2: Datos del Trabajador -->
+      <div class="info-section">
+        <h5 class="section-title"><i class="pi pi-user"></i> Datos del Trabajador</h5>
+        <div class="form-grid dialog-form-grid">
+          <div class="p-field">
+            <label for="ci">Cédula de Identidad</label>
+            <input id="ci" type="text" pInputText [(ngModel)]="datosWorker.ci" readonly>
+          </div>
+          <div class="p-field">
+            <label for="nombres">Nombres</label>
+            <input id="nombres" type="text" pInputText [(ngModel)]="datosWorker.nombres">
+          </div>
+          <div class="p-field">
+            <label for="apellido_paterno">Apellido Paterno</label>
+            <input id="apellido_paterno" type="text" pInputText [(ngModel)]="datosWorker.apellido_paterno">
+          </div>
+          <div class="p-field">
+            <label for="apellido_materno">Apellido Materno</label>
+            <input id="apellido_materno" type="text" pInputText [(ngModel)]="datosWorker.apellido_materno">
+          </div>
+          <div class="p-field grid-col-span-2">
+            <label for="salario">Salario Total Ganado (BS.)</label>
+            <p-inputNumber id="salario" [(ngModel)]="datosWorker.salario" mode="currency" currency="BOB" locale="es-BO"></p-inputNumber>
+          </div>
         </div>
-        <div class="p-card-body" style="padding: 1.5rem;">
-          <div class="p-grid">
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="ci">Cédula de Identidad</label>
-                <input id="ci" type="text" pInputText [(ngModel)]="datosWorker.ci" readonly class="p-inputtext-sm">
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="apellido_paterno">Apellido Paterno</label>
-                <input id="apellido_paterno" type="text" pInputText [(ngModel)]="datosWorker.apellido_paterno" class="p-inputtext-sm">
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="apellido_materno">Apellido Materno</label>
-                <input id="apellido_materno" type="text" pInputText [(ngModel)]="datosWorker.apellido_materno" class="p-inputtext-sm">
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="nombres">Nombres</label>
-                <input id="nombres" type="text" pInputText [(ngModel)]="datosWorker.nombres" class="p-inputtext-sm">
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="salario">Salario Total Ganado</label>
-                <p-inputNumber 
-                  id="salario" 
-                  [(ngModel)]="datosWorker.salario" 
-                  mode="currency" 
-                  currency="BOB" 
-                  locale="es-BO"
-                  [minFractionDigits]="2"
-                  [maxFractionDigits]="2">
-                </p-inputNumber>
-              </div>
-            </div>
-          </div>
-          
-          <div style="text-align: center; margin-top: 1rem;">
-            <button 
-              pButton 
-              pRipple 
-              label="Calcular Reembolso" 
-              icon="pi pi-calculator"
-              class="p-button-primary"
-              (click)="calcularYMostrarReembolso()">
-            </button>
-          </div>
+        <div class="p-text-center p-mt-3">
+          <button pButton pRipple label="Calcular" icon="pi pi-calculator" class="p-button-primary" (click)="calcularYMostrarReembolso()"></button>
         </div>
       </div>
   
-      <!-- Resultado del cálculo -->
-      <div class="p-card" *ngIf="detalleCalculado">
-        <div class="p-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem;">
-          <h4 style="margin: 0; font-weight: 500;">
-            <i class="pi pi-money-bill" style="margin-right: 0.5rem;"></i>
-            Cálculo de Reembolso
-          </h4>
-        </div>
-        <div class="p-card-body" style="padding: 1.5rem;">
-          <div class="p-grid">
-            <div class="p-col-12 p-md-6">
-              <div class="calculo-detalle" style="background: #f8f9fa; padding: 1rem; border-radius: 6px; border-left: 4px solid #007bff;">
-                <h5 style="margin: 0 0 1rem 0; color: #495057;">Datos del Cálculo:</h5>
-                <p style="margin: 0.5rem 0; font-size: 0.95rem;"><strong style="color: #2c3e50;">Días de incapacidad:</strong> {{ detalleCalculado.dias_incapacidad }}</p>
-                <p style="margin: 0.5rem 0; font-size: 0.95rem;">
-                  <strong style="color: #2c3e50;">Días para reembolso:</strong> 
-                  <span style="font-weight: bold; color: #28a745; font-size: 1.1rem;">{{ detalleCalculado.dias_reembolso }}</span>
-                  <small *ngIf="detalleCalculado.tipo_incapacidad === 'ENFERMEDAD'" style="color: #6c757d; font-style: italic; display: block;">
-                    (Se descuentan 3 días para enfermedad común)
-                  </small>
-                </p>
-                <p style="margin: 0.5rem 0; font-size: 0.95rem;"><strong style="color: #2c3e50;">Porcentaje:</strong> {{ detalleCalculado.porcentaje_reembolso }}%</p>
-                <p style="margin: 0.5rem 0; font-size: 0.95rem;"><strong style="color: #2c3e50;">Salario por día:</strong> {{ detalleCalculado.monto_dia | currency:'BOB':'symbol':'1.2-2' }}</p>
+      <!-- Columna 3: Resultado del Cálculo -->
+      <div class="info-section result-section">
+        <h5 class="section-title"><i class="pi pi-money-bill"></i> Resultado del Cálculo</h5>
+        
+        <!-- Contenido Real del Cálculo -->
+        <ng-container *ngIf="detalleCalculado; else placeholderCalculo">
+          <div class="calculo-resultado-dialog">
+            <div class="calculo-detalle contable-style">
+              <div class="detalle-linea">
+                <span>Días de incapacidad:</span>
+                <span>{{ detalleCalculado.dias_incapacidad }}</span>
+              </div>
+              <div class="detalle-linea">
+                <span>Días para reembolso:</span>
+                <span class="dias-reembolso-val">{{ detalleCalculado.dias_reembolso }}</span>
+              </div>
+              <small *ngIf="detalleCalculado.tipo_incapacidad === 'ENFERMEDAD'" class="detalle-nota">(Se descuentan 3 días por enfermedad)</small>
+              
+              <p-divider styleClass="my-2"></p-divider>
+              
+              <div class="detalle-linea">
+                <span>Salario base por día:</span>
+                <span>{{ detalleCalculado.monto_dia | currency:'BOB':'symbol':'1.2-2' }}</span>
+              </div>
+              <div class="detalle-linea">
+                <span>Porcentaje de reembolso:</span>
+                <span>{{ detalleCalculado.porcentaje_reembolso }}%</span>
               </div>
             </div>
-            <div class="p-col-12 p-md-6">
-              <div class="monto-final" style="text-align: center; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 1.5rem; border-radius: 10px;">
-                <h5 style="margin: 0 0 1rem 0; font-weight: 500;">Monto de Reembolso:</h5>
-                <div style="font-size: 2.5rem; font-weight: bold; margin: 1rem 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
-                  {{ detalleCalculado.monto_reembolso | currency:'BOB':'symbol':'1.2-2' }}
-                </div>
-                <small style="opacity: 0.9; font-size: 0.9rem;">
-                  {{ detalleCalculado.dias_reembolso }} días × 
-                  {{ detalleCalculado.monto_dia | currency:'BOB':'symbol':'1.2-2' }} × 
-                  {{ detalleCalculado.porcentaje_reembolso }}%
-                </small>
-              </div>
+            
+            <div class="monto-final-contable">
+              <span class="monto-label">Monto Total a Reembolsar</span>
+              <span class="monto-valor">{{ detalleCalculado.monto_reembolso | currency:'BOB':'symbol':'1.2-2' }}</span>
             </div>
           </div>
           
-          <div style="text-align: center; margin-top: 1rem;">
-            <button 
-              pButton 
-              pRipple 
-              label="Confirmar y Agregar a Planilla" 
-              icon="pi pi-check"
-              class="p-button-success p-button-lg"
-              (click)="confirmarYAgregar()">
-            </button>
+          <div class="p-mt-auto">
+            <button pButton pRipple label="Confirmar y Agregar" icon="pi pi-check" class="p-button-success p-button-lg w-full" (click)="confirmarYAgregar()"></button>
           </div>
-        </div>
+        </ng-container>
+  
+        <!-- Placeholder mientras no hay cálculo -->
+        <ng-template #placeholderCalculo>
+          <div class="placeholder-container">
+            <i class="pi pi-chart-line placeholder-icon"></i>
+            <p class="placeholder-text">Los resultados del cálculo aparecerán aquí.</p>
+            <div class="p-mt-4">
+              <p-skeleton width="80%" height="1.5rem" styleClass="p-mb-2"></p-skeleton>
+              <p-skeleton width="60%" height="1.5rem"></p-skeleton>
+            </div>
+          </div>
+        </ng-template>
+  
       </div>
+  
     </div>
   </p-dialog>

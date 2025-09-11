@@ -64,8 +64,9 @@ export class BuscarTrabajadorComponent {
         
         if (response.ok && response.bajasDB && response.bajasDB.length > 0) {
           this.bajasEncontradas = response.bajasDB;
-          this.mostrarDialogBajas = true;
+          this.mostrarDialogBajas = true; // Sigue siendo útil para saber si mostrar la lista
           
+          // El Swal de éxito es bueno, lo mantenemos.
           Swal.fire({
             icon: 'success',
             title: 'Éxito',
@@ -94,7 +95,8 @@ export class BuscarTrabajadorComponent {
 
   seleccionarBaja(baja: BajaMedica) {
     this.bajaSeleccionada = baja;
-    this.mostrarDialogBajas = false;
+    // Ya no cerramos un diálogo de bajas, el usuario puede querer ver la lista.
+    // this.mostrarDialogBajas = false; 
     
     // Extraer CI de la matrícula (formato: XX-XXXX XXX)
     const ci = baja.ASE_MAT.split(' ')[0];
@@ -211,21 +213,29 @@ export class BuscarTrabajadorComponent {
     this.mostrarDialogCalculo = false;
   }
 
+  limpiarResultados() {
+    this.bajasEncontradas = [];
+    this.mostrarDialogBajas = false;
+  }
+
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-ES');
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   }
 
   getTipoIncapacidadClass(tipo: string): string {
-    switch (tipo?.trim()) {
+    switch (tipo?.trim().toUpperCase()) {
       case 'ENFERMEDAD': return 'enfermedad';
       case 'MATERNIDAD': return 'maternidad';
-      case 'PROFESIONAL': return 'profesional';
+      case 'ACCIDENTE DE TRABAJO':
+      case 'ENFERMEDAD PROFESIONAL':
+        return 'profesional';
       default: return 'default';
     }
-  }
-
-  cerrarDialogBajas() {
-    this.mostrarDialogBajas = false;
   }
 
   cerrarDialogCalculo() {
