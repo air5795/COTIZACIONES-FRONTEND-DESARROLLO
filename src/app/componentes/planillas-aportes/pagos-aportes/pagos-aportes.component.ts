@@ -403,7 +403,7 @@ private resetForm(): void {
 
   // Abrir el modal para ver la imagen
   openImageDialog(pago: PagoAporte): void {
-    this.selectedImageUrl = `http://10.0.0.152:4001/${pago.foto_comprobante}`;
+    this.selectedImageUrl = `http://10.0.0.152:4002/${pago.foto_comprobante}`;
     this.isPdfLoaded = true;
     this.displayImageDialog = true;
   }
