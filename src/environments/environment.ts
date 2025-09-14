@@ -31,10 +31,10 @@
   userNameAsus: 'cbes',
   passwordAsus: 'cbes.2022**',
 
-  urlMSAuth: 'http://10.0.0.152:3000/api/auth/get-session',
-  urlMSAuthToken: 'http://10.0.0.152:3000/api/auth',
-  urlMSAuthRefreshToken: 'http://10.0.0.152:3000/api/',
-  login: 'http://10.0.0.152:3999/',
+  urlMSAuth: 'http://10.0.10.217:3000/api/auth/get-session',
+  urlMSAuthToken: 'http://10.0.10.217:3000/api/auth',
+  urlMSAuthRefreshToken: 'http://10.0.10.217:3000/api/',
+  login: 'http://10.0.10.200:4300/',
 };   
  
 /*  export const environment = {
