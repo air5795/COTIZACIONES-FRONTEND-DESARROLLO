@@ -68,7 +68,7 @@ export class DatosEmpresaComponent implements OnInit {
   validarRolUsuario() {
     try {
       const sessionData = this.sessionService.sessionDataSubject.value;
-      this.isAdmin = sessionData?.rol.rol === 'ADMIN_COTIZACIONES_DESARROLLO';
+      this.isAdmin = sessionData?.rol.rol === 'ADMIN_COTIZACIONES_DESARROLLO' || sessionData?.rol.rol === 'ADMIN_COTIZACIONES';
     } catch (error) {
       this.isAdmin = false; 
     }

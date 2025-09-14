@@ -158,6 +158,7 @@ registerLocaleData(localeEs);
   imports: [
     GoogleMapsModule,
     BrowserModule,
+    SidebarModule,
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,

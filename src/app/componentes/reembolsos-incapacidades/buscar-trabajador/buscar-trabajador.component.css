@@ -1,232 +1,455 @@
-/* Estilos principales tomados de planillas-aportes-detalle */
-.button-container {
-  display: flex;
-  gap: 10px;
+/* Contenedor para el buscador principal */
+.buscar-trabajador-container {
+  max-width: 700px;
+  margin: 1rem auto; /* Reducimos el margen vertical */
 }
 
-/* Estilo principal */
-.perfil-empleador {
-  background: #ffffff;
-  /* border-radius: 12px; */
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+:host {
+  font-family: var(--font-family);
 }
 
-/* Estilo de la cabecera compacta */
-.header {
-  background: linear-gradient(135deg, #009688, #00695c);
-  color: white;
-  padding: 10px 20px;
+/* Estilos para el contenedor de resultados */
+.resultados-container {
+  margin-top: 1rem; /* Reducido de 1.5rem */
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 1rem; /* Reducido de 1.5rem */
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Nuevo header mejorado */
+.resultados-header-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 16px;
-  font-weight: bold;
-  border-bottom: 3px solid #004d40;
-  /* flex-direction: row-reverse; */
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
 }
 
-/* Estilo del título "Perfil de Empleador" a la izquierda */
-.header-left h2 {
-  /* margin: 0; */
-  font-size: 18px;
-  font-weight: bold;
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-icon {
+  color: var(--primary-color, #007bff);
+  font-size: 1.25rem;
+}
+
+.resultados-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color, #007bff);
+}
+
+.resultados-count {
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Estilos para la tabla de bajas */
+.bajas-table-container {
+  margin-top: 0;
+}
+
+/* Estilos personalizados para la tabla */
+::ng-deep .p-datatable {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem;
+  border-color: #dee2e6;
+  font-size: 0.9rem;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Estilos para las celdas específicas */
+.tipo-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Estilo para Razón Social y N° Patronal */
-.header-right {
+.tipo-badge.enfermedad {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.tipo-badge.maternidad {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #b8daff;
+}
+
+.tipo-badge.profesional {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.tipo-badge.default {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}
+
+.matricula-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.matricula-cell i {
+  color: #6c757d;
+}
+
+.medico-cell {
+  font-weight: 500;
+  color: #495057;
+}
+
+.especialidad-cell {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.periodo-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.periodo-arrow {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.dias-cell {
+  text-align: center;
+}
+
+.dias-numero {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.dias-cell small {
+  color: #6c757d;
+  font-size: 0.75rem;
+}
+
+/* Filas de la tabla con colores según tipo */
+::ng-deep .baja-row.enfermedad {
+  border-left: 4px solid #ffc107;
+}
+
+::ng-deep .baja-row.maternidad {
+  border-left: 4px solid #17a2b8;
+}
+
+::ng-deep .baja-row.profesional {
+  border-left: 4px solid #28a745;
+}
+
+::ng-deep .baja-row.default {
+  border-left: 4px solid #6c757d;
+}
+
+/* Estilos del diálogo de cálculo - OPTIMIZADOS */
+.calculo-container-dialog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Reducido de 320px */
+  gap: 1.5rem; /* Reducido de 2rem */
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 1.5rem; /* Mantenemos el padding del header */
+}
+
+::ng-deep .p-dialog .p-dialog-content {
+  padding: 1rem 1.5rem; /* Reducido de padding por defecto */
+}
+
+::ng-deep .p-dialog .p-dialog-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.info-section {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem; /* Reducido de 1.5rem */
+  margin-bottom: 0;
   display: flex;
   flex-direction: column;
-  text-align: left;
+  height: 100%;
 }
 
-/* Razón Social (Empresa) */
-.razon-social {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-/* N° Patronal */
-.numero-patronal {
-  font-size: 14px;
-  color: #e0e0e0;
-}
-
-/* Contenedor del contenido */
-.perfil-contenido {
-  display: grid;
-  /* grid-template-columns: repeat(2, 1fr); */
-  gap: 8px;
-  padding: 15px;
-}
-
-/* Elementos individuales */
-.perfil-item {
-  background: #f8f8f8;
-  padding: 6px 12px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Estilos de títulos e información */
-.titulo {
-  font-weight: bold;
-  color: #357c61;
-}
-
-.info {
-  text-align: right;
-  color: #333;
-}
-
-/* Diseño adaptable */
-@media (max-width: 768px) {
-  .perfil-contenido {
-      grid-template-columns: repeat(1, 1fr);
-  }
-
-  .header {
-      flex-direction: column;
-      text-align: center;
-  }
-
-  .header-right {
-      text-align: center;
-      margin-top: 5px;
-  }
-}
-
-.list-container {
-  margin-top: 10px;
-}
-
-.list-item {
-  background: #f8f8f8;
-  padding: 6px 12px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.list-item .label {
+.section-title {
+  margin: -1rem -1rem 1rem -1rem; /* Ajustado para el nuevo padding */
+  padding: 0.75rem 1rem; /* Reducido el padding */
+  border-bottom: 1px solid #e9ecef;
+  font-size: 1rem; /* Reducido de 1.1rem */
   font-weight: 600;
-  color: #00695c;
-  font-size: 13px;
+  background-color: #f8f9fa;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
-.list-item .value {
-  text-align: right;
-  color: #333;
-  font-weight: 500;
+.section-title i {
+  margin-right: 0.5rem;
 }
 
-.estado-container {
+.dialog-info-grid, .dialog-form-grid {
+  flex-grow: 1;
+}
+
+.dialog-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem; /* Reducido de 1rem */
+}
+
+.dialog-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.grid-col-span-2 {
+  grid-column: span 2;
+}
+
+.p-field {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+}
+
+.p-field label {
+  margin-bottom: 0.4rem; /* Reducido de 0.5rem */
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem; /* Añadido para hacer las etiquetas más compactas */
+}
+
+.p-inputtext, .p-inputnumber {
   width: 100%;
 }
 
-.cabezera-planilla {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  padding: 20px;
-}
-
-.header-left {
-  flex: 1;
-}
-
-.header-right {
+.result-section {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
 }
 
-.boton4 {
-  background-color: #71B452;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.calculo-resultado-dialog {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.boton4:hover {
-  background-color: #5a8f3d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+/* Nuevo estilo contable - OPTIMIZADO */
+.contable-style {
+  background-color: #fff;
+  padding: 0.75rem; /* Reducido de 1rem */
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
 }
 
-/* Estilos para tipos de incapacidad */
-.baja-card.enfermedad {
-    border-left-color: #ff6b6b !important;
+.detalle-linea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0; /* Reducido de 0.6rem */
+  font-size: 0.9rem; /* Reducido de 0.95rem */
+  color: #495057;
+}
+
+.detalle-linea span:last-child {
+  font-weight: 600;
+}
+
+.detalle-nota {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem; /* Reducido de 0.8rem */
+  color: #6c757d;
+  margin-top: -0.4rem; /* Ajustado */
+  padding-right: 0.25rem;
+}
+
+.dias-totales-val {
+  font-weight: 600;
+  background-color: #e9ecef;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  color: #495057;
+}
+
+.dias-reembolso-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+.monto-final-contable {
+  margin-top: 1rem; /* Reducido de 1.5rem */
+  padding: 1rem; /* Reducido de 1.5rem */
+  background-color: #e8f5e9;
+  border-top: 2px solid #4caf50;
+  border-bottom: 1px solid #a5d6a7;
+  text-align: center;
+}
+
+.monto-label {
+  display: block;
+  font-size: 0.9rem; /* Reducido de 1rem */
+  font-weight: 500;
+  color: #388e3c;
+  margin-bottom: 0.4rem; /* Reducido de 0.5rem */
+}
+
+.monto-valor {
+  display: block;
+  font-size: 2rem; /* Reducido de 2.5rem */
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.p-mt-auto {
+  margin-top: auto;
+  padding-top: 1rem; /* Reducido de 1.5rem */
+}
+
+/* Estilos para el Placeholder */
+.placeholder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  color: #6c757d;
+  padding: 2rem 1rem;
+}
+
+.placeholder-icon {
+  font-size: 2.5rem; /* Reducido de 3rem */
+  color: #ced4da;
+  margin-bottom: 1rem;
+}
+
+.placeholder-text {
+  font-weight: 500;
+  font-size: 1rem; /* Reducido de 1.1rem */
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .calculo-container-dialog {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .periodo-cell {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .periodo-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .dialog-form-grid, .dialog-info-grid {
+    grid-template-columns: 1fr;
   }
 
-  .baja-card.maternidad {
-    border-left-color: #4ecdc4 !important;
+  .grid-col-span-2 {
+    grid-column: span 1;
   }
-
-  .baja-card.profesional {
-    border-left-color: #45b7d1 !important;
+  
+  .resultados-header-section {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
   }
-
-  .baja-card.default {
-    border-left-color: #6c757d !important;
+  
+  .header-content {
+    justify-content: center;
   }
-
-  .tipo-badge.enfermedad {
-    background: #ff6b6b !important;
+  
+  /* Hacer la tabla más responsive */
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th,
+  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
   }
-
-  .tipo-badge.maternidad {
-    background: #4ecdc4 !important;
+  
+  .tipo-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
   }
-
-  .tipo-badge.profesional {
-    background: #45b7d1 !important;
+  
+  .dias-numero {
+    font-size: 1rem;
   }
+}
 
-  .tipo-badge.default {
-    background: #6c757d !important;
+@media (max-width: 576px) {
+  .buscar-trabajador-container {
+    margin: 0.5rem;
+    max-width: none;
   }
-
-  /* Efectos hover para las cards */
-  .baja-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
+  
+  .resultados-container {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
   }
-
-  .baja-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  
+  /* Ocultar algunas columnas en móvil muy pequeño */
+  ::ng-deep .p-datatable .especialidad-cell {
+    display: none;
   }
-
-  /* Responsive para móviles */
-  @media (max-width: 768px) {
-    .fechas-info {
-      grid-template-columns: 1fr !important;
-    }
-
-    .p-grid [class*="p-col-"] {
-      padding: 0.5rem;
-    }
-
-    .dias-badge {
-      margin-bottom: 0.5rem !important;
-    }
+  
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th:nth-child(4) {
+    display: none;
   }
+}
