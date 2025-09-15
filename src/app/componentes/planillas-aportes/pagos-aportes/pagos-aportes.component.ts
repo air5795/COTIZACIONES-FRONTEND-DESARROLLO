@@ -10,6 +10,7 @@ import { MenuItem } from 'primeng/api';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; 
 import { StepperModule } from 'primeng/stepper'; // Agregar esta importación
 import Swal from 'sweetalert2';
+import { environment } from '../../../../environments/environment';
 
 
 
@@ -403,7 +404,10 @@ private resetForm(): void {
 
   // Abrir el modal para ver la imagen
   openImageDialog(pago: PagoAporte): void {
-    this.selectedImageUrl = `http://10.0.0.152:4002/${pago.foto_comprobante}`;
+    if (!pago.foto_comprobante) return;
+  
+    // Construye la URL completa usando la variable del environment
+    this.selectedImageUrl = `${environment.url_imagenes}${pago.foto_comprobante}`;
     this.isPdfLoaded = true;
     this.displayImageDialog = true;
   }
