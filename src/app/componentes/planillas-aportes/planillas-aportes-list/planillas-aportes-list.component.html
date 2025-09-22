@@ -10,10 +10,23 @@
           <div class="header-right">
             <div class="button-container">
 
-              <button pButton label="PLANTILLA" class="boton1" (click)="descargarPlantilla()">
+              <button pButton label="PLANTILLAS" class="boton1" (click)="toggleMenuPlantillas($event)">
                 <span class="pi pi-download" style="font-size: 2rem; padding-bottom: 10px;"></span>
                 <span style="font-size: 13px;color: #ffffff;margin-bottom: 2px;">Descargar</span>
-              </button> 
+              </button>
+              
+              <p-overlayPanel #menuPlantillasPanel [showCloseIcon]="false" [style]="{'width': '160px'}">
+                <div class="menu-plantillas">
+                  <button pButton class="p-button-text menu-item" (click)="seleccionarPlantilla('corta')">
+                    <span class="pi pi-download" style="margin-right: 8px;"></span>
+                    Resumida
+                  </button>
+                  <button pButton class="p-button-text menu-item" (click)="seleccionarPlantilla('extendida')">
+                    <span class="pi pi-download" style="margin-right: 8px;"></span>
+                    Extendida
+                  </button>
+                </div>
+              </p-overlayPanel> 
         
               <button pButton label="PLANILLA" class="boton2" (click)="mostrarModal = true">
                 <span class="pi pi-book" style="font-size: 2rem; padding-bottom: 10px;"></span>
@@ -162,51 +175,33 @@ class="tabla-centrada"
     <td>
       <ng-container [ngSwitch]="planilla.tipo_planilla">
         <!-- Mensual - Verde -->
-        <span *ngSwitchCase="'Mensual'"
-              class="p-tag p-tag-success p-tag-rounded p-text-bold"
-              style="background-color: #119967; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
-          <i class="pi pi-calendar" style="font-size: 1rem"></i>
-          <span>Planilla {{planilla.tipo_planilla}}</span>
+        <span *ngSwitchCase="'Mensual'" class="tipo-planilla-text tipo-mensual">
+          {{planilla.tipo_planilla}}
         </span>
     
-        <!-- Planilla Adicional - Amarillo/Naranja -->
-        <span *ngSwitchCase="'Planilla Adicional'"
-              class="p-tag p-tag-warning p-tag-rounded p-text-bold"
-              style="background-color: #2262af; color:white; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
-          <i class="pi pi-file" style="font-size: 1rem"></i>
-          <span>{{planilla.tipo_planilla}}</span>
+        <!-- Planilla Adicional - Azul -->
+        <span *ngSwitchCase="'Planilla Adicional'" class="tipo-planilla-text tipo-adicional">
+          {{planilla.tipo_planilla}}
         </span>
     
-        <!-- Beneficio Social - Azul -->
-        <span *ngSwitchCase="'Beneficio Social'"
-              class="p-tag p-tag-info p-tag-rounded p-text-bold"
-              style="background-color: #007596; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
-          <i class="pi pi-file" style="font-size: 1rem"></i>
-          <span>Planilla {{planilla.tipo_planilla}}</span>
+        <!-- Beneficio Social - Púrpura -->
+        <span *ngSwitchCase="'Beneficio Social'" class="tipo-planilla-text tipo-beneficio">
+          {{planilla.tipo_planilla}}
         </span>
     
-        <!-- Reintegro - Rojo -->
-        <span *ngSwitchCase="'Reintegro'"
-              class="p-tag p-tag-danger p-tag-rounded p-text-bold"
-              style="background-color: #541883; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
-          <i class="pi pi-file" style="font-size: 1rem"></i>
-          <span>Planilla {{planilla.tipo_planilla}}</span>
+        <!-- Reintegro - Naranja -->
+        <span *ngSwitchCase="'Reintegro'" class="tipo-planilla-text tipo-reintegro">
+          {{planilla.tipo_planilla}}
         </span>
 
-        <!-- Retroactivo - Naranja -->
-        <span *ngSwitchCase="'Retroactivo'"
-              class="p-tag p-tag-warning p-tag-rounded p-text-bold"
-              style="background-color: #8de1dc; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem;">
-          <i class="pi pi-file" style="font-size: 1rem"></i>
-          <span>Planilla {{planilla.tipo_planilla}}</span>
+        <!-- Retroactivo - Teal -->
+        <span *ngSwitchCase="'Retroactivo'" class="tipo-planilla-text tipo-retroactivo">
+          {{planilla.tipo_planilla}}
         </span>
     
         <!-- Default - Gris -->
-        <span *ngSwitchDefault
-              class="p-tag p-tag-rounded p-text-bold"
-              style="min-width: 140px; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 0.75rem; gap: 0.75rem; background: #64748b; color: white;">
-          <i class="pi pi-question-circle" style="font-size: 1rem"></i>
-          <span>{{planilla.tipo_planilla}}</span>
+        <span *ngSwitchDefault class="tipo-planilla-text tipo-default">
+          {{planilla.tipo_planilla}}
         </span>
       </ng-container>
     </td>
@@ -221,16 +216,30 @@ class="tabla-centrada"
         
       </td>
     <td>
+      <div class="action-buttons-container">
         <button 
-        pButton 
-        type="button" 
-        label="Ver Planilla"
-        icon="pi pi-arrow-right" 
+          type="button" 
+          class="action-btn btn-view"
+          (click)="verDetalle(planilla.id_planilla_aportes)"
+          title="Ver detalles de la planilla"
+        >
+          <i class="pi pi-eye"></i>
+          <span>Ver Planilla</span>
+        </button>
         
-        (click)="verDetalle(planilla.id_planilla_aportes)"
-        [style]="{backgroundColor: '#007063', color: 'white' , width: '100%',borderRadius: '0px', padding: '0.5rem 1rem'}"
-      ></button>
-
+        <button 
+          type="button" 
+          class="action-btn btn-delete"
+          [class.enabled]="planilla.estado === 0"
+          [class.disabled]="planilla.estado !== 0"
+          [disabled]="planilla.estado !== 0"
+          (click)="planilla.estado === 0 && eliminarPlanilla(planilla.id_planilla_aportes)"
+          [title]="planilla.estado === 0 ? 'Eliminar planilla (solo disponible en estado BORRADOR)' : 'Solo se pueden eliminar planillas en estado BORRADOR'"
+        >
+          <i class="pi pi-trash"></i>
+          <span></span>
+        </button>
+      </div>
     </td>
   </tr>
     </ng-template>
@@ -343,7 +352,12 @@ class="tabla-centrada"
                   <th>Apellido Materno</th>
                   <th>Nombres</th>
                   <th>Cargo</th>
-                  <th style="width: 200px;">Salario</th> 
+                  <th >Haber Básico</th> 
+                  <th >Bono de antigüedad</th> 
+                  <th >Monto horas extra</th> 
+                  <th >Monto horas extra nocturnas</th> 
+                  <th >Otros bonos y pagos</th>
+                  <th style="width: 200px;">Total Ganado</th>
                   <th>Fecha Ingreso</th>
                   <th>Fecha Retiro</th>
                   <th>Regional</th>
@@ -358,6 +372,11 @@ class="tabla-centrada"
                   <td>{{ trabajador['Nombres'] }}</td>
                   <td>{{ trabajador['Cargo'] }}</td>
                   <td>{{ trabajador['Haber Básico'] | number:'1.2-2' }}</td>
+                  <td>{{ trabajador['Bono de antigüedad'] | number:'1.2-2' }}</td>
+                  <td>{{ trabajador['Monto horas extra'] | number:'1.2-2' }}</td>
+                  <td>{{ trabajador['Monto horas extra nocturnas'] | number:'1.2-2' }}</td>
+                  <td>{{ trabajador['Otros bonos y pagos'] | number:'1.2-2' }}</td>
+                  <td style="background-color: #f3fff7;">{{ trabajador['Bono de antigüedad'] + trabajador['Monto horas extra'] + trabajador['Monto horas extra nocturnas'] + trabajador['Otros bonos y pagos'] + trabajador['Haber Básico'] | number:'1.2-2' }}</td>
                   <td>{{ trabajador['Fecha de ingreso'] | date: 'dd/MM/yyyy ' }}</td>
                   <td>{{ trabajador['Fecha de retiro'] | date: 'dd/MM/yyyy ' }}</td>
                   <td>{{ trabajador['regional'] }}</td>
@@ -406,7 +425,7 @@ class="tabla-centrada"
                 
                 <div class="p-d-flex p-ai-center" style="border-bottom: 1px solid #e0e0e0; padding: 10px 0; justify-content: center;">
                     <i class="pi pi-money-bill p-mr-2" style="font-size: 1.5rem; color: #009688; margin-right: 5px;"></i>
-                    <label class="p-mb-0" style="font-size: 1rem; color: #34495e;">Total Importe: <strong style="color: #2c3e50;">{{ obtenerTotalImporte() | currency:'Bs ':'symbol':'1.2-2' }}</strong></label>
+                    <label class="p-mb-0" style="font-size: 1rem; color: #34495e;">Suma Total Ganado: <strong style="color: #2c3e50;">{{ obtenerTotalImporte() | currency:'Bs ':'symbol':'1.2-2' }}</strong></label>
                 </div>
 
                

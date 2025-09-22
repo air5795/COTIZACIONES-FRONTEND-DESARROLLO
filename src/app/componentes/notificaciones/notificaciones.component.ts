@@ -28,11 +28,9 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    // 🔧 CORRECCIÓN: Inicializar idcNivel con el rol del usuario
     const sessionData = this.sessionService.sessionDataSubject.value;
     
     if (sessionData?.rol?.rol) {
-      // Mapear el rol completo a los valores esperados por el backend
       const rolCompleto = sessionData.rol.rol;
       
       if (rolCompleto.includes('ADMIN_COTIZACIONES')) {
@@ -40,7 +38,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
       } else if (rolCompleto.includes('EMPRESA_COTIZACIONES')) {
         this.idcNivel = 'COTIZACIONES_EMPRESA';
       } else {
-        // Si no coincide con ninguno, usar el rol completo
         this.idcNivel = rolCompleto;
       }
     } else {

@@ -42,6 +42,7 @@ export class DatosEmpresaComponent implements OnInit {
     this.validarRolUsuario();
   
     if (!this.isAdmin) {
+      // ✅ Cargar Google Maps con loading=async
       this.gmapsLoader.load('AIzaSyDC5fxZ3Qfi2cFfEADgiRM9xWRgvBlJMqY')
         .then(() => {
           this.mapReady = true;
@@ -60,6 +61,7 @@ export class DatosEmpresaComponent implements OnInit {
         })
         .catch((error) => {
           this.showError('No se pudo cargar el mapa de Google. Verifique su conexión.');
+          this.mapError = true;
         });
     }
   }
@@ -158,18 +160,23 @@ export class DatosEmpresaComponent implements OnInit {
       this.mapError = true;
       return;
     }
-  
+
     const apiKey = 'AIzaSyA_kuyLgukBmvAyF86YQC4Sx84JjizT9vc';
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(direccion)}&key=${apiKey}`;
-  
+
     this.http.get<any>(url).subscribe(
       response => {
         if (response.status === 'OK' && response.results.length > 0) {
           const location = response.results[0].geometry.location;
           this.lat = location.lat;
           this.lng = location.lng;
-          this.mapError = false; // 👍 todo bien
+          this.mapError = false;
           this.cdr.detectChanges();
+          
+          // ✅ Esperar un poco para que el DOM se actualice
+          setTimeout(() => {
+            this.initializeNativeMap();
+          }, 100);
         } else {
           this.mapError = true;
         }
@@ -179,12 +186,70 @@ export class DatosEmpresaComponent implements OnInit {
       }
     );
   }
+
+  // ✅ Método completamente nuevo usando AdvancedMarkerElement
+  private initializeNativeMap(): void {
+    if (!this.lat || !this.lng || !(window as any).google?.maps) {
+      this.mapError = true;
+      return;
+    }
+
+    const mapElement = document.getElementById('native-map');
+    if (!mapElement) {
+      this.mapError = true;
+      return;
+    }
+
+    try {
+      // ✅ Crear mapa con mapId requerido para AdvancedMarkerElement
+      const map = new (window as any).google.maps.Map(mapElement, {
+        center: { lat: this.lat, lng: this.lng },
+        zoom: 16,
+        mapId: 'DEMO_MAP_ID', // Requerido para AdvancedMarkerElement
+        mapTypeControl: true,
+        streetViewControl: true,
+        fullscreenControl: true,
+        zoomControl: true
+      });
+
+      // ✅ Usar AdvancedMarkerElement (nueva API)
+      if ((window as any).google.maps.marker?.AdvancedMarkerElement) {
+        new (window as any).google.maps.marker.AdvancedMarkerElement({
+          map: map,
+          position: { lat: this.lat, lng: this.lng },
+          title: this.empresa?.emp_nom || 'Ubicación de la empresa',
+          gmpDraggable: false
+        });
+      } else {
+        // ✅ Fallback silencioso sin warnings
+        
+        // Suprimir temporalmente el warning
+        const originalWarn = console.warn;
+        console.warn = () => {};
+        
+        new (window as any).google.maps.Marker({
+          position: { lat: this.lat, lng: this.lng },
+          map: map,
+          title: this.empresa?.emp_nom || 'Ubicación de la empresa'
+        });
+        
+        // Restaurar console.warn después de 100ms
+        setTimeout(() => {
+          console.warn = originalWarn;
+        }, 100);
+      }
+
+      this.mapError = false;
+    } catch (error) {
+      this.mapError = true;
+    }
+  }
   
   
   
 
   get mostrarMapa(): boolean {
-    return this.mapReady && this.lat !== undefined && this.lng !== undefined;
+    return this.mapReady && this.lat !== undefined && this.lng !== undefined && !this.mapError;
   }
   
 

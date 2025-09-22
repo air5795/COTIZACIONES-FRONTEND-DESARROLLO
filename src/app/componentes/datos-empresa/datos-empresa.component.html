@@ -125,14 +125,10 @@
                                 <!-- Tarjeta 1 : Planillas APORTES PRESENTADAS  -->
                                 
                                 <div class="col-12 md:col-12 lg:col-12">   
-                                    <div *ngIf="mostrarMapa" style="height: 400px; width: 100%;">
-                                        <google-map 
-                                          [height]="'400px'"
-                                          [width]="'100%'"
-                                          [center]="{ lat: lat, lng: lng }"
-                                          [zoom]="16">
-                                          <map-marker [position]="{ lat: lat, lng: lng }"></map-marker>
-                                        </google-map>
+                                    <!-- ✅ Reemplazar google-map por div nativo -->
+                                    <div *ngIf="mostrarMapa" 
+                                         id="native-map" 
+                                         style="height: 400px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     </div>
                                     <div *ngIf="mapError" style="margin-top: 20px; color: red;">
                                         <p><strong>No se pudo cargar el mapa.</strong></p>

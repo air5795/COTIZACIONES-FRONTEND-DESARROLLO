@@ -534,12 +534,7 @@
   }
 }
 
-/* Estilos para el modal de validación */
-::ng-deep .validation-modal .p-dialog-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 8px 8px 0 0;
-}
+
 
 ::ng-deep .validation-modal .p-dialog-content {
   padding: 2rem;

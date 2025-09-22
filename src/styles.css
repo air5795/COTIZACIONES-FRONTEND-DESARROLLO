@@ -301,20 +301,24 @@
   .borrador {
     background-color: #ebe6ff; 
     color: #333; 
+    width: 90%;
   }
   
   .pendiente {
     background-color: #d7f1ff; 
     color: #547485; 
+    width: 90%;
   }
   
   .aprobado {
     background-color: rgb(78, 214, 146); 
+    width: 90%;
   }
   
 
   .observado {
     background-color: #f59999; 
+    width: 90%;
   }
 
   /***********************************************************************************************/

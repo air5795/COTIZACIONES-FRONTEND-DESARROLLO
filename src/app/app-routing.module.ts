@@ -29,6 +29,9 @@ import { SolicitudReembolsoComponent } from './componentes/reembolsos-incapacida
 import { EmpresasComponent } from './componentes/empresas/empresas.component';
 import { PerfilUsuarioComponent } from './componentes/perfil-usuario/perfil-usuario.component';
 import { DetallePlanillaReembolsoComponent } from './componentes/reembolsos-incapacidades/detalle-planilla-reembolso/detalle-planilla-reembolso.component';
+import { RecursosComponent } from './componentes/recursos/recursos.component';
+import { LiquidacionesDevengadasComponent } from './componentes/liquidaciones-devengadas/liquidaciones-devengadas.component';
+import { DetalleDevengadoComponent } from './componentes/liquidaciones-devengadas/detalle-devengado/detalle-devengado.component';
 
 @NgModule({
     imports: [
@@ -45,6 +48,8 @@ import { DetallePlanillaReembolsoComponent } from './componentes/reembolsos-inca
                     { path: 'empresas', component: EmpresasComponent },
                     // PERFIL DE USUARIO ---------------------------------------------------------
                     { path: 'perfil-usuario', component: PerfilUsuarioComponent },
+                    // RECURSOS ---------------------------------------------------------
+                    { path: 'descargas', component: RecursosComponent },
                     // PLANILLAS DE APORTES -------------------------------------------------------------
                     { path: 'planillas-aportes', component: PlanillasAportesListComponent },
                     { path: 'planillas-aportes/:id', component: PlanillasAportesDetalleComponent,canActivate: [PlanillaAccessGuard] ,},
@@ -52,6 +57,9 @@ import { DetallePlanillaReembolsoComponent } from './componentes/reembolsos-inca
                     { path: 'aprobar-planillas-aportes/:id',component: PlanillasAportesDetalleAprobarComponent,canActivate: [PlanillaAccessGuard] },
                     { path: 'historial-aportes', component: HistorialAportesComponent },
                     { path: 'pagos-aportes-admin', component: PagosAportesAdminComponent },
+                    // LIQUIDACIONES DEVENGADAS -------------------------------------------------------------
+                    { path: 'devengados', component: LiquidacionesDevengadasComponent },
+                    { path: 'devengados/:id', component: DetalleDevengadoComponent },
                     // REEMBOLSOS DE INCAPACIDADES -------------------------------------------------------------
                     { path: 'planillas-incapacidades', component: SolicitudReembolsoComponent },
                     { path: 'planillas-incapacidades/detalle/:id', component: DetallePlanillaReembolsoComponent },

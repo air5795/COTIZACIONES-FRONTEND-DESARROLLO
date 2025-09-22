@@ -8,6 +8,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 
+  <!-- ✅ CSP para bloquear scripts externos no autorizados -->
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com; object-src 'none';">
+
   <!-- Layout CSS -->
   <link id="theme-css" rel="stylesheet" type="text/css" href="assets/theme/theme-teal.css">
   <link id="layout-css" rel="stylesheet" type="text/css" href="assets/layout/css/layout-teal.css">

@@ -143,6 +143,10 @@ export class HistorialNotificacionesComponent implements OnInit, OnDestroy {
   }
 
   loadNotificaciones(event: TableLazyLoadEvent): void {
+    if (!this.idUsuario) {
+      this.loading = false;
+      return;
+    }
     this.loading = true;
     const pagina = event.first && event.rows ? Math.floor(event.first / event.rows) + 1 : 1;
     const limite = event.rows ?? this.limite;
@@ -289,7 +293,6 @@ verDetalle(notificacion: Notificacion): void {
       rutaDestino = `/cotizaciones/planillas-aportes/${idEncriptado}`;
     } else {
       // Si no es ninguno, no hacemos nada o redirigimos a un lugar seguro.
-      console.warn('Rol de usuario no reconocido para la navegación.');
       return;
     }
 

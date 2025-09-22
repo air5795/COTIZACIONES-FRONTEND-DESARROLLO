@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { PlanillasAportesService } from '../../../servicios/planillas-aportes/planillas-aportes.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EmpresaService } from '../../../servicios/empresa/empresa.service';
 import * as XLSX from 'xlsx';
-import { LazyLoadEvent } from 'primeng/api';
+import { LazyLoadEvent, MenuItem } from 'primeng/api';
+import { OverlayPanel } from 'primeng/overlaypanel';
 import { SessionService } from '../../../servicios/auth/session.service';
 import { TokenService } from '../../../servicios/token/token.service';
 
@@ -42,6 +43,8 @@ export class PlanillasAportesListComponent {
   isLoading: boolean = false;
   loadingProgress: number = 0;
   loadingMessage: string = 'Cargando...';
+
+  @ViewChild('menuPlantillasPanel') menuPlantillasPanel!: OverlayPanel;
 
   meses = [
     { label: 'ENERO', value: '01' },
@@ -90,22 +93,18 @@ export class PlanillasAportesListComponent {
   ngOnInit(): void {
     this.generarGestiones();
     const sessionData = this.sessionService.sessionDataSubject.value;
-    console.log('Datos de sesión:', sessionData); 
+    
     this.persona = sessionData?.persona;
     this.usuario_creacion = sessionData?.usuario; 
     const nombreCompleto = `${sessionData?.persona?.nombres || ''} ${sessionData?.persona?.primerApellido || ''} ${sessionData?.persona?.segundoApellido || ''}`.replace(/\s+/g, ' ').trim();
     this.nombre_creacion = nombreCompleto;
-    console.log('Persona:', this.persona);
-    console.log('Usuario de creación:', this.usuario_creacion); 
-    console.log('Nombre del usuario:', this.nombre_creacion);
+
     this.obtenerNumeroPatronal();
 
 
     if (this.numPatronal) {
       this.obtenerPlanillas(this.numPatronal);
-      console.log('🔍 Buscando planillas de aportes para:', this.numPatronal);
     } else {
-      console.error('⚠️ El número patronal no es válido.');
     }
     this.generarAnios();
   }
@@ -123,12 +122,39 @@ export class PlanillasAportesListComponent {
         window.URL.revokeObjectURL(url); 
       },
       error: (error) => {
-        console.error('Error al descargar la plantilla:', error);
         alert('Error al descargar la plantilla. Por favor, intenta de nuevo.');
       }
     });
   }
 
+  descargarPlantillaCorta() {
+    this.planillasService.descargarPlantillaCorta().subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'plantilla-corta.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url); 
+      }
+    });
+  }
+
+  toggleMenuPlantillas(event: any) {
+    this.menuPlantillasPanel.toggle(event);
+  }
+
+  seleccionarPlantilla(tipo: string) {
+    this.menuPlantillasPanel.hide();
+    
+    if (tipo === 'corta') {
+      this.descargarPlantillaCorta();
+    } else if (tipo === 'extendida') {
+      this.descargarPlantilla();
+    }
+  }
 
   // Generar el arreglo de gestiones
   generarGestiones() {
@@ -148,17 +174,16 @@ export class PlanillasAportesListComponent {
       this.numPatronal = sessionData?.persona.empresa.codPatronal || null;
       this.nomEmpresa = sessionData?.persona.empresa.nombre || null;
       if (this.numPatronal) {
-        console.log('COD patronal:', this.numPatronal);
-        console.log('Nombre empresa:', this.nomEmpresa);
+        
       }
 
       if (!this.numPatronal) {
-        console.error('⚠️ No se encontró el número patronal en localStorage.');
+        
       } else {
-        console.log(`✅ Número patronal obtenido: ${this.numPatronal}`);
+     
       }
     } catch (error) {
-      console.error('❌ Error al obtener número patronal:', error);
+      
     }
   }
 
@@ -831,15 +856,52 @@ obtenerTotalImporte(): number {
               },
             });
           } else {
+            // 🔧 MEJORADO: Extraer el mensaje de error detallado
+            const errorMessage = err.error?.message || err.message || 'Error desconocido';
+            const errorDetails = this.extractValidationErrors(errorMessage);
+            
+            console.error('Error completo:', err);
+            console.error('Mensaje de error:', errorMessage);
+            
+            // 🎯 CREAR LOG DETALLADO PARA DESCARGA
+            const logContent = this.generateErrorLog(errorMessage, err);
+            
             Swal.fire({
               icon: 'error',
-              title: 'Error',
-              text: 'Hubo un problema al subir la planilla. Inténtalo nuevamente.',
-              confirmButtonText: 'Ok',
-              customClass: { container: 'swal2-container' },
+              title: 'Error en Validación de Planilla',
+              html: `
+                <div style="text-align: left; max-height: 300px; overflow-y: auto;">
+                  <p><strong>Error encontrado:</strong></p>
+                  <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #dc3545;">
+                    <code style="color: #dc3545; font-size: 12px;">${errorMessage}</code>
+                  </div>
+                  <p style="color: #6c757d; font-size: 12px; margin-top: 15px;">
+                    <strong>Sugerencia:</strong> Revise el archivo Excel y corrija el error indicado. 
+                    Puede descargar un log detallado para más información.
+                  </p>
+                </div>
+              `,
+              confirmButtonText: 'Descargar Log Detallado',
+              showCancelButton: true,
+              cancelButtonText: 'Cerrar',
+              width: '600px',
+              customClass: { 
+                container: 'swal2-container',
+                popup: 'swal2-popup-left-align'
+              },
               willOpen: () => {
                 document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+                // Agregar estilos para alineación a la izquierda
+                const popup = document.querySelector('.swal2-popup-left-align') as HTMLElement;
+                if (popup) {
+                  popup.style.textAlign = 'left';
+                }
               },
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // 📥 DESCARGAR ARCHIVO DE LOG
+                this.downloadErrorLog(logContent);
+              }
             });
           }
 
@@ -864,4 +926,211 @@ obtenerTotalImporte(): number {
     this.isLoading = false;
     this.loadingProgress = 0;
   }
+
+  eliminarPlanilla(idPlanilla: number) {
+    // Verificar que el ID existe y es válido
+    if (!idPlanilla || idPlanilla <= 0) {
+      console.error('❌ Error: ID de planilla no válido', idPlanilla);
+      return;
+    }
+
+    // Obtener información del usuario para el log de eliminación
+    const sessionData = this.sessionService.sessionDataSubject.value;
+    const usuarioEliminacion = sessionData?.usuario || 'SYSTEM';
+
+    // Mostrar confirmación con SweetAlert
+    Swal.fire({
+      title: '¿Está seguro de eliminar esta planilla?',
+      text: 'Esta acción eliminará completamente la planilla y no se puede deshacer. Solo se pueden eliminar planillas en estado BORRADOR.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      customClass: { 
+        container: 'swal2-container' 
+      },
+      willOpen: () => {
+        document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Mostrar loading durante la eliminación
+        Swal.fire({
+          title: 'Eliminando planilla...',
+          text: 'Por favor espere mientras se elimina la planilla.',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+          customClass: { 
+            container: 'swal2-container' 
+          },
+          willOpen: () => {
+            document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+          },
+        });
+
+        // Llamar al servicio para eliminar la planilla
+        this.planillasService.eliminarPlanillaCompleta(idPlanilla, usuarioEliminacion).subscribe({
+          next: (response) => {
+            console.log('✅ Planilla eliminada correctamente:', response);
+            
+            Swal.fire({
+              icon: 'success',
+              title: '¡Planilla eliminada!',
+              text: 'La planilla ha sido eliminada correctamente.',
+              confirmButtonText: 'Ok',
+              customClass: { 
+                container: 'swal2-container' 
+              },
+              willOpen: () => {
+                document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+              },
+            }).then(() => {
+              // Recargar la lista de planillas
+              this.obtenerPlanillas(this.numPatronal!);
+            });
+          },
+          error: (error) => {
+            console.error('❌ Error al eliminar planilla:', error);
+            
+            let mensajeError = 'Hubo un problema al eliminar la planilla. Inténtalo nuevamente.';
+            
+            // Personalizar mensaje según el tipo de error
+            if (error.error?.message) {
+              if (error.error.message.includes('solo se pueden eliminar planillas en estado BORRADOR')) {
+                mensajeError = 'Solo se pueden eliminar planillas que estén en estado BORRADOR.';
+              } else if (error.error.message.includes('no encontrada')) {
+                mensajeError = 'La planilla no fue encontrada o ya fue eliminada.';
+              } else {
+                mensajeError = error.error.message;
+              }
+            }
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al eliminar',
+              text: mensajeError,
+              confirmButtonText: 'Ok',
+              customClass: { 
+                container: 'swal2-container' 
+              },
+              willOpen: () => {
+                document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+              },
+            });
+          }
+        });
+      }
+    });
+  }
+
+
+
+  // 🔧 FUNCIONES AUXILIARES PARA MANEJO DE ERRORES
+
+/**
+ * Extrae errores de validación específicos del mensaje
+ */
+private extractValidationErrors(message: string): string[] {
+  const errors: string[] = [];
+  
+  // Buscar patrones de error comunes
+  if (message.includes('Fila')) {
+    errors.push(message);
+  }
+  
+  return errors;
+}
+
+/**
+ * Genera un log detallado del error para descarga
+ */
+private generateErrorLog(errorMessage: string, fullError: any): string {
+  const timestamp = new Date().toLocaleString('es-BO', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit', 
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  
+  let logContent = `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║      LOG DE ERROR - PLANILLA APORTES - CAJA BANCARIA ESTATAL DE SALUD        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+FECHA Y HORA: ${timestamp}
+EMPRESA: ${this.nomEmpresa || 'No disponible'} 
+CÓDIGO PATRONAL: ${this.numPatronal || 'No disponible'}
+ARCHIVO: ${this.archivoSeleccionado?.name || 'No disponible'}
+PERÍODO: ${this.mesSeleccionado}/${this.gestionSeleccionada}
+TIPO PLANILLA: ${this.tipoPlanilla}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ERROR DETECTADO:
+${errorMessage}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASOS PARA SOLUCIONAR:
+
+1. Abra su archivo Excel
+2. Ubique la fila mencionada en el error
+3. Corrija el valor según las validaciones indicadas arriba
+4. Guarde el archivo
+5. Intente subir nuevamente la planilla
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SOPORTE: Si el problema persiste, contacte con la unidad de sistemas.
+  `;
+
+  return logContent;
+}
+
+/**
+ * Descarga el log de error como archivo .txt
+ */
+private downloadErrorLog(content: string): void {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+  const filename = `error_planilla_${this.numPatronal}_${timestamp}.txt`;
+  
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+  
+  // Mostrar confirmación
+  Swal.fire({
+    icon: 'success',
+    title: 'Log Descargado',
+    text: `El archivo "${filename}" ha sido descargado con los detalles del error.`,
+    timer: 3000,
+    showConfirmButton: false,
+    customClass: { container: 'swal2-container' },
+    willOpen: () => {
+      document.querySelector('.swal2-container')?.setAttribute('style', 'z-index: 9999 !important;');
+    },
+  });
+}
+
+
+
+
+
+
 }

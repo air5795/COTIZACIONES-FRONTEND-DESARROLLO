@@ -11,11 +11,17 @@ export class PlanillasAportesService {
 
   constructor(private http: HttpClient) {}
 
-  descargarPlantilla(): Observable<Blob> {
-    return this.http.get(`${environment.url}planillas_aportes/descargar-plantilla`, {
-      responseType: 'blob' 
-    });
-  }
+    descargarPlantilla(): Observable<Blob> {
+      return this.http.get(`${environment.url}planillas_aportes/descargar-plantilla`, {
+        responseType: 'blob' 
+      });
+    }
+
+    descargarPlantillaCorta(): Observable<Blob> {
+      return this.http.get(`${environment.url}planillas_aportes/descargar-plantilla-corta`, {
+        responseType: 'blob' 
+      });
+    }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 /* PLANILLAS MENSUALES DE APORTES ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -192,6 +198,18 @@ export class PlanillasAportesService {
   obtenerDatosPlanillaPorRegional(id_planilla: number): Observable<any> {
     return this.http.get(`${environment.url}planillas_aportes/datos-planilla/${id_planilla}`);
   }
+
+  // ELIMINAR PLANILLA COMPLETA (solo si está en estado BORRADOR)
+eliminarPlanillaCompleta(id_planilla: number, usuario_eliminacion?: string): Observable<any> {
+  const body = usuario_eliminacion ? { usuario_eliminacion } : {};
+  
+  return this.http.delete(`${environment.url}planillas_aportes/${id_planilla}`, { 
+    body,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 /* PAGOS PLANILLAS MENSUALES DE APORTES ////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -400,6 +418,8 @@ updateObservacionesPago(id: number, observaciones: string, usuario_modificacion?
   
   return this.http.patch(`${environment.url}pagos-aportes/update-observaciones/${id}`, body);
 }
+
+
 
 
 }

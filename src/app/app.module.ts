@@ -125,7 +125,7 @@ import { PlanillaIncapacidadComponent } from './componentes/empresa/planilla-inc
 import { PlanillaAportesComponent } from './componentes/empresa/planilla-aportes/planilla-aportes.component';
 import { PlanillaAportesAprobarComponent } from './componentes/empresa/planilla-aportes/planilla-aportes-aprobar.component';
 import { DatosEmpresaComponent } from './componentes/datos-empresa/datos-empresa.component';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { PlanillasAportesComponent } from './componentes/planillas-aportes/planillas-aportes.component';
 import { PlanillasAportesListComponent } from './componentes/planillas-aportes/planillas-aportes-list/planillas-aportes-list.component';
 import { PlanillasAportesDetalleComponent } from './componentes/planillas-aportes/planillas-aportes-detalle/planillas-aportes-detalle.component';
@@ -143,7 +143,6 @@ import { PagosAportesAdicionalesComponent } from './componentes/planillas-aporte
 import { PagosAportesAdminComponent } from './componentes/planillas-aportes/pagos-aportes-admin/pagos-aportes-admin.component';
 import { NotificacionesComponent } from './componentes/notificaciones/notificaciones.component';
 import { HistorialNotificacionesComponent } from './componentes/notificaciones/historial-notificaciones/historial-notificaciones.component';
-import { GoogleMapsModule } from '@angular/google-maps';
 import { LoadingComponent } from './componentes/loading/loading.component';
 import { LoadingComponenteComponent } from './componentes/layout/loading-componente/loading-componente.component';
 import { VerificacionAfiliacionesComponent } from './componentes/planillas-aportes/verificacion-afiliaciones/verificacion-afiliaciones.component';
@@ -152,11 +151,13 @@ import { EmpresasComponent } from './componentes/empresas/empresas.component';
 import { PerfilUsuarioComponent } from './componentes/perfil-usuario/perfil-usuario.component';
 import { BuscarTrabajadorComponent } from './componentes/reembolsos-incapacidades/buscar-trabajador/buscar-trabajador.component';
 import { DetallePlanillaReembolsoComponent } from './componentes/reembolsos-incapacidades/detalle-planilla-reembolso/detalle-planilla-reembolso.component';
+import { RecursosComponent } from './componentes/recursos/recursos.component';
+import { LiquidacionesDevengadasComponent } from './componentes/liquidaciones-devengadas/liquidaciones-devengadas.component';
+import { DetalleDevengadoComponent } from './componentes/liquidaciones-devengadas/detalle-devengado/detalle-devengado.component';
 registerLocaleData(localeEs);
 
 @NgModule({
   imports: [
-    GoogleMapsModule,
     BrowserModule,
     SidebarModule,
     FormsModule,
@@ -297,10 +298,25 @@ registerLocaleData(localeEs);
     PerfilUsuarioComponent,
     BuscarTrabajadorComponent,
     DetallePlanillaReembolsoComponent,
+    RecursosComponent,
+    LiquidacionesDevengadasComponent,
+    DetalleDevengadoComponent,
+    
   ],
   providers: [
-    { provide: LocationStrategy, useClass: HashLocationStrategy }, CountryService, CustomerService, EventService, IconService, NodeService,
-    PhotoService, ProductService, MenuService , MessageService , { provide: LOCALE_ID, useValue: 'es' } ],
+    { provide: LocationStrategy, useClass: HashLocationStrategy }, 
+    CountryService, 
+    CustomerService, 
+    EventService, 
+    IconService, 
+    NodeService,
+    PhotoService, 
+    ProductService, 
+    MenuService, 
+    MessageService, 
+    ConfirmationService, 
+    { provide: LOCALE_ID, useValue: 'es' } 
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule { }

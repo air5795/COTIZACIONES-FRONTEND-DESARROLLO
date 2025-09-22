@@ -30,10 +30,10 @@ import { environment } from '../environments/environment';
               <div style="background-color: #009688; border-radius:7px">
                 <app-notificaciones></app-notificaciones>
               </div>
-              <img src="assets/layout/images/user.png" alt="User Image" style="margin-left: 10px; margin-right: 10px;">
+              <img src="assets/layout/images/user.png" alt="User Image" style="margin-left: 20px; margin-right: 10px;">
             </div>
 
-            <div *ngIf="persona; else noPersona" class="profile-info" style="margin-right: 10px; width: auto; min-width: 180px; max-width: 280px; text-align:left; overflow: hidden;" (click)="appMain.onTopbarItemClick($event, profile)">
+            <div *ngIf="persona; else noPersona" class="profile-info" style="margin-right: 10px; width: auto; min-width: 180px; text-align:left; overflow: hidden;" (click)="appMain.onTopbarItemClick($event, profile)">
               <span class="topbar-item-name profile-name" style="margin-left: 10px; display: block; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <strong style="padding: 2px;">
                   {{persona.nombres}} {{persona.primerApellido}} {{persona.segundoApellido}}

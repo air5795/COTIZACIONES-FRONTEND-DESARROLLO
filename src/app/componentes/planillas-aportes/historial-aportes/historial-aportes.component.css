@@ -536,6 +536,147 @@
     color: #6c757d;
     margin-top: 5px;
   }
+
+/* ===== BOTONES PROFESIONALES DE ACCIONES ===== */
+.action-buttons-container {
+  display: flex;
+  gap: 6px;
+  width: 90%;
+  padding: 2px;
+  margin: 0 auto;
+}
+
+.action-btn {
+  flex: 1;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+.action-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.action-btn span,
+.action-btn i {
+  position: relative;
+  z-index: 2;
+}
+
+/* Botón Ver - Tema principal */
+.btn-view {
+  background: #009688;
+  color: white;
+}
+
+.btn-view:hover {
+  background: #08554D;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 150, 136, 0.3);
+}
+
+.btn-view:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 150, 136, 0.2);
+}
+
+/* Botón Eliminar - Habilitado */
+.btn-delete.enabled {
+  background-color: #e53e3e;
+  color: white;
+}
+
+.btn-delete.enabled:hover {
+  background-color: #c53030;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(229, 62, 62, 0.2);
+}
+
+.btn-delete.enabled:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(229, 62, 62, 0.1);
+}
+
+/* Botón Eliminar - Deshabilitado */
+.btn-delete.disabled {
+  background-color: #a0aec0;
+  color: #e2e8f0;
+  cursor: not-allowed;
+}
+
+.btn-delete.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-delete.disabled::before {
+  display: none;
+}
+
+
+
+/* ===== TEXTO DE TIPO DE PLANILLA ===== */
+.tipo-planilla-text {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  text-align: center;
+  transition: all 0.3s ease;
+  width: 90%;
+}
+
+/* Mensual - Verde principal */
+.tipo-mensual {
+  color: #008496;
+  background-color: rgba(0, 150, 136, 0.1);
+}
+
+/* Planilla Adicional - Azul */
+.tipo-adicional {
+  color: #2262af;
+  background-color: rgba(34, 98, 175, 0.1);
+}
+
+/* Beneficio Social - Púrpura */
+.tipo-beneficio {
+  color: #7c3aed;
+  background-color: rgba(124, 58, 237, 0.1);
+}
+
+/* Reintegro - Naranja */
+.tipo-reintegro {
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.1);
+}
+
+/* Retroactivo - Teal */
+.tipo-retroactivo {
+  color: #14b8a6;
+  background-color: rgba(20, 184, 166, 0.1);
+}
+
+/* Default - Gris */
+.tipo-default {
+  color: #64748b;
+  background-color: rgba(100, 116, 139, 0.1);
+}
   
 
 
