@@ -123,23 +123,18 @@ ngOnInit(): void {
   if (identificador) {
     this.procesarIdentificadorPlanilla(identificador);
   } else {
-    console.error('❌ No se encontró ID en la ruta');
     this.router.navigate(['/cotizaciones/planillas-aportes']);
   }
 }
 
 // ✅ NUEVO MÉTODO PARA PROCESAR ID ENCRIPTADO
 private procesarIdentificadorPlanilla(identificador: string) {
-  console.log('🔍 Procesando identificador:', identificador);
   
   // Intentar desencriptar el ID
   const idDesencriptado = this.tokenService.desencriptarId(identificador);
   
   if (idDesencriptado) {
-    console.log('✅ ID desencriptado exitosamente:', {
-      idEncriptado: identificador,
-      idReal: idDesencriptado
-    });
+
     
     // Establecer el ID y cargar datos
     this.idPlanilla = idDesencriptado;
@@ -149,11 +144,9 @@ private procesarIdentificadorPlanilla(identificador: string) {
     // Si no se puede desencriptar, podría ser un ID numérico directo (compatibilidad)
     const idNumerico = parseInt(identificador);
     if (!isNaN(idNumerico) && idNumerico > 0) {
-      console.log('⚠️ Usando ID numérico directo (modo compatibilidad):', idNumerico);
       this.idPlanilla = idNumerico;
       this.cargarDatosPlanilla();
     } else {
-      console.error('❌ Identificador inválido:', identificador);
       this.router.navigate(['/cotizaciones/planillas-aportes']);
     }
   }
@@ -161,14 +154,13 @@ private procesarIdentificadorPlanilla(identificador: string) {
 
 // ✅ NUEVO MÉTODO PARA CARGAR TODOS LOS DATOS
 private cargarDatosPlanilla() {
-  console.log('📊 Cargando datos para planilla ID:', this.idPlanilla);
   
   this.obtenerDetalles();
   this.obtenerInformacionPlanilla().then(() => {
     this.obtenerComparacionPlanillas();
     this.obtenerResumenPlanilla(); 
   }).catch((error) => {
-    console.error('❌ Error al cargar información de planilla:', error);
+    
   });
 }
 
@@ -188,12 +180,7 @@ private cargarDatosPlanilla() {
       this.nombreEmpresa = empresaInfo.nombre || '';
     }
     
-    console.log('Verificación de rol:', {
-      esAdministrador: this.esAdministrador,
-      rol: this.rolUsuario,
-      tipoEmpresa: this.tipoEmpresa,
-      nombreEmpresa: this.nombreEmpresa
-    });
+
   }
 
 
@@ -322,11 +309,11 @@ private cargarDatosPlanilla() {
             this.planillaInfo.planilla.mes = meses[fecha.getUTCMonth()];
             this.planillaInfo.planilla.gestion = fecha.getUTCFullYear();
           }
-          console.log('Información de la planilla:', this.planillaInfo);
+          
           resolve(); 
         },
         error: (err) => {
-          console.error('Error al obtener información de la planilla:', err);
+        
           reject(err);
         }
       });
@@ -347,7 +334,7 @@ private cargarDatosPlanilla() {
           this.loading = false;
         },
         error: (err) => {
-          console.error('Error al obtener todos los detalles:', err);
+          
           this.loading = false;
         },
       });
@@ -376,14 +363,10 @@ private cargarDatosPlanilla() {
           }
           
           this.loading = false;
-          console.log('Datos recibidos:', data);
-          console.log('Conteo estados asegurados:', this.conteoEstadosAsegurados);
-          console.log('Página actual:', this.pagina);
-          console.log('Límite actual:', this.limite);
-          console.log('Total de registros:', this.total);
+
         },
         error: (err) => {
-          console.error('Error al obtener detalles:', err);
+          
           this.loading = false;
         },
       });
@@ -404,7 +387,7 @@ private cargarDatosPlanilla() {
   recargar() {
     this.busqueda = ''; 
     this.pagina = 1; 
-    console.log('Búsqueda después de recargar:', this.busqueda);  
+    
     this.obtenerDetalles(); 
   }
 
@@ -455,7 +438,7 @@ obtenerMesAnterior(fechaActual: string): { mesAnterior: string, gestion: string 
   const mesAnteriorStr = String(mesAnterior + 1).padStart(2, '0'); 
   const gestionAnterior = añoAnterior.toString();
 
-  console.log(`Entrada: ${fechaActual}, Mes actual (0-based): ${mesActual}, Mes anterior: ${mesAnteriorStr}, Gestión anterior: ${gestionAnterior}`);
+  
 
   return { mesAnterior: mesAnteriorStr, gestion: gestionAnterior };
 }
@@ -465,7 +448,7 @@ obtenerComparacionPlanillas() {
   if (!this.planillaInfo.planilla) return;
 
   const { cod_patronal, fecha_planilla } = this.planillaInfo.planilla;
-  console.log(`Datos obtenidos: cod_patronal=${cod_patronal}, fecha_planilla=${fecha_planilla}`);
+  
 
   // Extraer gestión y mes actual directamente de fecha_planilla
   const [year, month] = fecha_planilla.split('T')[0].split('-'); 
@@ -476,27 +459,22 @@ obtenerComparacionPlanillas() {
   const mesAnteriorData = this.obtenerMesAnterior(fecha_planilla);
 
   if (!mesAnteriorData) {
-    console.warn("El mes anterior no fue calculado correctamente.");
+    
     return;
   }
 
   const { mesAnterior } = mesAnteriorData;
 
-  console.log(`Llamando a compararPlanillas con: 
-    cod_patronal=${cod_patronal}, 
-    gestion=${gestion}, 
-    mesAnterior=${mesAnterior}, 
-    mesActual=${mesActual}`);
 
   this.planillasService.compararPlanillas(cod_patronal, gestion, mesAnterior, mesActual).subscribe({
     next: (data) => {
-      console.log("Respuesta del backend:", data);
+      
       this.altas = data.altas;
       this.bajasNoEncontradas = data.bajas.noEncontradas; // Bajas por trabajador no encontrado
       this.bajasPorRetiro = data.bajas.porRetiro; // Bajas por fecha de retiro
     },
     error: (err) => {
-      console.error("Error al comparar planillas:", err);
+      
     }
   });
 }
@@ -565,7 +543,7 @@ obtenerComparacionPlanillas() {
         nom_usuario: nombreProcesador
       };
 
-      console.log('🔧 Presentando planilla con datos:', payload);
+      
       
       this.planillasService
         .actualizarEstadoAPendiente(this.idPlanilla, payload)
@@ -579,7 +557,7 @@ obtenerComparacionPlanillas() {
             this.router.navigate(['cotizaciones/planillas-aportes']);
           },
           error: (err) => {
-            console.error('Error al actualizar estado:', err);
+            
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -650,7 +628,7 @@ actualizarFecha() {
           datosEnviar.fecha_planilla = this.nuevaFechaPlanilla;
         }
 
-        console.log('🔧 Corrigiendo planilla con datos:', datosEnviar);
+        
 
         this.planillasService
           .enviarCorreccionPlanilla(this.idPlanilla, datosEnviar)
@@ -665,7 +643,7 @@ actualizarFecha() {
               this.router.navigate(['cotizaciones/planillas-aportes']);
             },
             error: (err) => {
-              console.error('Error al enviar planilla corregida:', err);
+              
               Swal.fire({
                 icon: 'error',
                 title: 'Error al enviar',
@@ -745,7 +723,7 @@ actualizarFecha() {
         this.loading = false; 
       },
       error: (err) => {
-        console.error('Error al eliminar detalles:', err);
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -778,7 +756,7 @@ actualizarFecha() {
               this.obtenerDetalles();
             },
             error: (err) => {
-              console.error('Error al actualizar estado:', err);
+              
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -837,7 +815,7 @@ actualizarFecha() {
         }
       },
       error: (err) => {
-        console.error('Error al generar el reporte resumen:', err);
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -893,7 +871,7 @@ actualizarFecha() {
         }
       },
       error: (err) => {
-        console.error('Error al generar el reporte resumen:', err);
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -949,7 +927,7 @@ actualizarFecha() {
         }
       },
       error: (err) => {
-        console.error('Error al generar el reporte resumen:', err);
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -990,7 +968,7 @@ actualizarFecha() {
         });
       },
       error: (err) => {
-        console.error('Error al generar el reporte de planilla:', err);
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -1009,7 +987,7 @@ actualizarFecha() {
       next: (response) => {
         if (response.success) {
           this.resumenData = response.data;
-          console.log('Datos del resumen:', this.resumenData);
+          
         } else {
           Swal.fire({
             icon: 'warning',

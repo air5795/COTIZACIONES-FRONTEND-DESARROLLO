@@ -75,7 +75,7 @@ export class PlanillasAportesService {
       params = params.set('anio', anio);
     }
   
-    console.log('Parámetros de la solicitud:', params.toString());
+    
     return this.http.get(`${environment.url}planillas_aportes/historial/${cod_patronal}`, { params });
   }
 
@@ -99,7 +99,7 @@ export class PlanillasAportesService {
       params = params.set('estado', estado);
     }
 
-    console.log('Parámetros de la solicitud:', params.toString());
+   
     return this.http.get(`${environment.url}planillas_aportes/historialAdmin`, { params });
   }
 
@@ -112,7 +112,6 @@ export class PlanillasAportesService {
       params = params.set('busqueda', busqueda);
     }
   
-    console.log('Parámetros de la solicitud:', params.toString());
   
     return this.http.get(`${environment.url}planillas_aportes/historial-completo`, { params });
   }
@@ -141,7 +140,6 @@ export class PlanillasAportesService {
     usuario_procesador?: string;
     nom_usuario?: string;
   }): Observable<any> {
-    console.log('🔧 Servicio enviando payload para corregir:', data);
     return this.http.put(`${environment.url}planillas_aportes/corregir/${id_planilla}`, data);
   }
 
@@ -160,7 +158,6 @@ export class PlanillasAportesService {
       nom_usuario: nombreProcesador 
     };
     
-    console.log('🔧 Enviando al backend:', body);
     
     return this.http.put(`${environment.url}planillas_aportes/estado/${id_planilla}`, body);
   }
@@ -170,7 +167,6 @@ export class PlanillasAportesService {
     usuario_procesador?: string;
     nom_usuario?: string;
   }): Observable<any> {
-    console.log('🔧 Servicio enviando payload para presentar:', payload);
     return this.http.put(`${environment.url}planillas_aportes/estado/pendiente/${idPlanilla}`, payload);
   }
 
@@ -329,7 +325,6 @@ calcularAportes(id: number): Observable<any> {
 
 // 🏢 EMPRESAS PRIVADAS: Recalcular liquidación con nueva fecha
 recalcularLiquidacionPrivada(idPlanilla: number, fechaPago: Date): Observable<any> {
-  console.log('🏢 Service Frontend: Recalculando liquidación EMPRESA PRIVADA');
   
   const body = {
     fechaPago: fechaPago.toISOString()
@@ -340,7 +335,6 @@ recalcularLiquidacionPrivada(idPlanilla: number, fechaPago: Date): Observable<an
 
 // 🏛️ EMPRESAS PÚBLICAS: Actualizar con nuevo monto TGN real
 actualizarEmpresaPublicaConTGN(idPlanilla: number, fechaPago: Date, nuevoMontoTGN: number): Observable<any> {
-  console.log('🏛️ Service Frontend: Actualizando EMPRESA PÚBLICA con nuevo TGN:', nuevoMontoTGN);
   
   const body = {
     fechaPago: fechaPago.toISOString(),
@@ -352,8 +346,7 @@ actualizarEmpresaPublicaConTGN(idPlanilla: number, fechaPago: Date, nuevoMontoTG
 
 // 🏛️ EMPRESAS PÚBLICAS: Recalcular liquidación normal (sin nuevo TGN)
 recalcularLiquidacionPublica(idPlanilla: number, fechaPago: Date): Observable<any> {
-  console.log('🏛️ Service Frontend: Recalculando liquidación EMPRESA PÚBLICA sin nuevo TGN');
-  
+
   const body = {
     fechaPago: fechaPago.toISOString()
   };

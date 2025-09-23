@@ -231,19 +231,14 @@ export class PlanillasAportesListComponent {
             }));
             this.totalRegistros = response.total;
             this.loading = false;
-            console.log('📡 Planillas de aportes:', this.planillas);
+            
           },
           (error) => {
-            console.error('❌ Error al cargar las planillas:', error);
+            
             this.loading = false;
           }
         );
     } else {
-      console.error(
-        '❌ Número de página o límite inválido:',
-        this.pagina,
-        this.limite
-      );
     }
   }
 
@@ -305,22 +300,14 @@ export class PlanillasAportesListComponent {
 
 
 verDetalle(idPlanilla: number) {
-  // ✅ LOG PARA DEBUG
-  console.log('🔍 ID recibido en verDetalle:', idPlanilla);
-  
+
   // Verificar que el ID existe y es válido
   if (!idPlanilla || idPlanilla <= 0) {
-    console.error('❌ Error: ID de planilla no válido', idPlanilla);
     return;
   }
   
   // Encriptar el ID antes de navegar
   const idEncriptado = this.tokenService.encriptarId(idPlanilla);
-  
-  console.log('🔒 Navegando con ID encriptado:', {
-    idReal: idPlanilla,
-    idEncriptado: idEncriptado
-  });
   
   this.router.navigate(['/cotizaciones/planillas-aportes', idEncriptado]);
 }
@@ -832,7 +819,7 @@ obtenerTotalImporte(): number {
             clearInterval(progressInterval);
             this.loadingProgress = 100;
             this.isLoading = false;
-            console.error('Error al subir planilla:', err);
+           
             if (err.error.message.includes('Ya existe una planilla')) {
             Swal.fire({
               icon: 'error',
@@ -860,8 +847,7 @@ obtenerTotalImporte(): number {
             const errorMessage = err.error?.message || err.message || 'Error desconocido';
             const errorDetails = this.extractValidationErrors(errorMessage);
             
-            console.error('Error completo:', err);
-            console.error('Mensaje de error:', errorMessage);
+            
             
             // 🎯 CREAR LOG DETALLADO PARA DESCARGA
             const logContent = this.generateErrorLog(errorMessage, err);
@@ -930,7 +916,6 @@ obtenerTotalImporte(): number {
   eliminarPlanilla(idPlanilla: number) {
     // Verificar que el ID existe y es válido
     if (!idPlanilla || idPlanilla <= 0) {
-      console.error('❌ Error: ID de planilla no válido', idPlanilla);
       return;
     }
 
@@ -977,7 +962,6 @@ obtenerTotalImporte(): number {
         // Llamar al servicio para eliminar la planilla
         this.planillasService.eliminarPlanillaCompleta(idPlanilla, usuarioEliminacion).subscribe({
           next: (response) => {
-            console.log('✅ Planilla eliminada correctamente:', response);
             
             Swal.fire({
               icon: 'success',
@@ -996,7 +980,6 @@ obtenerTotalImporte(): number {
             });
           },
           error: (error) => {
-            console.error('❌ Error al eliminar planilla:', error);
             
             let mensajeError = 'Hubo un problema al eliminar la planilla. Inténtalo nuevamente.';
             
