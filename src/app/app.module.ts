@@ -154,6 +154,8 @@ import { DetallePlanillaReembolsoComponent } from './componentes/reembolsos-inca
 import { RecursosComponent } from './componentes/recursos/recursos.component';
 import { LiquidacionesDevengadasComponent } from './componentes/liquidaciones-devengadas/liquidaciones-devengadas.component';
 import { DetalleDevengadoComponent } from './componentes/liquidaciones-devengadas/detalle-devengado/detalle-devengado.component';
+import { AuthInterceptor } from './interceptor/auth.interceptor';
+
 registerLocaleData(localeEs);
 
 @NgModule({
@@ -315,6 +317,12 @@ registerLocaleData(localeEs);
     MenuService, 
     MessageService, 
     ConfirmationService, 
+    // ✅ Registrar el interceptor
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     { provide: LOCALE_ID, useValue: 'es' } 
   ],
   bootstrap: [AppComponent],
