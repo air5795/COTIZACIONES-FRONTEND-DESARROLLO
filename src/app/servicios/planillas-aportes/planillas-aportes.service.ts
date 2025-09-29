@@ -217,7 +217,8 @@ createPago(pagoData: any, file: File): Observable<PagoAporte> {
   formData.append('id_planilla_aportes', pagoData.id_planilla_aportes);
   formData.append('fecha_pago', pagoData.fecha_pago);
   formData.append('monto_pagado', pagoData.monto_pagado);
-  formData.append('monto_demasia', pagoData.monto_demasia || '0'); // ✅ AGREGAR ESTA LÍNEA
+  formData.append('monto_demasia', pagoData.monto_demasia || '0');
+  formData.append('total_a_cancelar', pagoData.total_a_cancelar || '0');
   formData.append('metodo_pago', pagoData.metodo_pago || '');
   formData.append('comprobante_pago', pagoData.comprobante_pago || '');
   formData.append('observaciones', pagoData.observaciones || '');

@@ -1073,7 +1073,16 @@ verTrabajadoresFaltantes() {
   this.mostrarAnalisisCompletoDialog = true;
 }
 
-exportarTrabajadoresFaltantes() {
+
+
+// Método mejorado para calcular porcentajes
+calcularPorcentaje(cantidad: number, total: number): string {
+  if (total === 0) return '0';
+  return ((cantidad / total) * 100).toFixed(1);
+}
+
+// Reemplazar el método exportarTrabajadoresFaltantes existente
+exportarAnalisisExcel() {
   if (!this.casosAnalisis || !this.resumenCompleto) {
     Swal.fire({
       icon: 'info',
@@ -1084,79 +1093,214 @@ exportarTrabajadoresFaltantes() {
     return;
   }
 
-  // Crear datos para exportar
-  const datosExportacion = [];
+  // Crear un nuevo libro de trabajo
+  const workbook = XLSX.utils.book_new();
+
+  // HOJA 1: RESUMEN GENERAL
+  const resumenData = [
+    ['RESUMEN GENERAL DEL ANÁLISIS DE AFILIACIONES'],
+    [''],
+    ['Fecha de Análisis:', this.fechaUltimaVerificacion ? new Date(this.fechaUltimaVerificacion).toLocaleString() : 'No disponible'],
+    ['Planilla ID:', this.idPlanilla],
+    ['Empresa:', this.planillaInfo?.planilla?.empresa?.nombre || 'No disponible'],
+    [''],
+    ['TOTALES POR CATEGORÍA:'],
+    ['Categoría', 'Cantidad', 'Porcentaje'],
+    ['Total Trabajadores en Planilla', this.resumenCompleto.total_planilla, '100.0%'],
+    ['Vigentes', this.resumenCompleto.vigentes, `${this.calcularPorcentaje(this.resumenCompleto.vigentes, this.resumenCompleto.total_planilla)}%`],
+    ['No Vigentes', this.resumenCompleto.no_vigentes, `${this.calcularPorcentaje(this.resumenCompleto.no_vigentes, this.resumenCompleto.total_planilla)}%`],
+    ['No Encontrados', this.resumenCompleto.no_encontrados, `${this.calcularPorcentaje(this.resumenCompleto.no_encontrados, this.resumenCompleto.total_planilla)}%`],
+    ['Faltantes (en SIGAH, no en planilla)', this.resumenCompleto.faltantes, 'N/A'],
+    [''],
+    ['OBSERVACIONES:'],
+    ['- Vigentes: Trabajadores correctamente afiliados y activos'],
+    ['- No Vigentes: Trabajadores con estados como BAJA, CESANTÍA, etc.'],
+    ['- No Encontrados: Trabajadores no registrados en SIGAH'],
+    ['- Faltantes: Trabajadores vigentes en SIGAH pero ausentes en planilla']
+  ];
+
+  const wsResumen = XLSX.utils.aoa_to_sheet(resumenData);
   
-  // Resumen
-  datosExportacion.push(['RESUMEN GENERAL']);
-  datosExportacion.push(['Total Trabajadores', this.resumenCompleto.total_planilla]);
-  datosExportacion.push(['Vigentes', this.resumenCompleto.vigentes]);
-  datosExportacion.push(['No Vigentes', this.resumenCompleto.no_vigentes]);
-  datosExportacion.push(['No Encontrados', this.resumenCompleto.no_encontrados]);
-  datosExportacion.push(['Faltantes', this.resumenCompleto.faltantes]);
-  datosExportacion.push(['']);
+  // Aplicar estilos al resumen
+  wsResumen['!cols'] = [
+    { width: 35 },
+    { width: 15 },
+    { width: 15 }
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, wsResumen, 'Resumen General');
 
-  // Caso 1: Vigentes
+  // HOJA 2: TRABAJADORES VIGENTES
   if (this.casosAnalisis.vigentes?.length > 0) {
-    datosExportacion.push(['TRABAJADORES VIGENTES']);
-    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Matrícula', 'Estado', 'Salario']);
-    this.casosAnalisis.vigentes.forEach((t: any) => {
-      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.matricula, t.estado, t.salario]);
+    const vigentesData = [
+      ['TRABAJADORES VIGENTES'],
+      ['Trabajadores que están correctamente afiliados y vigentes en SIGAH'],
+      [''],
+      ['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Matrícula', 'Estado', 'Tipo Afiliado', 'Salario (Bs)', 'Regional']
+    ];
+
+    this.casosAnalisis.vigentes.forEach((trabajador: any) => {
+      vigentesData.push([
+        trabajador.ci || '',
+        trabajador.nombres || '',
+        trabajador.apellido_paterno || '',
+        trabajador.apellido_materno || '',
+        trabajador.cargo || '',
+        trabajador.matricula || '',
+        trabajador.asegurado_estado || '',
+        trabajador.tipo_afiliado || '',
+        trabajador.salario || 0,
+        trabajador.regional || ''
+      ]);
     });
-    datosExportacion.push(['']);
+
+    const wsVigentes = XLSX.utils.aoa_to_sheet(vigentesData);
+    wsVigentes['!cols'] = [
+      { width: 12 }, { width: 15 }, { width: 15 }, { width: 15 }, 
+      { width: 25 }, { width: 12 }, { width: 12 }, { width: 15 }, 
+      { width: 12 }, { width: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(workbook, wsVigentes, 'Vigentes');
   }
 
-  // Caso 2: No Vigentes
+  // HOJA 3: TRABAJADORES NO VIGENTES
   if (this.casosAnalisis.no_vigentes?.length > 0) {
-    datosExportacion.push(['TRABAJADORES NO VIGENTES']);
-    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Estado', 'Motivo', 'Salario']);
-    this.casosAnalisis.no_vigentes.forEach((t: any) => {
-      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.estado, t.motivo, t.salario]);
+    const noVigentesData = [
+      ['TRABAJADORES NO VIGENTES'],
+      ['Trabajadores con estados diferentes a VIGENTE (BAJA, CESANTÍA, etc.)'],
+      [''],
+      ['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Estado en SIGAH', 'Observaciones', 'Salario (Bs)', 'Regional']
+    ];
+
+    this.casosAnalisis.no_vigentes.forEach((trabajador: any) => {
+      noVigentesData.push([
+        trabajador.ci || '',
+        trabajador.nombres || '',
+        trabajador.apellido_paterno || '',
+        trabajador.apellido_materno || '',
+        trabajador.cargo || '',
+        trabajador.asegurado_estado || '',
+        trabajador.observaciones_afiliacion || 'Sin observaciones',
+        trabajador.salario || 0,
+        trabajador.regional || ''
+      ]);
     });
-    datosExportacion.push(['']);
+
+    const wsNoVigentes = XLSX.utils.aoa_to_sheet(noVigentesData);
+    wsNoVigentes['!cols'] = [
+      { width: 12 }, { width: 15 }, { width: 15 }, { width: 15 }, 
+      { width: 25 }, { width: 15 }, { width: 30 }, { width: 12 }, { width: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(workbook, wsNoVigentes, 'No Vigentes');
   }
 
-  // Caso 3: No Encontrados
+  // HOJA 4: TRABAJADORES NO ENCONTRADOS
   if (this.casosAnalisis.no_encontrados?.length > 0) {
-    datosExportacion.push(['TRABAJADORES NO ENCONTRADOS']);
-    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Fecha Ingreso', 'Motivo', 'Salario']);
-    this.casosAnalisis.no_encontrados.forEach((t: any) => {
-      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.fecha_ingreso, t.motivo, t.salario]);
+    const noEncontradosData = [
+      ['TRABAJADORES NO ENCONTRADOS'],
+      ['Trabajadores que no aparecen en el sistema SIGAH'],
+      [''],
+      ['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Fecha Ingreso', 'Observaciones', 'Salario (Bs)', 'Regional']
+    ];
+
+    this.casosAnalisis.no_encontrados.forEach((trabajador: any) => {
+      noEncontradosData.push([
+        trabajador.ci || '',
+        trabajador.nombres || '',
+        trabajador.apellido_paterno || '',
+        trabajador.apellido_materno || '',
+        trabajador.cargo || '',
+        trabajador.fecha_ingreso || '',
+        trabajador.observaciones_afiliacion || 'No encontrado en SIGAH',
+        trabajador.salario || 0,
+        trabajador.regional || ''
+      ]);
     });
-    datosExportacion.push(['']);
+
+    const wsNoEncontrados = XLSX.utils.aoa_to_sheet(noEncontradosData);
+    wsNoEncontrados['!cols'] = [
+      { width: 12 }, { width: 15 }, { width: 15 }, { width: 15 }, 
+      { width: 25 }, { width: 12 }, { width: 30 }, { width: 12 }, { width: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(workbook, wsNoEncontrados, 'No Encontrados');
   }
 
-  // Caso 4: Faltantes
+  // HOJA 5: TRABAJADORES FALTANTES
   if (this.casosAnalisis.faltantes?.length > 0) {
-    datosExportacion.push(['TRABAJADORES FALTANTES EN PLANILLA']);
-    datosExportacion.push(['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Matrícula', 'Estado', 'Haber']);
-    this.casosAnalisis.faltantes.forEach((t: any) => {
-      datosExportacion.push([t.ci, t.nombres, t.apellido_paterno, t.apellido_materno, t.cargo, t.matricula, t.estado, t.haber]);
+    const faltantesData = [
+      ['TRABAJADORES FALTANTES EN PLANILLA'],
+      ['Trabajadores vigentes en SIGAH pero que no están en esta planilla'],
+      [''],
+      ['CI', 'Nombres', 'Apellido Paterno', 'Apellido Materno', 'Cargo', 'Matrícula', 'Estado en SIGAH', 'Haber (Bs)', 'Regional']
+    ];
+
+    this.casosAnalisis.faltantes.forEach((trabajador: any) => {
+      faltantesData.push([
+        trabajador.ci || '',
+        trabajador.nombres || '',
+        trabajador.apellido_paterno || '',
+        trabajador.apellido_materno || '',
+        trabajador.cargo || '',
+        trabajador.matricula || '',
+        trabajador.asegurado_estado || '',
+        trabajador.haber || 0,
+        trabajador.regional || ''
+      ]);
     });
+
+    const wsFaltantes = XLSX.utils.aoa_to_sheet(faltantesData);
+    wsFaltantes['!cols'] = [
+      { width: 12 }, { width: 15 }, { width: 15 }, { width: 15 }, 
+      { width: 25 }, { width: 12 }, { width: 15 }, { width: 12 }, { width: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(workbook, wsFaltantes, 'Faltantes');
   }
 
-  // Crear CSV
-  const csvContent = datosExportacion.map(row => 
-    row.map(cell => `"${cell || ''}"`).join(',')
-  ).join('\n');
+  // Generar el archivo Excel
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+  const fechaHoy = new Date().toISOString().split('T')[0];
+  const nombreArchivo = `Analisis_Afiliaciones_Planilla_${this.idPlanilla}_${fechaHoy}.xlsx`;
+  
+  saveAs(data, nombreArchivo);
 
-  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', `analisis_completo_planilla_${this.idPlanilla}_${new Date().toISOString().split('T')[0]}.csv`);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
+  // Mostrar mensaje de éxito
   Swal.fire({
     icon: 'success',
-    title: 'Archivo descargado',
-    text: `Se descargó un archivo CSV con el análisis completo de ${this.resumenCompleto.total_planilla} trabajadores.`,
-    confirmButtonText: 'Ok'
+    title: 'Archivo Excel generado',
+    html: `
+      <div style="text-align: left; margin: 10px 0;">
+        <p><strong>📊 Archivo exportado exitosamente:</strong></p>
+        <ul style="list-style: none; padding-left: 0; margin: 10px 0;">
+          <li>📋 <strong>Resumen General:</strong> Estadísticas y totales</li>
+          ${this.casosAnalisis.vigentes?.length > 0 ? '<li>✅ <strong>Vigentes:</strong> ' + this.casosAnalisis.vigentes.length + ' trabajadores</li>' : ''}
+          ${this.casosAnalisis.no_vigentes?.length > 0 ? '<li>⚠️ <strong>No Vigentes:</strong> ' + this.casosAnalisis.no_vigentes.length + ' trabajadores</li>' : ''}
+          ${this.casosAnalisis.no_encontrados?.length > 0 ? '<li>❓ <strong>No Encontrados:</strong> ' + this.casosAnalisis.no_encontrados.length + ' trabajadores</li>' : ''}
+          ${this.casosAnalisis.faltantes?.length > 0 ? '<li>👥 <strong>Faltantes:</strong> ' + this.casosAnalisis.faltantes.length + ' trabajadores</li>' : ''}
+        </ul>
+        <p style="font-size: 0.9em; color: #6c757d; margin-top: 15px;">
+          <strong>Archivo:</strong> ${nombreArchivo}
+        </p>
+      </div>
+    `,
+    confirmButtonText: 'Perfecto',
+    width: '500px'
   });
 }
+
+// Mantener el método anterior como alternativa (renombrado)
+exportarTrabajadoresFaltantes() {
+  // Redirigir al nuevo método mejorado
+  this.exportarAnalisisExcel();
+}
+
+
+
 
 
 

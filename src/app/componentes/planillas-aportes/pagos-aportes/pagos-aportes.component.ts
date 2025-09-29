@@ -79,6 +79,7 @@ constructor(
       }
     ]],
     monto_demasia: [0, [Validators.min(0)]], 
+    total_a_cancelar: [0],
     metodo_pago: [''],
     comprobante_pago: [''],
     observaciones: [''],
@@ -164,7 +165,8 @@ calcularTotalACancelar(): void {
             this.calculoDetalles = detalles;
             this.pagoForm.patchValue({ 
               monto_pagado: detalles.total_con_descuento,
-              monto_demasia: 0 
+              monto_demasia: 0,
+              total_a_cancelar: detalles.total_a_cancelar
             });
             
             this.messageService.add({
@@ -183,7 +185,8 @@ calcularTotalACancelar(): void {
             this.calculoDetalles = detalles;
             this.pagoForm.patchValue({ 
               monto_pagado: detalles.total_a_cancelar,
-              monto_demasia: 0 
+              monto_demasia: 0,
+              total_a_cancelar: detalles.total_a_cancelar
             });
             this.calculating = false;
             this.activeStep = 1;

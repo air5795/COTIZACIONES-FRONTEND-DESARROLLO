@@ -926,3 +926,427 @@
   background-color: #e9ecef;
   border-color: #dee2e6;
 }
+
+/* ===== ESTILOS PARA EL DIALOG DE ANÁLISIS DE AFILIACIONES ===== */
+
+/* Dialog principal */
+:host ::ng-deep .dialog-analisis-afiliaciones .p-dialog-header {
+  background: linear-gradient(135deg, #009688, #00796b);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-bottom: none;
+}
+
+:host ::ng-deep .dialog-analisis-afiliaciones .p-dialog-header .p-dialog-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+:host ::ng-deep .dialog-analisis-afiliaciones .p-dialog-content {
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+/* Container principal del análisis */
+.analisis-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header mejorado con resumen */
+.header-resumen-mejorado {
+  background: white;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.titulo-principal {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.titulo-principal i {
+  color: #009688;
+  font-size: 1.5rem;
+}
+
+.titulo-principal h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.fecha-verificacion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #e8f5e8;
+  border-radius: 8px;
+  border-left: 4px solid #4caf50;
+}
+
+.fecha-verificacion i {
+  color: #4caf50;
+}
+
+.fecha-verificacion span {
+  color: #2e7d32;
+  font-size: 0.9rem;
+}
+
+/* Tarjetas de resumen mejoradas */
+.tarjetas-resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tarjeta-resumen {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-left: 4px solid;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tarjeta-resumen:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.tarjeta-vigentes {
+  border-left-color: #4caf50;
+}
+
+.tarjeta-no-vigentes {
+  border-left-color: #ff9800;
+}
+
+.tarjeta-no-encontrados {
+  border-left-color: #f44336;
+}
+
+.tarjeta-faltantes {
+  border-left-color: #2196f3;
+}
+
+.tarjeta-icono {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.tarjeta-vigentes .tarjeta-icono {
+  background-color: #4caf50;
+}
+
+.tarjeta-no-vigentes .tarjeta-icono {
+  background-color: #ff9800;
+}
+
+.tarjeta-no-encontrados .tarjeta-icono {
+  background-color: #f44336;
+}
+
+.tarjeta-faltantes .tarjeta-icono {
+  background-color: #2196f3;
+}
+
+.tarjeta-contenido {
+  flex: 1;
+}
+
+.tarjeta-numero {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.tarjeta-vigentes .tarjeta-numero {
+  color: #4caf50;
+}
+
+.tarjeta-no-vigentes .tarjeta-numero {
+  color: #ff9800;
+}
+
+.tarjeta-no-encontrados .tarjeta-numero {
+  color: #f44336;
+}
+
+.tarjeta-faltantes .tarjeta-numero {
+  color: #2196f3;
+}
+
+.tarjeta-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.tarjeta-porcentaje {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.tarjeta-descripcion {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Estilos para las pestañas */
+:host ::ng-deep .tabview-analisis {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+:host ::ng-deep .tabview-analisis .p-tabview-nav {
+  background: white;
+  border-bottom: 2px solid #e9ecef;
+  padding: 0 1.5rem;
+}
+
+:host ::ng-deep .tabview-analisis .p-tabview-nav li .p-tabview-nav-link {
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  color: #495057;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  margin-right: 0.25rem;
+}
+
+:host ::ng-deep .tabview-analisis .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: #009688;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,150,136,0.3);
+}
+
+:host ::ng-deep .tabview-analisis .p-tabview-panels {
+  flex: 1;
+  padding: 0;
+  background: white;
+}
+
+/* Contenido de las pestañas */
+.tab-content-wrapper {
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-description {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.tab-description i {
+  font-size: 1.25rem;
+}
+
+.vigentes-desc {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border-left: 4px solid #4caf50;
+}
+
+.no-vigentes-desc {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border-left: 4px solid #ff9800;
+}
+
+.no-encontrados-desc {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #f44336;
+}
+
+.faltantes-desc {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border-left: 4px solid #2196f3;
+}
+
+/* Estilos para las tablas */
+:host ::ng-deep .tabla-analisis {
+  flex: 1;
+}
+
+:host ::ng-deep .tabla-analisis .p-datatable-header {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 0.75rem 1rem;
+}
+
+:host ::ng-deep .tabla-analisis .p-datatable-thead > tr > th {
+  background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+  color: #495057;
+  font-weight: 600;
+  padding: 0.75rem 0.5rem;
+  border: 1px solid #dee2e6;
+  font-size: 0.9rem;
+}
+
+:host ::ng-deep .tabla-analisis .p-datatable-tbody > tr > td {
+  padding: 0.75rem 0.5rem;
+  border: 1px solid #dee2e6;
+  font-size: 0.85rem;
+}
+
+/* Filas por tipo */
+.fila-vigente {
+  background-color: rgba(76, 175, 80, 0.05) !important;
+}
+
+.fila-vigente:hover {
+  background-color: rgba(76, 175, 80, 0.1) !important;
+}
+
+.fila-no-vigente {
+  background-color: rgba(255, 152, 0, 0.05) !important;
+}
+
+.fila-no-vigente:hover {
+  background-color: rgba(255, 152, 0, 0.1) !important;
+}
+
+.fila-no-encontrado {
+  background-color: rgba(244, 67, 54, 0.05) !important;
+}
+
+.fila-no-encontrado:hover {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+.fila-faltante {
+  background-color: rgba(33, 150, 243, 0.05) !important;
+}
+
+.fila-faltante:hover {
+  background-color: rgba(33, 150, 243, 0.1) !important;
+}
+
+/* Badges de estado */
+.badge-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-estado.vigente {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+.badge-estado.no-vigente {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ff9800;
+}
+
+.badge-estado.faltante {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #2196f3;
+}
+
+/* Footer del dialog */
+.dialog-footer-mejorado {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .tarjetas-resumen {
+    grid-template-columns: 1fr;
+  }
+  
+  .tarjeta-resumen {
+    padding: 1rem;
+  }
+  
+  .tarjeta-numero {
+    font-size: 1.5rem;
+  }
+  
+  :host ::ng-deep .dialog-analisis-afiliaciones {
+    width: 95vw !important;
+    height: 95vh !important;
+  }
+  
+  .tab-content-wrapper {
+    padding: 1rem;
+  }
+  
+  :host ::ng-deep .tabla-analisis .p-datatable-tbody > tr > td,
+  :host ::ng-deep .tabla-analisis .p-datatable-thead > tr > th {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-resumen-mejorado {
+    padding: 1rem;
+  }
+  
+  .titulo-principal h4 {
+    font-size: 1.1rem;
+  }
+  
+  .tarjeta-resumen {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .tarjeta-icono {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+  
+  .tarjeta-numero {
+    font-size: 1.75rem;
+  }
+}

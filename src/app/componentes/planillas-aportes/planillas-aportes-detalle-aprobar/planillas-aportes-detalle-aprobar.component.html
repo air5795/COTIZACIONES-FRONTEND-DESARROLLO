@@ -886,233 +886,299 @@ currentPageReportTemplate="Mostrando registros del {first} al {last} de un total
 
 <!-- dialog de cruce con afiliaciones -->
 
-
 <p-dialog 
-  header="CRUCE CON AFILIACIONES SIGAH " 
+  header="ANÁLISIS DE CRUCE CON AFILIACIONES SIGAH" 
   [(visible)]="mostrarAnalisisCompletoDialog" 
   [modal]="true" 
   [resizable]="true" 
   [draggable]="true"
   [maximizable]="true"
-  [style]="{width: '95vw', height: '85vh'}">
+  [styleClass]="'dialog-analisis-afiliaciones'"
+  [style]="{width: '98vw', height: '90vh', 'max-width': '1400px'}">
   
   <div class="analisis-container" *ngIf="casosAnalisis && resumenCompleto">
-    <!-- HEADER CON RESUMEN -->
-    <div class="mb-3" style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
-      <h5>Resumen General de {{ resumenCompleto.total_planilla }} Trabajadores</h5>
+    <!-- HEADER MEJORADO CON RESUMEN -->
+    <div class="header-resumen-mejorado">
+      <div class="titulo-principal">
+        <i class="pi pi-chart-bar"></i>
+        <h4>Resumen General de {{ resumenCompleto.total_planilla }} Trabajadores</h4>
+      </div>
 
-      <div *ngIf="fechaUltimaVerificacion" style="margin-top: 10px; padding: 8px; background-color: #e8f5e8; border-radius: 4px;">
-        <small><strong>Última verificación:</strong> {{ fechaUltimaVerificacion | date:'dd/MM/yyyy HH:mm' }}</small>
+      <div class="fecha-verificacion" *ngIf="fechaUltimaVerificacion">
+        <i class="pi pi-clock"></i>
+        <span><strong>Última verificación:</strong> {{ fechaUltimaVerificacion | date:'dd/MM/yyyy HH:mm' }}</span>
       </div>
       
-      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-        <tr style="background-color: #d4edda;">
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Vigentes</td>
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.vigentes }}</td>
-        </tr>
-        <tr style="background-color: #fff3cd;">
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Vigentes</td>
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.no_vigentes }}</td>
-        </tr>
-        <tr style="background-color: #f8d7da;">
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">No Encontrados</td>
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.no_encontrados }}</td>
-        </tr>
-        <tr style="background-color: #cce5ff;">
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-weight: bold;">Faltantes</td>
-          <td style="padding: 10px; border: 1px solid #ccc; text-align: center; font-size: 20px; font-weight: bold;">{{ resumenCompleto.faltantes }}</td>
-        </tr>
-      </table>
+      <!-- TARJETAS DE RESUMEN MEJORADAS -->
+      <div class="tarjetas-resumen">
+        <div class="tarjeta-resumen tarjeta-vigentes">
+          <div class="tarjeta-icono">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <div class="tarjeta-contenido">
+            <div class="tarjeta-numero">{{ resumenCompleto.vigentes }}</div>
+            <div class="tarjeta-label">Vigentes</div>
+            <div class="tarjeta-porcentaje">{{ calcularPorcentaje(resumenCompleto.vigentes, resumenCompleto.total_planilla) }}%</div>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen tarjeta-no-vigentes">
+          <div class="tarjeta-icono">
+            <i class="pi pi-exclamation-triangle"></i>
+          </div>
+          <div class="tarjeta-contenido">
+            <div class="tarjeta-numero">{{ resumenCompleto.no_vigentes }}</div>
+            <div class="tarjeta-label">No Vigentes</div>
+            <div class="tarjeta-porcentaje">{{ calcularPorcentaje(resumenCompleto.no_vigentes, resumenCompleto.total_planilla) }}%</div>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen tarjeta-no-encontrados">
+          <div class="tarjeta-icono">
+            <i class="pi pi-question-circle"></i>
+          </div>
+          <div class="tarjeta-contenido">
+            <div class="tarjeta-numero">{{ resumenCompleto.no_encontrados }}</div>
+            <div class="tarjeta-label">No Encontrados</div>
+            <div class="tarjeta-porcentaje">{{ calcularPorcentaje(resumenCompleto.no_encontrados, resumenCompleto.total_planilla) }}%</div>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen tarjeta-faltantes">
+          <div class="tarjeta-icono">
+            <i class="pi pi-users"></i>
+          </div>
+          <div class="tarjeta-contenido">
+            <div class="tarjeta-numero">{{ resumenCompleto.faltantes }}</div>
+            <div class="tarjeta-label">Faltantes</div>
+            <div class="tarjeta-descripcion">En SIGAH pero no en planilla</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- PESTAÑAS CON LOS 4 CASOS -->
-    <p-tabView>
+    <!-- PESTAÑAS MEJORADAS CON LOS 4 CASOS -->
+    <p-tabView [styleClass]="'tabview-analisis'">
       <!-- PESTAÑA 1: VIGENTES -->
-      <p-tabPanel header="Vigentes ({{ casosAnalisis.vigentes?.length || 0 }})">
-        <p style="color: #155724; margin-bottom: 15px;">
-          Trabajadores que están correctamente afiliados y vigentes en el sistema.
-        </p>
-        
-        <p-table 
-          [value]="casosAnalisis.vigentes" 
-          [paginator]="true" 
-          [rows]="10"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores vigentes"
-          [rowsPerPageOptions]="[10, 25, 50]"
-          styleClass="p-datatable-sm"
-          [style]="{'font-size': '12px'}">
+      <p-tabPanel [header]="'Vigentes (' + (casosAnalisis.vigentes?.length || 0) + ')'">
+        <div class="tab-content-wrapper">
+          <div class="tab-description vigentes-desc">
+            <i class="pi pi-info-circle"></i>
+            <p>Trabajadores que están correctamente afiliados y vigentes en el sistema SIGAH.</p>
+          </div>
           
-          <ng-template pTemplate="header">
-            <tr>
-              <th>CI</th>
-              <th>Nombre Completo</th>
-              <th>Cargo</th>
-              <th>Matrícula</th>
-              <th>Estado</th>
-              <th>Tipo Afiliado</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-trabajador>
-            <tr style="background-color: #f8fff8;">
-              <td><strong>{{ trabajador.ci }}</strong></td>
-              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
-              <td>{{ trabajador.cargo }}</td>
-              <td>{{ trabajador.matricula }}</td>
-              <td>
-                <span style="background-color: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
-                  {{ trabajador.asegurado_estado }}
-                </span>
-              </td>
-              <td>{{ trabajador.tipo_afiliado }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
+          <p-table 
+            [value]="casosAnalisis.vigentes" 
+            [paginator]="true" 
+            [rows]="15"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores vigentes"
+            [rowsPerPageOptions]="[10, 15, 25, 50]"
+            styleClass="p-datatable-sm tabla-analisis"
+            [style]="{'font-size': '13px'}"
+            [scrollable]="true"
+            scrollHeight="400px">
+            
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="ci">CI <p-sortIcon field="ci"></p-sortIcon></th>
+                <th pSortableColumn="apellido_paterno">Nombre Completo <p-sortIcon field="apellido_paterno"></p-sortIcon></th>
+                <th pSortableColumn="cargo">Cargo <p-sortIcon field="cargo"></p-sortIcon></th>
+                <th pSortableColumn="matricula">Matrícula <p-sortIcon field="matricula"></p-sortIcon></th>
+                <th>Estado</th>
+                <th pSortableColumn="tipo_afiliado">Tipo Afiliado <p-sortIcon field="tipo_afiliado"></p-sortIcon></th>
+                <th pSortableColumn="salario">Salario <p-sortIcon field="salario"></p-sortIcon></th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-trabajador>
+              <tr class="fila-vigente">
+                <td><strong>{{ trabajador.ci }}</strong></td>
+                <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+                <td>{{ trabajador.cargo }}</td>
+                <td>{{ trabajador.matricula }}</td>
+                <td>
+                  <span class="badge-estado vigente">
+                    <i class="pi pi-check-circle"></i>
+                    {{ trabajador.asegurado_estado }}
+                  </span>
+                </td>
+                <td>{{ trabajador.tipo_afiliado }}</td>
+                <td class="text-right">{{ trabajador.salario | number:'1.2-2' }} Bs</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </p-tabPanel>
 
       <!-- PESTAÑA 2: NO VIGENTES -->
-      <p-tabPanel header="No Vigentes ({{ casosAnalisis.no_vigentes?.length || 0 }})">
-        <p style="color: #856404; margin-bottom: 15px;">
-          Trabajadores que están en el sistema pero con estado diferente a VIGENTE (BAJA, CESANTÍA, etc.).
-        </p>
-        
-        <p-table 
-          [value]="casosAnalisis.no_vigentes" 
-          [paginator]="true" 
-          [rows]="10"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores no vigentes"
-          [rowsPerPageOptions]="[10, 25, 50]"
-          styleClass="p-datatable-sm"
-          [style]="{'font-size': '12px'}">
+      <p-tabPanel [header]="'No Vigentes (' + (casosAnalisis.no_vigentes?.length || 0) + ')'">
+        <div class="tab-content-wrapper">
+          <div class="tab-description no-vigentes-desc">
+            <i class="pi pi-exclamation-triangle"></i>
+            <p>Trabajadores que están en el sistema pero con estado diferente a VIGENTE (BAJA, CESANTÍA, etc.).</p>
+          </div>
           
-          <ng-template pTemplate="header">
-            <tr>
-              <th>CI</th>
-              <th>Nombre Completo</th>
-              <th>Cargo</th>
-              <th>Estado en API</th>
-              <th>Observaciones</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-trabajador>
-            <tr style="background-color: #fffbf0;">
-              <td><strong>{{ trabajador.ci }}</strong></td>
-              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
-              <td>{{ trabajador.cargo }}</td>
-              <td>
-                <span style="background-color: #ffc107; color: #212529; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
-                  {{ trabajador.asegurado_estado }}
-                </span>
-              </td>
-              <td>{{ trabajador.observaciones_afiliacion }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
+          <p-table 
+            [value]="casosAnalisis.no_vigentes" 
+            [paginator]="true" 
+            [rows]="15"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores no vigentes"
+            [rowsPerPageOptions]="[10, 15, 25, 50]"
+            styleClass="p-datatable-sm tabla-analisis"
+            [style]="{'font-size': '13px'}"
+            [scrollable]="true"
+            scrollHeight="400px">
+            
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="ci">CI <p-sortIcon field="ci"></p-sortIcon></th>
+                <th pSortableColumn="apellido_paterno">Nombre Completo <p-sortIcon field="apellido_paterno"></p-sortIcon></th>
+                <th pSortableColumn="cargo">Cargo <p-sortIcon field="cargo"></p-sortIcon></th>
+                <th>Estado en SIGAH</th>
+                <th>Observaciones</th>
+                <th pSortableColumn="salario">Salario <p-sortIcon field="salario"></p-sortIcon></th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-trabajador>
+              <tr class="fila-no-vigente">
+                <td><strong>{{ trabajador.ci }}</strong></td>
+                <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+                <td>{{ trabajador.cargo }}</td>
+                <td>
+                  <span class="badge-estado no-vigente">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    {{ trabajador.asegurado_estado }}
+                  </span>
+                </td>
+                <td>{{ trabajador.observaciones_afiliacion || 'Sin observaciones' }}</td>
+                <td class="text-right">{{ trabajador.salario | number:'1.2-2' }} Bs</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </p-tabPanel>
 
       <!-- PESTAÑA 3: NO ENCONTRADOS -->
-      <p-tabPanel header="No Encontrados ({{ casosAnalisis.no_encontrados?.length || 0 }})">
-        <p style="color: #721c24; margin-bottom: 15px;">
-          Trabajadores que no aparecen en el sistema de afiliaciones (pueden ser altas recientes o casos especiales).
-        </p>
-        
-        <p-table 
-          [value]="casosAnalisis.no_encontrados" 
-          [paginator]="true" 
-          [rows]="10"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores no encontrados"
-          [rowsPerPageOptions]="[10, 25, 50]"
-          styleClass="p-datatable-sm"
-          [style]="{'font-size': '12px'}">
+      <p-tabPanel [header]="'No Encontrados (' + (casosAnalisis.no_encontrados?.length || 0) + ')'">
+        <div class="tab-content-wrapper">
+          <div class="tab-description no-encontrados-desc">
+            <i class="pi pi-question-circle"></i>
+            <p>Trabajadores que no aparecen en el sistema de afiliaciones SIGAH (pueden ser altas recientes o casos especiales).</p>
+          </div>
           
-          <ng-template pTemplate="header">
-            <tr>
-              <th>CI</th>
-              <th>Nombre Completo</th>
-              <th>Cargo</th>
-              <th>Fecha Ingreso</th>
-              <th>Observaciones</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-trabajador>
-            <tr style="background-color: #fdf2f2;">
-              <td><strong>{{ trabajador.ci }}</strong></td>
-              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
-              <td>{{ trabajador.cargo }}</td>
-              <td>{{ trabajador.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
-              <td>{{ trabajador.observaciones_afiliacion }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
+          <p-table 
+            [value]="casosAnalisis.no_encontrados" 
+            [paginator]="true" 
+            [rows]="15"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores no encontrados"
+            [rowsPerPageOptions]="[10, 15, 25, 50]"
+            styleClass="p-datatable-sm tabla-analisis"
+            [style]="{'font-size': '13px'}"
+            [scrollable]="true"
+            scrollHeight="400px">
+            
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="ci">CI <p-sortIcon field="ci"></p-sortIcon></th>
+                <th pSortableColumn="apellido_paterno">Nombre Completo <p-sortIcon field="apellido_paterno"></p-sortIcon></th>
+                <th pSortableColumn="cargo">Cargo <p-sortIcon field="cargo"></p-sortIcon></th>
+                <th pSortableColumn="fecha_ingreso">Fecha Ingreso <p-sortIcon field="fecha_ingreso"></p-sortIcon></th>
+                <th>Observaciones</th>
+                <th pSortableColumn="salario">Salario <p-sortIcon field="salario"></p-sortIcon></th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-trabajador>
+              <tr class="fila-no-encontrado">
+                <td><strong>{{ trabajador.ci }}</strong></td>
+                <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+                <td>{{ trabajador.cargo }}</td>
+                <td>{{ trabajador.fecha_ingreso | date:'dd/MM/yyyy' }}</td>
+                <td>{{ trabajador.observaciones_afiliacion || 'No encontrado en SIGAH' }}</td>
+                <td class="text-right">{{ trabajador.salario | number:'1.2-2' }} Bs</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </p-tabPanel>
 
       <!-- PESTAÑA 4: FALTANTES -->
-      <p-tabPanel header="Faltantes ({{ casosAnalisis.faltantes?.length || 0 }})">
-        <p style="color: #004085; margin-bottom: 15px;">
-          Trabajadores que están vigentes en el sistema de afiliaciones pero NO están en esta planilla.
-        </p>
-        
-        <p-table 
-          [value]="casosAnalisis.faltantes" 
-          [paginator]="true" 
-          [rows]="10"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores faltantes"
-          [rowsPerPageOptions]="[10, 25, 50]"
-          styleClass="p-datatable-sm"
-          [style]="{'font-size': '12px'}">
+      <p-tabPanel [header]="'Faltantes (' + (casosAnalisis.faltantes?.length || 0) + ')'">
+        <div class="tab-content-wrapper">
+          <div class="tab-description faltantes-desc">
+            <i class="pi pi-users"></i>
+            <p>Trabajadores que están vigentes en el sistema de afiliaciones SIGAH pero NO están en esta planilla.</p>
+          </div>
           
-          <ng-template pTemplate="header">
-            <tr>
-              <th>CI</th>
-              <th>Nombre Completo</th>
-              <th>Cargo</th>
-              <th>Matrícula</th>
-              <th>Estado</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-trabajador>
-            <tr style="background-color: #f0f8ff;">
-              <td><strong>{{ trabajador.ci }}</strong></td>
-              <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
-              <td>{{ trabajador.cargo }}</td>
-              <td>{{ trabajador.matricula }}</td>
-              <td>
-                <span style="background-color: #007bff; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
-                  {{ trabajador.asegurado_estado }}
-                </span>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+          <p-table 
+            [value]="casosAnalisis.faltantes" 
+            [paginator]="true" 
+            [rows]="15"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} trabajadores faltantes"
+            [rowsPerPageOptions]="[10, 15, 25, 50]"
+            styleClass="p-datatable-sm tabla-analisis"
+            [style]="{'font-size': '13px'}"
+            [scrollable]="true"
+            scrollHeight="400px">
+            
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="ci">CI <p-sortIcon field="ci"></p-sortIcon></th>
+                <th pSortableColumn="apellido_paterno">Nombre Completo <p-sortIcon field="apellido_paterno"></p-sortIcon></th>
+                <th pSortableColumn="cargo">Cargo <p-sortIcon field="cargo"></p-sortIcon></th>
+                <th pSortableColumn="matricula">Matrícula <p-sortIcon field="matricula"></p-sortIcon></th>
+                <th>Estado</th>
+                <th pSortableColumn="haber">Haber <p-sortIcon field="haber"></p-sortIcon></th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-trabajador>
+              <tr class="fila-faltante">
+                <td><strong>{{ trabajador.ci }}</strong></td>
+                <td>{{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}, {{ trabajador.nombres }}</td>
+                <td>{{ trabajador.cargo }}</td>
+                <td>{{ trabajador.matricula }}</td>
+                <td>
+                  <span class="badge-estado faltante">
+                    <i class="pi pi-info-circle"></i>
+                    {{ trabajador.asegurado_estado }}
+                  </span>
+                </td>
+                <td class="text-right">{{ trabajador.haber | number:'1.2-2' }} Bs</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </p-tabPanel>
     </p-tabView>
   </div>
   
   <ng-template pTemplate="footer">
-    <button 
-      type="button" 
-      class="btn btn-outline-primary me-2"
-      (click)="exportarTrabajadoresFaltantes()"
-      [disabled]="!casosAnalisis">
-      Exportar Análisis
-    </button>
-    <button 
-      type="button" 
-      class="btn btn-secondary"
-      (click)="mostrarAnalisisCompletoDialog = false">
-      Cerrar
-    </button>
+    <div class="dialog-footer-mejorado">
+      <button 
+        type="button" 
+        pButton
+        icon="pi pi-file-excel"
+        label="Exportar a Excel"
+        class="p-button-success"
+        (click)="exportarAnalisisExcel()"
+        [disabled]="!casosAnalisis"
+        pTooltip="Exportar análisis completo a Excel con hojas separadas">
+      </button>
+      <button 
+        type="button" 
+        pButton
+        icon="pi pi-times"
+        label="Cerrar"
+        class="p-button-secondary"
+        (click)="mostrarAnalisisCompletoDialog = false">
+      </button>
+    </div>
   </ng-template>
 </p-dialog>
-
-
-
-
 

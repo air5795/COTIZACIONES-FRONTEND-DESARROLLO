@@ -4,6 +4,7 @@ export interface PagoAporte {
   fecha_pago: Date;
   monto_pagado: number;
   monto_demasia: number;
+  total_a_cancelar: number;
   metodo_pago?: string;
   comprobante_pago?: string;
   foto_comprobante?: string;
